@@ -81,7 +81,7 @@ export function PricingCards({ onActivate, currentPlan, isPremium }: PricingCard
                 </span>
               </div>
               {plan.pricing.monthlyEquivalentInr && (
-                <p className="text-white/70 text-xs mt-1">Just ₹{plan.pricing.monthlyEquivalentInr}/month</p>
+                <p className="text-white/70 text-xs mt-1">Just ₹{plan.pricing.monthlyEquivalentInr}/month — billed annually</p>
               )}
               {planId === 'lifetime' && (
                 <p className="text-white/70 text-xs mt-1">One-time payment · Never pay again</p>
