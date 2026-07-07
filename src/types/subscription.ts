@@ -36,6 +36,7 @@ export interface PlanPricing {
   interval: 'month' | 'year' | 'once';
   monthlyEquivalentInr?: number;
   savingPercent?: number;
+  savingLabel?: string;
 }
 
 export interface PlanDefinition {

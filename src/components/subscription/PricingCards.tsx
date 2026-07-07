@@ -81,11 +81,14 @@ export function PricingCards({ onActivate, currentPlan, isPremium }: PricingCard
                 </span>
               </div>
               {plan.pricing.monthlyEquivalentInr && (
-                <p className="text-white/70 text-xs mt-1">= ₹{plan.pricing.monthlyEquivalentInr}/month</p>
+                <p className="text-white/70 text-xs mt-1">Just ₹{plan.pricing.monthlyEquivalentInr}/month</p>
               )}
-              {plan.pricing.savingPercent && (
+              {planId === 'lifetime' && (
+                <p className="text-white/70 text-xs mt-1">One-time payment · Never pay again</p>
+              )}
+              {plan.pricing.savingLabel && (
                 <p className="mt-2 inline-block px-2 py-0.5 bg-white/20 text-white text-xs font-bold rounded-full">
-                  Save {plan.pricing.savingPercent}%
+                  {plan.pricing.savingLabel}
                 </p>
               )}
             </div>

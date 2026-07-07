@@ -44,18 +44,22 @@ export const APPLE_IAP_PRODUCT_IDS: Partial<Record<SubscriptionPlan, string>> = 
 };
 
 // ─── Pricing (shown in UI) ────────────────────────────────────────────────────
+// Amounts in INR (₹). Multiply by 100 for Razorpay paise:
+//   monthly  → 9900   paise (₹99)
+//   yearly   → 110000 paise (₹1,100)
+//   lifetime → 299900 paise (₹2,999)
 export const PLAN_PRICES_INR: Record<SubscriptionPlan, number> = {
   free: 0,
-  monthly: 399,
-  yearly: 1999,
-  lifetime: 3499,
+  monthly: 99,
+  yearly: 1100,
+  lifetime: 2999,
 };
 
 export const PLAN_PRICES_USD: Record<SubscriptionPlan, number> = {
   free: 0,
-  monthly: 4.99,
-  yearly: 24.99,
-  lifetime: 44.99,
+  monthly: 1.19,
+  yearly: 13.19,
+  lifetime: 35.99,
 };
 
 // ─── Checkout initiators ──────────────────────────────────────────────────────

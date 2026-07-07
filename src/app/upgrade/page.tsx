@@ -250,7 +250,7 @@ export default function UpgradePage() {
               onClick={() => handleActivate('yearly')}
               className="px-8 py-3 bg-white/20 border-2 border-white/40 text-white rounded-xl font-bold hover:bg-white/30 transition-colors"
             >
-              Get Yearly Plan — ₹1,999/yr
+              Get Yearly Plan — ₹1,100/yr
             </button>
           </div>
           <p className="text-violet-300 text-xs mt-4">30-day money-back guarantee · Cancel anytime</p>
