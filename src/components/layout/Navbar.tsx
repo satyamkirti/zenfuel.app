@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { LayoutDashboard, BarChart3, History, Zap, Settings } from 'lucide-react';
 import { clsx } from 'clsx';
-import { Brain } from 'lucide-react';
+import { Logo } from '@/components/ui/Logo';
 
 const NAV = [
   { href: '/', label: 'Home', icon: LayoutDashboard },
@@ -44,12 +44,13 @@ export function BottomNav() {
 
 export function TopBar({ title }: { title?: string }) {
   return (
-    <header className="lg:hidden sticky top-0 z-30 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm border-b border-slate-200 dark:border-slate-800 px-4 py-3">
-      <div className="flex items-center gap-2">
-        <div className="w-7 h-7 rounded-md bg-gradient-to-br from-violet-600 to-purple-700 flex items-center justify-center">
-          <Brain size={14} className="text-white" />
-        </div>
-        <h1 className="font-bold text-slate-900 dark:text-white text-sm">{title ?? 'Dopamine Detox'}</h1>
+    <header className="lg:hidden sticky top-0 z-30 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm border-b border-slate-200 dark:border-slate-800 px-4 py-2">
+      <div className="flex items-center justify-between">
+        {/* sm size on mobile */}
+        <Logo size="sm" />
+        {title && title !== 'Dashboard' && (
+          <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">{title}</span>
+        )}
       </div>
     </header>
   );

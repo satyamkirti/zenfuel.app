@@ -9,6 +9,7 @@ import {
 import { useApp } from '@/context/AppContext';
 import { PricingCards } from '@/components/subscription/PricingCards';
 import { SubscriptionPlan } from '@/types/subscription';
+import { Logo } from '@/components/ui/Logo';
 
 const FREE_FEATURES = [
   { icon: '📊', label: 'Up to 3 habits only' },
@@ -72,13 +73,13 @@ export default function UpgradePage() {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#020617]">
       {/* Nav */}
-      <div className="sticky top-0 z-40 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm border-b border-slate-200 dark:border-slate-800 px-4 py-3 flex items-center justify-between">
+      <div className="sticky top-0 z-40 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm border-b border-slate-200 dark:border-slate-800 px-4 py-2 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors text-sm">
-          <ArrowLeft size={16} /> Back to app
+          <ArrowLeft size={16} /> Back
         </Link>
-        <div className="flex items-center gap-2">
-          <Crown size={18} className="text-amber-500" />
-          <span className="font-bold text-slate-900 dark:text-white text-sm">Dopamine Detox Premium</span>
+        <Logo size="sm" />
+        <div className="flex items-center gap-1.5 text-sm font-bold text-amber-600 dark:text-amber-400">
+          <Crown size={15} /> Premium
         </div>
       </div>
 
@@ -86,6 +87,9 @@ export default function UpgradePage() {
 
         {/* Hero */}
         <div className="text-center space-y-6">
+          <div className="flex justify-center">
+            <Logo size="lg" linked={false} />
+          </div>
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-amber-100 dark:bg-amber-500/20 border border-amber-300 dark:border-amber-500/30 rounded-full text-amber-700 dark:text-amber-400 text-sm font-semibold">
             <Sparkles size={14} /> Premium Subscription
           </div>

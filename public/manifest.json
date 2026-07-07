@@ -1,0 +1,22 @@
+{
+  "name": "ZenFuel — Brain Reset",
+  "short_name": "ZenFuel",
+  "description": "Private dopamine detox tracker. No backend. 100% local.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#020617",
+  "theme_color": "#7c3aed",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/images/zenfuel-logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/images/zenfuel-logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

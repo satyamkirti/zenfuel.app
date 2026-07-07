@@ -4,12 +4,13 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard, BarChart3, History, FileText, Settings,
-  Lock, Brain, Target, Trophy, Zap, Crown, LucideIcon, Sparkles
+  Lock, Target, Trophy, Zap, Crown, LucideIcon, Sparkles
 } from 'lucide-react';
 import { clsx } from 'clsx';
 import { useApp } from '@/context/AppContext';
 import { ThemeToggle } from './ThemeToggle';
 import { PlanBadge } from '@/components/subscription/PlanBadge';
+import { Logo } from '@/components/ui/Logo';
 
 const NAV_PRIMARY: { href: string; label: string; icon: LucideIcon }[] = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard },
@@ -48,18 +49,10 @@ export function Sidebar() {
 
   return (
     <aside className="hidden lg:flex flex-col w-60 shrink-0 h-screen sticky top-0 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800">
-      <div className="px-5 py-5 border-b border-slate-200 dark:border-slate-800">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-600 to-purple-700 flex items-center justify-center shrink-0">
-            <Brain size={16} className="text-white" />
-          </div>
-          <div>
-            <p className="text-sm font-bold text-slate-900 dark:text-white leading-none">Dopamine</p>
-            <p className="text-xs text-violet-600 dark:text-violet-400 font-medium">Detox Tracker</p>
-          </div>
-          <div className="ml-auto">
-            <PlanBadge plan={subscription.plan} size="xs" />
-          </div>
+      <div className="px-4 py-4 border-b border-slate-200 dark:border-slate-800">
+        <div className="flex items-center justify-between gap-2">
+          <Logo size="md" />
+          <PlanBadge plan={subscription.plan} size="xs" />
         </div>
       </div>
 
