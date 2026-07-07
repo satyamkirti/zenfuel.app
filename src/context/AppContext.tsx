@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, ReactNode } from 'react';
+import { createContext, useContext, ReactNode, useMemo } from 'react';
 import { LogEntry, AppAnalytics, StreakData, Insight, Theme, Habit, Challenge, Goal, HabitAnalytics, DetoxScore } from '@/types';
 import { Subscription, PremiumFeature, SubscriptionPlan } from '@/types/subscription';
 import { useStorage } from '@/hooks/useStorage';
@@ -8,6 +8,7 @@ import { useAnalytics } from '@/hooks/useAnalytics';
 import { useTheme } from '@/hooks/useTheme';
 import { usePinLock } from '@/hooks/usePinLock';
 import { useSubscription } from '@/hooks/useSubscription';
+import { calculateRisk, RiskAssessment } from '@/lib/risk-calculator';
 
 interface AppContextType {
   // Data
@@ -64,6 +65,8 @@ interface AppContextType {
   activateDemo: (plan?: SubscriptionPlan) => void;
   startTrial: () => void;
   cancelSubscription: () => void;
+  // Risk
+  riskAssessment: RiskAssessment;
 }
 
 const AppContext = createContext<AppContextType | null>(null);
@@ -79,6 +82,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
   } = useStorage();
 
   const { analytics, habitAnalytics, streaks, detoxScore, insights } = useAnalytics(entries, habits);
+  const riskAssessment = useMemo(
+    () => calculateRisk(detoxScore.score, entries, streaks.currentStreak),
+    [detoxScore.score, entries, streaks.currentStreak]
+  );
   const { theme, toggleTheme, setTheme } = useTheme();
   const { isLocked, pinEnabled, autoLockMinutes, lock, unlock, enablePin, disablePin, updateAutoLock } = usePinLock();
   const {
@@ -98,6 +105,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       isLocked, pinEnabled, autoLockMinutes, lock, unlock, enablePin, disablePin, updateAutoLock,
       subscription, isPremium, checkFeature, historyCutoff, daysLeft, trialDaysLeft,
       activateDemo, startTrial, cancelSubscription,
+      riskAssessment,
     }}>
       {children}
     </AppContext.Provider>

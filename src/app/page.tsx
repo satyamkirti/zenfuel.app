@@ -16,9 +16,10 @@ import { MonthlyChart } from '@/components/charts/MonthlyChart';
 import { Card } from '@/components/ui/Card';
 import { PremiumScoreCards } from '@/components/subscription/PremiumScoreCards';
 import { UpgradeBanner } from '@/components/subscription/UpgradeBanner';
+import { RiskAlert } from '@/components/alerts/RiskAlert';
 
 export default function DashboardPage() {
-  const { analytics, streaks, detoxScore, isLoaded, isPremium, entries, challenges, goals, habits } = useApp();
+  const { analytics, streaks, detoxScore, isLoaded, isPremium, entries, challenges, goals, habits, riskAssessment } = useApp();
 
   if (!isLoaded) {
     return (
@@ -34,6 +35,9 @@ export default function DashboardPage() {
   return (
     <AppLayout title="Dashboard">
       <div className="space-y-6">
+        {/* ── Risk Alert — shown at top whenever risk >= moderate ── */}
+        <RiskAlert assessment={riskAssessment} />
+
         {/* Top: Score + Quick Log */}
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
           <div className="lg:col-span-2">
