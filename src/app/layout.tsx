@@ -91,6 +91,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 const s = JSON.parse(localStorage.getItem('mt_settings') || '{}');
                 if (s.theme !== 'light') document.documentElement.classList.add('dark');
               } catch {}
+              if ('serviceWorker' in navigator) {
+                window.addEventListener('load', () =>
+                  navigator.serviceWorker.register('/firebase-messaging-sw.js', { scope: '/' })
+                );
+              }
             `,
           }}
         />

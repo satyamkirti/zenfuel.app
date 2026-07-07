@@ -6,6 +6,7 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { AnalyticsDashboard } from '@/components/analytics/AnalyticsDashboard';
 import { UpgradeBanner } from '@/components/subscription/UpgradeBanner';
 import { RiskTimeline } from '@/components/alerts/RiskTimeline';
+import { PatternInsights } from '@/components/analytics/PatternInsights';
 
 export default function AnalyticsPage() {
   const { entries, habits, isPremium, historyCutoff } = useApp();
@@ -26,6 +27,7 @@ export default function AnalyticsPage() {
           />
         )}
         <RiskTimeline entries={entries} days={14} />
+        <PatternInsights entries={entries} habits={habits} />
         <AnalyticsDashboard entries={visibleEntries} habits={habits} isPremium={isPremium} />
       </div>
     </AppLayout>

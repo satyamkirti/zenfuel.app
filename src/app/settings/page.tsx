@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
-import { Settings, Shield, Moon, Sun, Lock, Unlock, Download, Upload, Trash2, Check, AlertTriangle, Brain, Crown, Zap } from 'lucide-react';
+import { Settings, Shield, Moon, Sun, Lock, Unlock, Download, Upload, Trash2, Check, AlertTriangle, Brain, Crown, Zap, Bell, BellOff } from 'lucide-react';
 import { useApp } from '@/context/AppContext';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Card } from '@/components/ui/Card';
@@ -10,6 +10,10 @@ import { Button } from '@/components/ui/Button';
 import { PlanBadge } from '@/components/subscription/PlanBadge';
 import { storage } from '@/utils/storage';
 import { exportToCSV, exportToJSON } from '@/utils/export';
+import {
+  getNotificationPrefs, saveNotificationPrefs, requestPermission,
+  getPermissionStatus, scheduleInSessionNotifications, NotificationPrefs,
+} from '@/lib/notifications';
 import { PLANS } from '@/utils/subscription';
 
 function Section({ title, icon, children }: { title: string; icon: React.ReactNode; children: React.ReactNode }) {
@@ -47,6 +51,35 @@ export default function SettingsPage() {
   const [hiddenTitle, setHiddenTitle] = useState(() => storage.getSettings().hiddenTitle);
   const [confirmClear, setConfirmClear] = useState(false);
   const [importStatus, setImportStatus] = useState('');
+
+  // Notification state
+  const [notifPerms, setNotifPerms] = useState<NotificationPermission>('default');
+  const [notifPrefs, setNotifPrefs] = useState<NotificationPrefs>(getNotificationPrefs());
+
+  useEffect(() => {
+    setNotifPerms(getPermissionStatus());
+    setNotifPrefs(getNotificationPrefs());
+  }, []);
+
+  const handleEnableNotifications = async () => {
+    const perm = await requestPermission();
+    setNotifPerms(perm);
+    if (perm === 'granted') {
+      const prefs = { ...notifPrefs, enabled: true };
+      saveNotificationPrefs(prefs);
+      setNotifPrefs(prefs);
+    }
+  };
+
+  const updateNotifPref = (updates: Partial<NotificationPrefs>) => {
+    const next = { ...notifPrefs, ...updates };
+    saveNotificationPrefs(next);
+    setNotifPrefs(next);
+    if (next.enabled) {
+      const detoxScore = 50; // approximate — full score available via useApp if needed
+      scheduleInSessionNotifications(next, detoxScore, 0);
+    }
+  };
 
   const handleSetPin = () => {
     if (pinStep === 'idle') { setPinStep('enter'); setPin1(''); setPin2(''); setPinError(''); }
@@ -129,6 +162,64 @@ export default function SettingsPage() {
                   </button>
                 ))}
               </div>
+            </div>
+          )}
+        </Section>
+
+        {/* Notifications */}
+        <Section title="Notifications" icon={<Bell size={16} />}>
+          {notifPerms === 'denied' ? (
+            <div className="flex items-start gap-3 p-3 bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 rounded-xl text-sm text-amber-700 dark:text-amber-300">
+              <AlertTriangle size={16} className="shrink-0 mt-0.5" />
+              Browser notifications are blocked. Reset them in your browser's site settings, then reload.
+            </div>
+          ) : notifPerms !== 'granted' ? (
+            <div className="space-y-3">
+              <p className="text-sm text-slate-500 dark:text-slate-400">
+                Get smart reminders at your vulnerable times, morning check-ins, and evening score summaries.
+              </p>
+              <Button size="sm" icon={<Bell size={14} />} onClick={handleEnableNotifications}>
+                Enable Notifications
+              </Button>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <Row label="Notifications" sub="Master toggle">
+                <button onClick={() => updateNotifPref({ enabled: !notifPrefs.enabled })} className={`w-10 h-6 rounded-full transition-colors ${notifPrefs.enabled ? 'bg-violet-600' : 'bg-slate-300 dark:bg-slate-600'}`}>
+                  <span className={`block w-4 h-4 rounded-full bg-white shadow transition-transform mx-1 ${notifPrefs.enabled ? 'translate-x-4' : ''}`} />
+                </button>
+              </Row>
+              <Row label="Your name (optional)" sub="Used in notification messages">
+                <input type="text" value={notifPrefs.userName} onChange={e => updateNotifPref({ userName: e.target.value })} placeholder="e.g. Satyam" className="input w-32 text-sm" maxLength={20} />
+              </Row>
+              <div className="h-px bg-slate-200 dark:bg-slate-700" />
+              <Row label="Morning check-in" sub="Daily reminder to start the day intentionally">
+                <div className="flex items-center gap-2">
+                  <input type="time" value={notifPrefs.morningTime} onChange={e => updateNotifPref({ morningTime: e.target.value })} disabled={!notifPrefs.morningEnabled} className="input w-auto text-sm py-1 disabled:opacity-50" />
+                  <button onClick={() => updateNotifPref({ morningEnabled: !notifPrefs.morningEnabled })} className={`w-10 h-6 rounded-full transition-colors ${notifPrefs.morningEnabled ? 'bg-violet-600' : 'bg-slate-300 dark:bg-slate-600'}`}>
+                    <span className={`block w-4 h-4 rounded-full bg-white shadow transition-transform mx-1 ${notifPrefs.morningEnabled ? 'translate-x-4' : ''}`} />
+                  </button>
+                </div>
+              </Row>
+              <Row label="Evening summary" sub="Daily score recap at day end">
+                <div className="flex items-center gap-2">
+                  <input type="time" value={notifPrefs.eveningTime} onChange={e => updateNotifPref({ eveningTime: e.target.value })} disabled={!notifPrefs.eveningEnabled} className="input w-auto text-sm py-1 disabled:opacity-50" />
+                  <button onClick={() => updateNotifPref({ eveningEnabled: !notifPrefs.eveningEnabled })} className={`w-10 h-6 rounded-full transition-colors ${notifPrefs.eveningEnabled ? 'bg-violet-600' : 'bg-slate-300 dark:bg-slate-600'}`}>
+                    <span className={`block w-4 h-4 rounded-full bg-white shadow transition-transform mx-1 ${notifPrefs.eveningEnabled ? 'translate-x-4' : ''}`} />
+                  </button>
+                </div>
+              </Row>
+              <Row label="Vulnerable time alert" sub="Custom high-risk window reminder">
+                <div className="flex items-center gap-2">
+                  <input type="time" value={notifPrefs.vulnerableTime} onChange={e => updateNotifPref({ vulnerableTime: e.target.value })} disabled={!notifPrefs.vulnerableEnabled} className="input w-auto text-sm py-1 disabled:opacity-50" />
+                  <button onClick={() => updateNotifPref({ vulnerableEnabled: !notifPrefs.vulnerableEnabled })} className={`w-10 h-6 rounded-full transition-colors ${notifPrefs.vulnerableEnabled ? 'bg-violet-600' : 'bg-slate-300 dark:bg-slate-600'}`}>
+                    <span className={`block w-4 h-4 rounded-full bg-white shadow transition-transform mx-1 ${notifPrefs.vulnerableEnabled ? 'translate-x-4' : ''}`} />
+                  </button>
+                </div>
+              </Row>
+              <p className="text-xs text-slate-400 bg-slate-50 dark:bg-slate-700/50 rounded-xl px-3 py-2">
+                ⚡ Notifications fire while the app is open. For background push (when app is closed), connect Firebase — see <code className="text-violet-500">src/lib/notifications.ts</code>.
+              </p>
             </div>
           )}
         </Section>

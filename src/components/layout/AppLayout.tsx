@@ -5,6 +5,7 @@ import { Sidebar } from './Sidebar';
 import { BottomNav, TopBar } from './Navbar';
 import { PinLock } from '@/components/security/PinLock';
 import { useApp } from '@/context/AppContext';
+import { FloatingActionButton } from '@/components/ui/QuickLogSheet';
 
 export function AppLayout({ children, title }: { children: ReactNode; title?: string }) {
   const { isLocked, unlock } = useApp();
@@ -23,6 +24,9 @@ export function AppLayout({ children, title }: { children: ReactNode; title?: st
         </main>
         <BottomNav />
       </div>
+
+      {/* Floating quick-log button — visible on every page */}
+      <FloatingActionButton />
     </div>
   );
 }
