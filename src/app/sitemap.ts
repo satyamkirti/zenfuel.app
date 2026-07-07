@@ -1,7 +1,5 @@
 import { MetadataRoute } from 'next';
 
-// force-static removes the dynamic `new Date()` runtime dependency so
-// Vercel pre-renders this at build time and serves it as a plain file.
 export const dynamic = 'force-static';
 
 const BASE = 'https://zenfuel.app';
@@ -17,5 +15,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${BASE}/goals`,           lastModified: LAST_MODIFIED, changeFrequency: 'monthly', priority: 0.6 },
     { url: `${BASE}/history`,         lastModified: LAST_MODIFIED, changeFrequency: 'weekly',  priority: 0.5 },
     { url: `${BASE}/reports`,         lastModified: LAST_MODIFIED, changeFrequency: 'monthly', priority: 0.5 },
+    { url: `${BASE}/privacy`,         lastModified: LAST_MODIFIED, changeFrequency: 'yearly',  priority: 0.3 },
+    { url: `${BASE}/terms`,           lastModified: LAST_MODIFIED, changeFrequency: 'yearly',  priority: 0.3 },
+    { url: `${BASE}/refund`,          lastModified: LAST_MODIFIED, changeFrequency: 'yearly',  priority: 0.3 },
+    { url: `${BASE}/contact`,         lastModified: LAST_MODIFIED, changeFrequency: 'yearly',  priority: 0.4 },
   ];
 }

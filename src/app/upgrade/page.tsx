@@ -177,6 +177,12 @@ export default function UpgradePage() {
           <p className="text-center text-xs text-slate-400 mt-4">
             Prices in INR · GST inclusive · Secure payments via Razorpay & Stripe
           </p>
+          <p className="text-center text-xs text-slate-400 mt-2">
+            By subscribing you agree to our{' '}
+            <Link href="/terms" className="text-violet-500 hover:underline">Terms of Service</Link>
+            {' '}and{' '}
+            <Link href="/refund" className="text-violet-500 hover:underline">Refund Policy</Link>
+          </p>
         </div>
 
         {/* All Premium Features */}
@@ -254,6 +260,12 @@ export default function UpgradePage() {
             </button>
           </div>
           <p className="text-violet-300 text-xs mt-4">30-day money-back guarantee · Cancel anytime</p>
+          <p className="text-violet-300/60 text-xs mt-2">
+            By subscribing you agree to our{' '}
+            <Link href="/terms" className="underline hover:text-violet-200 transition-colors">Terms of Service</Link>
+            {' '}and{' '}
+            <Link href="/refund" className="underline hover:text-violet-200 transition-colors">Refund Policy</Link>
+          </p>
         </div>
 
       </div>

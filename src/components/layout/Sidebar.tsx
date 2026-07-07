@@ -107,6 +107,15 @@ export function Sidebar() {
             </button>
           )}
         </div>
+
+        {/* Legal links */}
+        <div className="flex flex-wrap gap-x-3 gap-y-1 px-1 pt-1">
+          {[['Privacy', '/privacy'], ['Terms', '/terms'], ['Refund', '/refund'], ['Contact', '/contact']].map(([label, href]) => (
+            <Link key={href} href={href} className="text-[10px] text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors">
+              {label}
+            </Link>
+          ))}
+        </div>
       </div>
     </aside>
   );
