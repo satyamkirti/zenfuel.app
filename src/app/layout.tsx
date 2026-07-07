@@ -18,6 +18,10 @@ export const metadata: Metadata = {
   description:
     'Free brain reset app. Break the doom-scroll habit and rebuild real focus in 30 days. No downloads needed — just open and start.',
 
+  verification: {
+    google: 'LX94JUsB9K98en8siDYe4LRrcQDgbg67if0RN7lNPCw',
+  },
+
   keywords: [
     'dopamine detox', 'brain reset', 'doom scroll', 'digital detox',
     'habit tracker', 'screen time', 'social media detox', 'focus app',
