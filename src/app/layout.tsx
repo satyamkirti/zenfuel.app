@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
-import Script from 'next/script';
 import './globals.css';
 import { AppProvider } from '@/context/AppContext';
 
@@ -8,7 +7,6 @@ const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
 const APP_URL = 'https://zenfuel.app';
 const OG_IMAGE = `${APP_URL}/images/zenfuel-logo.png`;
-const GA_ID = 'G-GX4S7NMKDC';
 
 export const metadata: Metadata = {
   metadataBase: new URL(APP_URL),
@@ -90,34 +88,41 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        {/* Theme + service worker — fires before first paint */}
         <script
           dangerouslySetInnerHTML={{
             __html: `
               try {
-                const s = JSON.parse(localStorage.getItem('mt_settings') || '{}');
+                var s = JSON.parse(localStorage.getItem('mt_settings') || '{}');
                 if (s.theme !== 'light') document.documentElement.classList.add('dark');
-              } catch {}
+              } catch(e) {}
               if ('serviceWorker' in navigator) {
-                window.addEventListener('load', () =>
-                  navigator.serviceWorker.register('/firebase-messaging-sw.js', { scope: '/' })
-                );
+                window.addEventListener('load', function() {
+                  navigator.serviceWorker.register('/firebase-messaging-sw.js', { scope: '/' });
+                });
               }
             `,
           }}
         />
-        {/* Google Analytics 4 — hardcoded ID, no env var dependency */}
-        <Script
-          src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
-          strategy="afterInteractive"
+
+        {/* Google Analytics 4 — G-GX4S7NMKDC
+            Raw <script> tags so they appear in HTML source (not injected by JS).
+            Using dangerouslySetInnerHTML so Next.js server-renders them into <head>. */}
+        {/* eslint-disable-next-line @next/next/no-before-interactive-script-outside-document */}
+        <script
+          async
+          src="https://www.googletagmanager.com/gtag/js?id=G-GX4S7NMKDC"
         />
-        <Script id="ga4-init" strategy="afterInteractive">
-          {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', '${GA_ID}');
-          `}
-        </Script>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'G-GX4S7NMKDC');
+            `,
+          }}
+        />
       </head>
       <body className={`${inter.variable} font-sans antialiased`}>
         <AppProvider>{children}</AppProvider>
