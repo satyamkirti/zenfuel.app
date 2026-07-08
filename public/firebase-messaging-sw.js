@@ -1,5 +1,6 @@
-// ZenFuel Service Worker — pass-through only, no caching.
-// Firebase push notifications disabled until backend is ready.
+// ZenFuel Service Worker v4 — pure network pass-through, zero caching.
+// next-pwa NOT used. No workbox. No Firebase. No interception of any request.
+// GA4 / GTM / all external URLs go straight to the network.
 
 self.addEventListener('fetch', function(event) {
   // Pass every request straight to the network — no caching, no interception.
