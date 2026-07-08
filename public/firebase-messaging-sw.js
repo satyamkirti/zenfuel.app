@@ -1,84 +1,74 @@
-/**
- * ZenFuel — Firebase Cloud Messaging Service Worker
- *
- * To enable background push notifications:
- *   1. Add Firebase config to .env.local (see src/lib/notifications.ts)
- *   2. Run: npm install firebase
- *   3. Uncomment the importScripts + firebase.initializeApp block below
- */
+// ─── GA4 PASS-THROUGH — Must be first in this file ───────────────────────────
+// Intercepts fetch events BEFORE any other handler.
+// GA4 / GTM requests go straight to the network — never cached, never blocked.
 
-// ─── Firebase (disabled until configured) ────────────────────────────────────
-// importScripts('https://www.gstatic.com/firebasejs/10.0.0/firebase-app-compat.js');
-// importScripts('https://www.gstatic.com/firebasejs/10.0.0/firebase-messaging-compat.js');
-// firebase.initializeApp({ apiKey:'...', projectId:'...', messagingSenderId:'...', appId:'...' });
-// const messaging = firebase.messaging();
-// messaging.onBackgroundMessage((payload) => {
-//   self.registration.showNotification(payload.notification.title, {
-//     body: payload.notification.body,
-//     icon: '/images/zenfuel-logo.png',
-//     data: { url: payload.data?.url || '/' },
-//   });
-// });
+self.addEventListener('fetch', function(event) {
+  var url = event.request.url;
 
-// ─── Fetch handler ────────────────────────────────────────────────────────────
-// IMPORTANT: This must be declared before install/activate.
-// For any analytics or external script URL → explicitly fetch from network.
-// For all other requests → do NOT call respondWith() so the browser handles them.
-
-self.addEventListener('fetch', (event) => {
-  const url = event.request.url;
-
-  // Always let Google Analytics and Tag Manager through to the network
   if (
     url.includes('googletagmanager.com') ||
     url.includes('google-analytics.com') ||
     url.includes('analytics.google.com') ||
     url.includes('/gtag/') ||
-    url.includes('ga.js') ||
-    url.includes('/collect')
+    url.includes('gtag.js') ||
+    url.includes('?id=G-')
   ) {
     event.respondWith(
-      fetch(event.request).catch(() => new Response('', { status: 503 }))
+      fetch(event.request).catch(function() {
+        return new Response('', { status: 200 });
+      })
     );
     return;
   }
 
-  // All other requests: fall through to browser (no SW interception, no caching)
-  // Do NOT call event.respondWith() here — this is intentional.
+  // All other requests: do not call respondWith() — browser handles them.
 });
 
 // ─── Lifecycle ────────────────────────────────────────────────────────────────
 
-self.addEventListener('install', () => self.skipWaiting());
+self.addEventListener('install', function() { self.skipWaiting(); });
 
-self.addEventListener('activate', (event) => {
+self.addEventListener('activate', function(event) {
   event.waitUntil(
     Promise.all([
-      // Take control of all pages immediately
       clients.claim(),
-      // Clear any old cached responses so we don't serve stale assets
-      caches.keys().then((keys) =>
-        Promise.all(keys.map((key) => caches.delete(key)))
-      ),
+      caches.keys().then(function(keys) {
+        return Promise.all(keys.map(function(key) { return caches.delete(key); }));
+      }),
     ])
   );
 });
 
 // ─── Notification click ───────────────────────────────────────────────────────
 
-self.addEventListener('notificationclick', (event) => {
+self.addEventListener('notificationclick', function(event) {
   event.notification.close();
-  const url = event.notification.data?.url || '/';
+  var url = event.notification.data && event.notification.data.url ? event.notification.data.url : '/';
   event.waitUntil(
-    clients
-      .matchAll({ type: 'window', includeUncontrolled: true })
-      .then((list) => {
-        for (const client of list) {
-          if (client.url.includes(self.location.origin) && 'focus' in client) {
-            return client.focus();
-          }
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function(list) {
+      for (var i = 0; i < list.length; i++) {
+        var client = list[i];
+        if (client.url.includes(self.location.origin) && 'focus' in client) {
+          return client.focus();
         }
-        return clients.openWindow(url);
-      })
+      }
+      return clients.openWindow(url);
+    })
   );
 });
+
+// ─── Firebase Cloud Messaging (enable after adding Firebase config) ───────────
+// 1. npm install firebase
+// 2. Add NEXT_PUBLIC_FIREBASE_* vars to .env.local
+// 3. Uncomment below:
+//
+// importScripts('https://www.gstatic.com/firebasejs/10.0.0/firebase-app-compat.js');
+// importScripts('https://www.gstatic.com/firebasejs/10.0.0/firebase-messaging-compat.js');
+// firebase.initializeApp({ apiKey:'...', projectId:'...', messagingSenderId:'...', appId:'...' });
+// firebase.messaging().onBackgroundMessage(function(payload) {
+//   self.registration.showNotification(payload.notification.title, {
+//     body: payload.notification.body,
+//     icon: '/images/zenfuel-logo.png',
+//     data: { url: (payload.data && payload.data.url) || '/' },
+//   });
+// });
