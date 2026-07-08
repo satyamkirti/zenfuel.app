@@ -71,7 +71,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         */}
         <script
           async
-          src="https://www.googletagmanager.com/gtag/js?id=G-GX4S7NMKDC"
+          src="https://www.googletagmanager.com/gtag/js?id=G-ZXZVMPHHNQ"
         />
         <script
           dangerouslySetInnerHTML={{
@@ -79,7 +79,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               'window.dataLayer = window.dataLayer || [];',
               'function gtag(){dataLayer.push(arguments);}',
               "gtag('js', new Date());",
-              "gtag('config', 'G-GX4S7NMKDC');",
+              "gtag('config', 'G-ZXZVMPHHNQ');",
             ].join('\n'),
           }}
         />
