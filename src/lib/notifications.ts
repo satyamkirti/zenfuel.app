@@ -77,23 +77,7 @@ export async function showNotification(
 ): Promise<void> {
   if (getPermissionStatus() !== 'granted') return;
 
-  // Use service worker notification if available (works in background on PWA)
-  if ('serviceWorker' in navigator) {
-    const reg = await navigator.serviceWorker.getRegistration('/');
-    if (reg) {
-      await reg.showNotification(title, {
-        body,
-        icon: '/images/zenfuel-logo.png',
-        badge: '/images/zenfuel-logo.png',
-        tag: tag ?? 'zenfuel',
-        requireInteraction: false,
-        data: { url: '/' },
-      });
-      return;
-    }
-  }
-
-  // Fallback to plain Notification API
+  // Use plain Notification API (service worker removed)
   new Notification(title, { body, icon: '/images/zenfuel-logo.png', tag });
 }
 
@@ -140,16 +124,8 @@ export function scheduleInSessionNotifications(
   }
 }
 
-// ── Service worker registration ───────────────────────────────────────────────
-
-export async function registerServiceWorker(): Promise<ServiceWorkerRegistration | null> {
-  if (typeof window === 'undefined' || !('serviceWorker' in navigator)) return null;
-  try {
-    return await navigator.serviceWorker.register('/firebase-messaging-sw.js', { scope: '/' });
-  } catch {
-    return null;
-  }
-}
+// registerServiceWorker() removed — service worker disabled until
+// Firebase backend is configured. Re-add when Supabase + FCM are wired up.
 
 // ── FCM setup (uncomment after adding Firebase config) ───────────────────────
 //

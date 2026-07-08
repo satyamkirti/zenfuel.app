@@ -84,23 +84,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           }}
         />
 
-        {/*
-          ── Theme + Service Worker ────────────────────────────────────────────
-          Runs after GA4 is initialised.
-        */}
+        {/* Theme — sets dark class before first paint */}
         <script
           dangerouslySetInnerHTML={{
-            __html: [
-              'try {',
-              "  var s = JSON.parse(localStorage.getItem('mt_settings') || '{}');",
-              "  if (s.theme !== 'light') document.documentElement.classList.add('dark');",
-              '} catch(e) {}',
-              "if ('serviceWorker' in navigator) {",
-              "  window.addEventListener('load', function() {",
-              "    navigator.serviceWorker.register('/firebase-messaging-sw.js', { scope: '/' });",
-              '  });',
-              '}',
-            ].join('\n'),
+            __html: "try{var s=JSON.parse(localStorage.getItem('mt_settings')||'{}');if(s.theme!=='light')document.documentElement.classList.add('dark');}catch(e){}",
           }}
         />
       </head>
