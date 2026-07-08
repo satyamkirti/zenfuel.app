@@ -55,3 +55,12 @@ self.addEventListener('notificationclick', (event) => {
 // Activate immediately without waiting for other tabs to close
 self.addEventListener('install', () => self.skipWaiting());
 self.addEventListener('activate', (event) => event.waitUntil(clients.claim()));
+
+// Explicit pass-through: this SW does NOT intercept any network requests.
+// Without this handler the browser falls through to the network anyway,
+// but declaring it explicitly prevents browser extensions from assuming
+// the SW might be caching/blocking third-party scripts like Google Analytics.
+self.addEventListener('fetch', (event) => {
+  // Return without calling event.respondWith() → browser fetches normally.
+  // External requests (googletagmanager.com, etc.) are NOT intercepted.
+});
