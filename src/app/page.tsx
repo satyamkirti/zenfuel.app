@@ -34,7 +34,8 @@ export default function HomePage() {
           ZenFuel is a private, local-first dopamine detox tracker that
           helps you monitor and reduce compulsive habits like social media
           scrolling, gaming, junk food, and other dopamine-seeking
-          behaviours. Your data never leaves your device.
+          behaviours. Your habit logs are stored locally in your browser,
+          not on a ZenFuel server.
         </p>
 
         <h2>Key Features</h2>
@@ -48,16 +49,9 @@ export default function HomePage() {
           <li>Personal goals: reduce by %, max sessions per week, streak targets</li>
           <li>GitHub-style yearly activity heatmap</li>
           <li>Risk alarm system — real-time alerts when habit patterns spike</li>
-          <li>100% private — all data stays in your browser, never uploaded</li>
-          <li>Works offline, no account or download required</li>
+          <li>Habit logs stored locally in your browser — no account required</li>
+          <li>No download required — runs in your browser</li>
         </ul>
-
-        <h2>Premium Plan</h2>
-        <p>
-          Premium unlocks AI-powered insights, PDF and Excel reports,
-          unlimited habit tracking, annual reports, and cloud backup.
-          Plans start at just ₹99/month.
-        </p>
 
         <h2>How to start</h2>
         <p>

@@ -44,7 +44,7 @@ export default function HistoryPage() {
 
         {!isPremium && hiddenCount === 0 && entries.length > 0 && (
           <UpgradeBanner
-            message="You're viewing the last 30 days. Upgrade to see and export your complete history."
+            message="You're viewing the last 30 days. Upgrade to see your complete history."
             dismissKey="history-30d"
           />
         )}

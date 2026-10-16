@@ -34,7 +34,7 @@ function ContactCard({
 
 export default function ContactPage() {
   return (
-    <LegalLayout title="Contact Us">
+    <LegalLayout title="Contact Us" lastUpdated="October 17, 2026">
 
       <InfoBox>
         <p className="font-semibold text-slate-700 dark:text-slate-300 text-base">ZenFuel — Brain Reset</p>
@@ -43,25 +43,15 @@ export default function ContactPage() {
         <p>Response time: Within 2–3 business days</p>
       </InfoBox>
 
-      <P>We're here to help. Reach out for any questions, feedback, or support — we respond personally.</P>
+      <P>We&apos;re here to help. Reach out for any questions, feedback, or support — we respond personally.</P>
 
       <H2>What can we help you with?</H2>
 
       <div className="space-y-3 mb-8">
         <ContactCard
           subject="General Support"
-          label="Account & login issues"
-          description="Can't log in, forgotten password, account problems"
-        />
-        <ContactCard
-          subject="Billing Question"
-          label="Subscription & billing"
-          description="Charges, plan changes, payment issues"
-        />
-        <ContactCard
-          subject="Refund Request — [Your Plan]"
-          label="Refund request"
-          description="7-day refund available on Yearly and Lifetime plans"
+          label="General support"
+          description="Questions about using ZenFuel"
         />
         <ContactCard
           subject="Bug Report"
@@ -75,27 +65,20 @@ export default function ContactPage() {
         />
       </div>
 
-      <H2>For Refunds</H2>
-      <P>Please email us with:</P>
-      <ul className="list-disc list-outside ml-5 space-y-1 text-[15px] text-slate-600 dark:text-slate-400 mb-4">
-        <li>Subject: "Refund Request — [Your Plan]"</li>
-        <li>Your registered email address</li>
-        <li>Reason for refund (optional)</li>
-      </ul>
-      <P>See our full <Link href="/refund" className="text-violet-600 dark:text-violet-400 hover:underline">Refund Policy</Link>.</P>
+      <H2>About Your Data</H2>
+      <P>ZenFuel has no user accounts, and your tracker data is stored locally in your browser — we do not have a copy of it. This means we cannot recover lost data or reset a forgotten PIN for you. To delete or export your data, use Settings → Data Management on your device; see our <Link href="/privacy" className="text-violet-600 dark:text-violet-400 hover:underline">Privacy Policy</Link> for details.</P>
 
       <H2>Media & Partnership Enquiries</H2>
       <InfoBox>
         <p>Email: <MailLink /></p>
-        <p>Subject: "Partnership / Media Enquiry"</p>
+        <p>Subject: &quot;Partnership / Media Enquiry&quot;</p>
       </InfoBox>
 
-      <H2>Privacy & Legal Requests</H2>
-      <P>For data deletion, data export, or any privacy-related requests:</P>
+      <H2>Privacy Questions</H2>
+      <P>For questions about privacy or this website&apos;s use of Google Analytics:</P>
       <InfoBox>
         <p>Email: <MailLink /></p>
-        <p>Subject: "Privacy Request"</p>
-        <p>We handle all privacy requests within 30 days as per applicable law.</p>
+        <p>Subject: &quot;Privacy Request&quot;</p>
       </InfoBox>
 
       <p className="text-sm text-slate-400 mt-8 italic">ZenFuel is operated by Satyam Kumar Kirti, India.</p>

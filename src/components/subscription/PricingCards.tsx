@@ -1,14 +1,14 @@
 'use client';
 
-import { useState } from 'react';
-import { Check, Crown, Zap, Sparkles, Loader2 } from 'lucide-react';
+import { Check, Crown, Zap, Sparkles, Clock } from 'lucide-react';
 import { SubscriptionPlan } from '@/types/subscription';
 import { PLANS } from '@/utils/subscription';
-import { initiateCheckout } from '@/services/payment';
 import { clsx } from 'clsx';
 
+// Paid plans cannot be purchased until server-verified payments exist.
+// The plan buttons are intentionally inert and never change the subscription.
+
 interface PricingCardsProps {
-  onActivate: (plan: SubscriptionPlan) => void;
   currentPlan: SubscriptionPlan;
   isPremium: boolean;
 }
@@ -22,30 +22,12 @@ const planIcons: Record<SubscriptionPlan, React.ReactNode> = {
   lifetime: <Zap size={20} className="text-emerald-400" />,
 };
 
-export function PricingCards({ onActivate, currentPlan, isPremium }: PricingCardsProps) {
-  const [loading, setLoading] = useState<SubscriptionPlan | null>(null);
-  const [error, setError] = useState<string | null>(null);
-
-  const handleUpgrade = async (plan: SubscriptionPlan) => {
-    setLoading(plan);
-    setError(null);
-    try {
-      // Try real payment first (will throw if not configured)
-      await initiateCheckout({ plan, provider: 'razorpay', currency: 'INR' });
-    } catch {
-      // Fall back to demo activation
-      onActivate(plan);
-    } finally {
-      setLoading(null);
-    }
-  };
-
+export function PricingCards({ currentPlan, isPremium }: PricingCardsProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
       {PLAN_ORDER.map(planId => {
         const plan = PLANS[planId];
         const isYearly = planId === 'yearly';
-        const isLifetime = planId === 'lifetime';
         const isCurrent = currentPlan === planId;
 
         return (
@@ -109,22 +91,11 @@ export function PricingCards({ onActivate, currentPlan, isPremium }: PricingCard
                 </div>
               ) : (
                 <button
-                  onClick={() => handleUpgrade(planId)}
-                  disabled={!!loading}
-                  className={clsx(
-                    'w-full py-3 rounded-xl text-sm font-bold transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2',
-                    isYearly
-                      ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg shadow-amber-500/30 hover:shadow-amber-500/50'
-                      : isLifetime
-                      ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-lg shadow-emerald-500/20'
-                      : 'bg-gradient-to-r from-violet-600 to-purple-600 text-white shadow-lg shadow-violet-500/20'
-                  )}
+                  type="button"
+                  disabled
+                  className="w-full py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2 bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 cursor-not-allowed"
                 >
-                  {loading === planId ? (
-                    <><Loader2 size={14} className="animate-spin" /> Processing...</>
-                  ) : (
-                    <>Get {plan.name === 'Premium Yearly' ? 'Yearly Plan' : plan.name} →</>
-                  )}
+                  <Clock size={14} /> Coming Soon
                 </button>
               )}
             </div>

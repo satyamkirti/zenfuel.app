@@ -90,7 +90,7 @@ export function printReport(entries: LogEntry[], analytics: AppAnalytics, habits
     <thead><tr><th>Date</th><th>Time</th><th>Habit</th><th>Notes</th></tr></thead>
     <tbody>${entryRows}</tbody>
   </table>
-  <div class="footer">Dopamine Detox Tracker — Private &amp; Local — Data never leaves your device</div>
+  <div class="footer">Dopamine Detox Tracker — Generated in your browser from locally stored data</div>
 </body>
 </html>`);
   win.document.close();

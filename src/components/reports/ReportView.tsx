@@ -75,7 +75,7 @@ export function ReportView({ entries, habits, isPremium = true }: { entries: Log
     <div className="space-y-6">
       {!isPremium && (
         <UpgradeBanner
-          message="Annual reports, PDF export, and Excel export are Premium features."
+          message="Annual reports and Print / PDF reports are Premium features."
           cta="Unlock full reports"
           dismissKey="reports-premium"
           variant="prominent"

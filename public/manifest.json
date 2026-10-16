@@ -1,7 +1,7 @@
 {
   "name": "ZenFuel — Brain Reset",
   "short_name": "ZenFuel",
-  "description": "Private dopamine detox tracker. No backend. 100% local.",
+  "description": "Dopamine detox tracker. Your habit logs are stored locally in your browser.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#020617",

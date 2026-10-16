@@ -103,7 +103,7 @@ export function PremiumScoreCards({ entries, challenges, goals, isPremium }: Pre
       </div>
       <div className="p-4">
         {isPremium ? content : (
-          <LockOverlay feature="Focus · Discipline · Productivity Scores" description="Get AI-powered scores that show exactly where you stand and what to improve.">
+          <LockOverlay feature="Focus · Discipline · Productivity Scores" description="Get scores that show exactly where you stand and what to improve.">
             {content}
           </LockOverlay>
         )}

@@ -41,7 +41,7 @@ function Row({ label, sub, children }: { label: string; sub?: string; children: 
 }
 
 export default function SettingsPage() {
-  const { theme, setTheme, entries, habits, importBackup, clearAll, pinEnabled, enablePin, disablePin, autoLockMinutes, updateAutoLock, subscription, isPremium, daysLeft, trialDaysLeft, cancelSubscription, activateDemo } = useApp();
+  const { theme, setTheme, entries, habits, importBackup, clearAll, pinEnabled, enablePin, disablePin, autoLockMinutes, updateAutoLock, subscription, isPremium, daysLeft, trialDaysLeft, cancelSubscription } = useApp();
   const fileRef = useRef<HTMLInputElement>(null);
   const [pinStep, setPinStep] = useState<'idle' | 'enter' | 'confirm'>('idle');
   const [pin1, setPin1] = useState('');
@@ -132,7 +132,7 @@ export default function SettingsPage() {
                   <p className="text-xs text-violet-500">Trial ends in {trialDaysLeft} day{trialDaysLeft !== 1 ? 's' : ''}</p>
                 )}
                 {isPremium && daysLeft !== null && (
-                  <p className="text-xs text-slate-400">Renews in {daysLeft} day{daysLeft !== 1 ? 's' : ''}</p>
+                  <p className="text-xs text-slate-400">Premium access ends in {daysLeft} day{daysLeft !== 1 ? 's' : ''}</p>
                 )}
                 {isPremium && subscription.plan === 'lifetime' && (
                   <p className="text-xs text-emerald-500">Active forever ✓</p>
@@ -150,20 +150,6 @@ export default function SettingsPage() {
               </Link>
             )}
           </div>
-
-          {/* Demo activation for testing */}
-          {!isPremium && (
-            <div className="pt-3 border-t border-slate-200 dark:border-slate-700">
-              <p className="text-xs text-slate-400 mb-2">Developer testing:</p>
-              <div className="flex gap-2 flex-wrap">
-                {(['monthly', 'yearly', 'lifetime'] as const).map(plan => (
-                  <button key={plan} onClick={() => activateDemo(plan)} className="px-2.5 py-1 text-xs bg-slate-100 dark:bg-slate-700 hover:bg-violet-100 dark:hover:bg-violet-500/20 text-slate-600 dark:text-slate-400 hover:text-violet-700 dark:hover:text-violet-400 rounded-lg transition-colors capitalize">
-                    Demo {plan}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
         </Section>
 
         {/* Notifications */}
@@ -316,12 +302,12 @@ export default function SettingsPage() {
               ['Version', '2.0.0'],
               ['Habits tracked', habits.length],
               ['Total events', entries.length],
-              ['Storage', 'Local browser only'],
-              ['Privacy', 'No server · No tracking · 100% private'],
+              ['Tracker data', 'Stored in this browser only'],
+              ['Website analytics', 'Google Analytics (usage data)'],
             ].map(([label, value]) => (
-              <div key={label as string} className="flex justify-between">
+              <div key={label as string} className="flex justify-between gap-4">
                 <span>{label}</span>
-                <span className={`font-medium ${String(value).includes('No server') ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-800 dark:text-slate-200'}`}>{value}</span>
+                <span className={`font-medium text-right ${String(value).includes('browser only') ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-800 dark:text-slate-200'}`}>{value}</span>
               </div>
             ))}
           </div>

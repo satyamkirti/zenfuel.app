@@ -3,49 +3,39 @@
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
-  Crown, Brain, Zap, Target, BarChart3, FileText,
-  Shield, CheckCircle2, Lock, ArrowLeft, Sparkles, TrendingDown, Gift
+  Crown, Zap, Target, BarChart3, FileText,
+  CheckCircle2, Lock, ArrowLeft, Sparkles, TrendingDown, Gift
 } from 'lucide-react';
 import { useApp } from '@/context/AppContext';
 import { PricingCards } from '@/components/subscription/PricingCards';
-import { SubscriptionPlan } from '@/types/subscription';
 import { Logo } from '@/components/ui/Logo';
 
 const FREE_FEATURES = [
   { icon: '📊', label: 'Up to 3 habits only' },
-  { icon: '📅', label: 'Last 30 days history' },
+  { icon: '📅', label: 'Last 30 days in History & Analytics' },
   { icon: '📈', label: 'Basic charts only' },
-  { icon: '💡', label: 'Only 3 insights per day' },
-  { icon: '📄', label: 'CSV export only' },
 ];
 
 const PREMIUM_FEATURES = [
-  { icon: <Brain size={18} className="text-violet-400" />, label: 'AI Insights Engine', desc: 'Unlimited personalized behavior insights' },
   { icon: <Zap size={18} className="text-amber-400" />, label: 'Focus · Discipline · Productivity Scores', desc: 'See exactly where you stand' },
   { icon: <TrendingDown size={18} className="text-red-400" />, label: 'Relapse Prediction', desc: 'Know your risk before it happens' },
   { icon: <BarChart3 size={18} className="text-blue-400" />, label: 'Advanced Analytics Suite', desc: 'Hourly, weekday, comparison charts' },
   { icon: <Target size={18} className="text-emerald-400" />, label: 'Habit Comparison Dashboard', desc: 'Side-by-side habit performance' },
-  { icon: <FileText size={18} className="text-indigo-400" />, label: 'PDF & Excel Reports', desc: 'Professional downloadable reports' },
+  { icon: <FileText size={18} className="text-indigo-400" />, label: 'Print / PDF Reports', desc: 'Printable reports you can save as PDF' },
   { icon: <Crown size={18} className="text-amber-400" />, label: 'Unlimited Habits & History', desc: 'Track everything, forever' },
-  { icon: <Shield size={18} className="text-emerald-400" />, label: 'Cloud Backup', desc: 'Never lose your progress data' },
 ];
 
 const COMPARISON_ROWS = [
   { feature: 'Habits', free: 'Up to 3', premium: 'Unlimited' },
   { feature: 'History', free: '30 days', premium: 'All time' },
   { feature: 'Analytics', free: 'Basic', premium: 'Full suite' },
-  { feature: 'Daily Insights', free: '3 max', premium: 'Unlimited AI' },
   { feature: 'Focus Score', free: false, premium: true },
   { feature: 'Discipline Score', free: false, premium: true },
   { feature: 'Productivity Score', free: false, premium: true },
   { feature: 'Relapse Prediction', free: false, premium: true },
   { feature: 'PDF Reports', free: false, premium: true },
-  { feature: 'Excel Export', free: false, premium: true },
   { feature: 'Annual Reports', free: false, premium: true },
   { feature: 'Habit Comparison', free: false, premium: true },
-  { feature: 'Premium Challenges', free: false, premium: true },
-  { feature: 'Cloud Backup', free: false, premium: true },
-  { feature: 'Custom Date Range', free: false, premium: true },
   { feature: 'Streak Tracking', free: true, premium: true },
   { feature: 'Heatmap Calendar', free: true, premium: true },
   { feature: 'CSV Export', free: true, premium: true },
@@ -53,22 +43,15 @@ const COMPARISON_ROWS = [
 ];
 
 const FAQS = [
-  { q: 'Is my data safe?', a: 'Yes. All data is stored locally in your browser. We never upload your personal habits to any server.' },
-  { q: 'Can I cancel anytime?', a: 'Yes. Monthly and yearly plans can be cancelled at any time. You keep access until the period ends.' },
-  { q: 'What payment methods are accepted?', a: 'We support UPI, Credit/Debit cards, NetBanking via Razorpay, and international cards via Stripe.' },
-  { q: 'Is there a free trial?', a: 'Yes! You can activate a 7-day free trial from Settings → Subscription without entering payment details.' },
+  { q: 'Where is my data stored?', a: 'Your habit logs, goals, challenges and settings are stored locally in your browser on this device. They are not sent to a ZenFuel server. The website does use Google Analytics, which may collect website usage information — see our Privacy Policy.' },
+  { q: 'Can I buy Premium now?', a: 'Not yet. Paid plans are coming soon. No payment is collected in the app today.' },
+  { q: 'Is there a free trial?', a: 'Yes. You can start a 7-day free trial from this page without entering payment details.' },
   { q: 'What happens to my data if I downgrade?', a: 'All your data is preserved. You simply lose access to premium features — your history remains intact.' },
-  { q: 'Is there a student or family discount?', a: 'We offer special pricing for students. Email us with your institution email for a 40% discount.' },
 ];
 
 export default function UpgradePage() {
-  const { subscription, activateDemo, startTrial, isPremium, analytics, detoxScore } = useApp();
+  const { subscription, startTrial, isPremium, analytics, detoxScore } = useApp();
   const router = useRouter();
-
-  const handleActivate = (plan: SubscriptionPlan) => {
-    activateDemo(plan);
-    router.push('/');
-  };
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#020617]">
@@ -98,7 +81,7 @@ export default function UpgradePage() {
             <span className="bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">Full Potential</span>
           </h1>
           <p className="text-lg text-slate-500 dark:text-slate-400 max-w-xl mx-auto">
-            Get AI-powered scores, relapse prediction, unlimited tracking and professional reports — everything you need to take control.
+            Get Focus, Discipline and Productivity scores, relapse prediction, unlimited tracking and printable reports — everything you need to take control.
           </p>
 
           {/* Personalized stats */}
@@ -173,15 +156,9 @@ export default function UpgradePage() {
           <h2 className="text-2xl font-black text-center text-slate-900 dark:text-white mb-8">
             {isPremium ? 'Your Subscription' : 'Choose Your Plan'}
           </h2>
-          <PricingCards onActivate={handleActivate} currentPlan={subscription.plan} isPremium={isPremium} />
+          <PricingCards currentPlan={subscription.plan} isPremium={isPremium} />
           <p className="text-center text-xs text-slate-400 mt-4">
-            Prices in INR · GST inclusive · Secure payments via Razorpay & Stripe
-          </p>
-          <p className="text-center text-xs text-slate-400 mt-2">
-            By subscribing you agree to our{' '}
-            <Link href="/terms" className="text-violet-500 hover:underline">Terms of Service</Link>
-            {' '}and{' '}
-            <Link href="/refund" className="text-violet-500 hover:underline">Refund Policy</Link>
+            Prices in INR · Paid plans are not available for purchase yet · No payment is collected in the app
           </p>
         </div>
 
@@ -244,27 +221,28 @@ export default function UpgradePage() {
         {/* Bottom CTA */}
         <div className="bg-gradient-to-br from-violet-600 via-purple-600 to-indigo-700 rounded-3xl p-10 text-center text-white">
           <h2 className="text-3xl font-black mb-3">Start Your Transformation Today</h2>
-          <p className="text-violet-200 mb-8 max-w-md mx-auto">Join thousands of users who've taken control of their dopamine habits with Premium.</p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+          <div className="flex flex-col sm:flex-row gap-3 justify-center mt-8">
+            {!isPremium && (
+              <button
+                onClick={() => { startTrial(); router.push('/'); }}
+                className="px-8 py-3 bg-white text-violet-700 rounded-xl font-bold hover:bg-violet-50 transition-colors"
+              >
+                Start Free Trial
+              </button>
+            )}
             <button
-              onClick={() => { startTrial(); router.push('/'); }}
-              className="px-8 py-3 bg-white text-violet-700 rounded-xl font-bold hover:bg-violet-50 transition-colors"
+              type="button"
+              disabled
+              className="px-8 py-3 bg-white/20 border-2 border-white/40 text-white/80 rounded-xl font-bold cursor-not-allowed"
             >
-              Start Free Trial
-            </button>
-            <button
-              onClick={() => handleActivate('yearly')}
-              className="px-8 py-3 bg-white/20 border-2 border-white/40 text-white rounded-xl font-bold hover:bg-white/30 transition-colors"
-            >
-              Get Yearly Plan — ₹1,100/yr
+              Paid plans — Coming Soon
             </button>
           </div>
-          <p className="text-violet-300 text-xs mt-4">30-day money-back guarantee · Cancel anytime</p>
-          <p className="text-violet-300/60 text-xs mt-2">
-            By subscribing you agree to our{' '}
+          <p className="text-violet-300/60 text-xs mt-4">
+            See our{' '}
             <Link href="/terms" className="underline hover:text-violet-200 transition-colors">Terms of Service</Link>
             {' '}and{' '}
-            <Link href="/refund" className="underline hover:text-violet-200 transition-colors">Refund Policy</Link>
+            <Link href="/privacy" className="underline hover:text-violet-200 transition-colors">Privacy Policy</Link>
           </p>
         </div>
 

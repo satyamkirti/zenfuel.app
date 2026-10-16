@@ -61,10 +61,6 @@ export function DashboardContent() {
 
         <StreakCard />
 
-        {!isPremium && analytics.lifetimeCount > 0 && (
-          <UpgradeBanner message="Heatmap shows last 30 days. Upgrade to see your full year history." dismissKey="heatmap-limit" />
-        )}
-
         <Card padding="none">
           <div className="px-5 pt-5 pb-3 border-b border-slate-200 dark:border-slate-700">
             <h3 className="font-semibold text-slate-900 dark:text-white">{new Date().getFullYear()} Activity Heatmap</h3>

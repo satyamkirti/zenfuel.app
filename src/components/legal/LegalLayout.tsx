@@ -13,9 +13,10 @@ const LEGAL_LINKS = [
 interface LegalLayoutProps {
   children: ReactNode;
   title: string;
+  lastUpdated?: string;
 }
 
-export function LegalLayout({ children, title }: LegalLayoutProps) {
+export function LegalLayout({ children, title, lastUpdated = 'July 7, 2026' }: LegalLayoutProps) {
   return (
     <div className="min-h-screen bg-white dark:bg-slate-900">
       {/* Header */}
@@ -39,7 +40,7 @@ export function LegalLayout({ children, title }: LegalLayoutProps) {
           <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-400">
             <span>ZenFuel · Operated by Satyam Kumar Kirti</span>
             <span>zenfuel.support@gmail.com</span>
-            <span>Last updated: July 7, 2026</span>
+            <span>Last updated: {lastUpdated}</span>
           </div>
         </div>
       </div>
