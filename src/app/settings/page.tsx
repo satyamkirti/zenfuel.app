@@ -1,20 +1,17 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import Link from 'next/link';
-import { Settings, Shield, Moon, Sun, Lock, Unlock, Download, Upload, Trash2, Check, AlertTriangle, Brain, Crown, Zap, Bell, BellOff } from 'lucide-react';
+import { Settings, Shield, Moon, Sun, Lock, Unlock, Download, Upload, Trash2, Check, AlertTriangle, Brain, Bell, BellOff } from 'lucide-react';
 import { useApp } from '@/context/AppContext';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
-import { PlanBadge } from '@/components/subscription/PlanBadge';
 import { storage } from '@/utils/storage';
 import { exportToCSV, exportToJSON } from '@/utils/export';
 import {
   getNotificationPrefs, saveNotificationPrefs, requestPermission,
   getPermissionStatus, scheduleInSessionNotifications, NotificationPrefs,
 } from '@/lib/notifications';
-import { PLANS } from '@/utils/subscription';
 
 function Section({ title, icon, children }: { title: string; icon: React.ReactNode; children: React.ReactNode }) {
   return (
@@ -41,7 +38,7 @@ function Row({ label, sub, children }: { label: string; sub?: string; children: 
 }
 
 export default function SettingsPage() {
-  const { theme, setTheme, entries, habits, importBackup, clearAll, pinEnabled, enablePin, disablePin, autoLockMinutes, updateAutoLock, subscription, isPremium, daysLeft, trialDaysLeft, cancelSubscription } = useApp();
+  const { theme, setTheme, entries, habits, importBackup, clearAll, pinEnabled, enablePin, disablePin, autoLockMinutes, updateAutoLock } = useApp();
   const fileRef = useRef<HTMLInputElement>(null);
   const [pinStep, setPinStep] = useState<'idle' | 'enter' | 'confirm'>('idle');
   const [pin1, setPin1] = useState('');
@@ -115,42 +112,6 @@ export default function SettingsPage() {
           </div>
           <h1 className="text-xl font-bold text-slate-900 dark:text-white">Settings</h1>
         </div>
-
-        {/* Subscription section */}
-        <Section title="Subscription" icon={<Crown size={16} />}>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center">
-                {isPremium ? <Zap size={18} className="text-white" /> : <Crown size={18} className="text-white" />}
-              </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <p className="font-semibold text-slate-900 dark:text-white">{isPremium ? PLANS[subscription.plan].name : 'Free Plan'}</p>
-                  <PlanBadge plan={subscription.plan} size="xs" />
-                </div>
-                {subscription.status === 'trial' && trialDaysLeft !== null && (
-                  <p className="text-xs text-violet-500">Trial ends in {trialDaysLeft} day{trialDaysLeft !== 1 ? 's' : ''}</p>
-                )}
-                {isPremium && daysLeft !== null && (
-                  <p className="text-xs text-slate-400">Premium access ends in {daysLeft} day{daysLeft !== 1 ? 's' : ''}</p>
-                )}
-                {isPremium && subscription.plan === 'lifetime' && (
-                  <p className="text-xs text-emerald-500">Active forever ✓</p>
-                )}
-                {!isPremium && (
-                  <p className="text-xs text-slate-400">3 habits · 30-day history · basic features</p>
-                )}
-              </div>
-            </div>
-            {isPremium ? (
-              <Button variant="outline" size="sm" onClick={cancelSubscription}>Downgrade</Button>
-            ) : (
-              <Link href="/upgrade" className="px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl text-sm font-bold hover:shadow-lg hover:shadow-amber-500/20 transition-all">
-                Upgrade →
-              </Link>
-            )}
-          </div>
-        </Section>
 
         {/* Notifications */}
         <Section title="Notifications" icon={<Bell size={16} />}>
@@ -300,6 +261,7 @@ export default function SettingsPage() {
             {[
               ['App', 'Dopamine Detox Tracker'],
               ['Version', '2.0.0'],
+              ['Plan', 'Free during beta'],
               ['Habits tracked', habits.length],
               ['Total events', entries.length],
               ['Tracker data', 'Stored in this browser only'],

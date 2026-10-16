@@ -94,7 +94,7 @@ export function PremiumScoreCards({ entries, challenges, goals, isPremium }: Pre
     <Card padding="none">
       <div className="px-5 py-4 border-b border-slate-200 dark:border-slate-700 flex items-center gap-2">
         <Zap size={16} className="text-amber-500" />
-        <h3 className="font-semibold text-slate-900 dark:text-white">Premium Scores</h3>
+        <h3 className="font-semibold text-slate-900 dark:text-white">Progress Scores</h3>
         {!isPremium && (
           <Link href="/upgrade" className="ml-auto text-xs font-bold text-amber-600 dark:text-amber-400 flex items-center gap-1 hover:underline">
             Unlock →

@@ -3,12 +3,14 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Subscription, SubscriptionPlan, PremiumFeature } from '@/types/subscription';
 import {
-  loadSubscription, saveSubscription, isPremium, canUseFeature,
+  loadSubscription, saveSubscription, hasFullAccess, canUseFeature,
   activateDemoPremium, activateTrial, cancelSubscription, getHistoryCutoff, DEFAULT_SUBSCRIPTION,
+  getEffectiveSubscription, isLegacyDemoGrant,
 } from '@/utils/subscription';
 
 export function useSubscription() {
-  const [subscription, setSubscription] = useState<Subscription>(DEFAULT_SUBSCRIPTION);
+  // `stored` mirrors localStorage exactly; everything below works from the effective subscription.
+  const [stored, setSubscription] = useState<Subscription>(DEFAULT_SUBSCRIPTION);
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
@@ -16,7 +18,11 @@ export function useSubscription() {
     setIsLoaded(true);
   }, []);
 
-  const premium = isPremium(subscription);
+  const subscription = getEffectiveSubscription(stored);
+  const legacyDemoEnded = isLegacyDemoGrant(stored);
+
+  // True for every user during the Free Beta (see FREE_BETA), regardless of the stored record.
+  const premium = hasFullAccess(subscription);
 
   const checkFeature = useCallback((feature: PremiumFeature): boolean => {
     return canUseFeature(subscription, feature);
@@ -56,6 +62,7 @@ export function useSubscription() {
 
   return {
     subscription,
+    legacyDemoEnded,
     isPremium: premium,
     isLoaded,
     checkFeature,

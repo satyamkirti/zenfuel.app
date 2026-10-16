@@ -18,7 +18,7 @@ export default function PrivacyPage() {
         <li>ZenFuel has <strong className={strong}>no user accounts</strong> and <strong className={strong}>no ZenFuel database or backend server</strong>.</li>
         <li>Your tracker records (habit logs, notes, goals, challenges and settings) are <strong className={strong}>stored locally in your browser</strong> on your device. They are not sent to a ZenFuel server.</li>
         <li>The website currently uses <strong className={strong}>Google Analytics 4</strong>, which may collect information about how you use the website (see section 4).</li>
-        <li>ZenFuel does not currently collect any payments.</li>
+        <li>ZenFuel is free during its beta and does not collect any payments.</li>
       </UL>
 
       <H2>2. Who We Are</H2>
@@ -32,7 +32,7 @@ export default function PrivacyPage() {
         <li>Goals and challenges, and their progress</li>
         <li>App settings — theme, PIN lock settings (the PIN is stored as a hash, not as the digits you typed), auto-lock time, and Hidden Mode settings</li>
         <li>Notification preferences, including the optional name you enter for reminder messages</li>
-        <li>Your plan or free-trial status</li>
+        <li>Any plan or trial status saved by an earlier version of the app (it no longer affects which features you can use)</li>
         <li>Small interface preferences, such as which banners or alerts you have dismissed</li>
       </UL>
       <P>This data stays on your device. We do not have a copy of it, cannot see it, and cannot recover it for you if it is lost — for example, if you clear your browser data, use a different browser or device, or browse in a private window.</P>
@@ -55,14 +55,14 @@ export default function PrivacyPage() {
       <P>The website is hosted on Vercel. As with any website, the hosting provider receives standard technical information needed to deliver pages to your browser, such as your IP address and browser type.</P>
 
       <H2>6. Payments</H2>
-      <P>Paid plans are not currently available, and ZenFuel does not collect payment details. If paid plans are introduced, this policy will be updated before any payment is taken.</P>
+      <P>ZenFuel is free during its beta and does not collect payment details. If paid plans are introduced, this policy will be updated before any payment is taken.</P>
 
       <H2>7. Deleting and Exporting Your Data</H2>
       <H3>Delete</H3>
       <P>Because your tracker data is stored on your device, you control its deletion:</P>
       <UL>
         <li><strong className={strong}>Settings → Data Management → Clear All</strong> deletes your habit log entries, goals, challenges, custom habits and app settings (including your PIN) from this browser.</li>
-        <li>Clear All does <strong className={strong}>not</strong> currently remove every item. Your plan or trial status, notification preferences (including the optional name), and dismissed-alert preferences remain.</li>
+        <li>Clear All does <strong className={strong}>not</strong> currently remove every item. Any saved plan or trial status, notification preferences (including the optional name), and dismissed-alert preferences remain.</li>
         <li>To remove everything ZenFuel has stored on this device, clear this site&apos;s data (local storage and cookies) in your browser settings.</li>
       </UL>
       <P>Deleting data on one device or browser does not affect other devices or browsers, because nothing is synced between them.</P>

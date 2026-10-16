@@ -57,6 +57,8 @@ interface AppContextType {
   updateAutoLock: (minutes: number) => void;
   // Subscription
   subscription: Subscription;
+  legacyDemoEnded: boolean;
+  /** Full feature access. Always true during the Free Beta. */
   isPremium: boolean;
   checkFeature: (feature: PremiumFeature) => boolean;
   historyCutoff: Date | null;
@@ -89,7 +91,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const { theme, toggleTheme, setTheme } = useTheme();
   const { isLocked, pinEnabled, autoLockMinutes, lock, unlock, enablePin, disablePin, updateAutoLock } = usePinLock();
   const {
-    subscription, isPremium, checkFeature, historyCutoff,
+    subscription, legacyDemoEnded, isPremium, checkFeature, historyCutoff,
     daysLeft, trialDaysLeft, activateDemo, startTrial, cancel: cancelSubscription,
   } = useSubscription();
 
@@ -103,7 +105,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       addGoal, updateGoal, deleteGoal,
       theme, toggleTheme, setTheme,
       isLocked, pinEnabled, autoLockMinutes, lock, unlock, enablePin, disablePin, updateAutoLock,
-      subscription, isPremium, checkFeature, historyCutoff, daysLeft, trialDaysLeft,
+      subscription, legacyDemoEnded, isPremium, checkFeature, historyCutoff, daysLeft, trialDaysLeft,
       activateDemo, startTrial, cancelSubscription,
       riskAssessment,
     }}>

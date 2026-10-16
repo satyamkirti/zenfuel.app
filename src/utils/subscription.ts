@@ -91,24 +91,34 @@ const PREMIUM_FEATURES = new Set<PremiumFeature>([
 
 export function isPremium(sub: Subscription): boolean {
   if (sub.plan === 'free') return false;
+  if (isLegacyDemoGrant(sub)) return false;
   if (sub.plan === 'lifetime') return sub.status === 'active';
   if (sub.status === 'trial') return (sub.trialEndsAt ?? 0) > Date.now();
   if (sub.status === 'active') return sub.expiresAt === null || sub.expiresAt > Date.now();
   return false;
 }
 
+// ZenFuel is free during its initial beta: every implemented feature is available to
+// every user. Stored subscription records (demo, trial, expired or free) are kept in
+// storage untouched but do not affect access while this is true.
+export const FREE_BETA = true;
+
+export function hasFullAccess(sub: Subscription): boolean {
+  return FREE_BETA || isPremium(sub);
+}
+
 export function canUseFeature(sub: Subscription, feature: PremiumFeature): boolean {
   if (!PREMIUM_FEATURES.has(feature)) return true;
-  return isPremium(sub);
+  return hasFullAccess(sub);
 }
 
 export function getFreeLimit(sub: Subscription, limit: keyof PlanDefinition['limits']): number | 'unlimited' {
-  if (isPremium(sub)) return 'unlimited';
+  if (hasFullAccess(sub)) return 'unlimited';
   return PLANS.free.limits[limit];
 }
 
 export function getHistoryCutoff(sub: Subscription): Date | null {
-  if (isPremium(sub)) return null;
+  if (hasFullAccess(sub)) return null;
   const cutoff = new Date();
   cutoff.setDate(cutoff.getDate() - 30);
   cutoff.setHours(0, 0, 0, 0);
@@ -122,6 +132,17 @@ export const DEFAULT_SUBSCRIPTION: Subscription = {
   expiresAt: null,
   provider: null,
 };
+
+// Paid-plan records with provider 'demo' were granted by the removed demo/pricing
+// buttons without any payment. They no longer give access, but the stored record
+// is left untouched. Trials (status 'trial') are not affected.
+export function isLegacyDemoGrant(sub: Subscription): boolean {
+  return sub.provider === 'demo' && sub.status === 'active';
+}
+
+export function getEffectiveSubscription(sub: Subscription): Subscription {
+  return isLegacyDemoGrant(sub) ? DEFAULT_SUBSCRIPTION : sub;
+}
 
 const SUB_KEY = 'ddt_subscription';
 

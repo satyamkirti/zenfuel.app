@@ -43,11 +43,11 @@ export default function TermsPage() {
         <li>Misrepresent your identity or affiliation when contacting us</li>
       </UL>
 
-      <H2>5. Premium Features and Pricing</H2>
+      <H2>5. Free Beta</H2>
       <UL>
-        <li>Paid plans are <strong className="text-slate-800 dark:text-slate-200">not currently available for purchase</strong>, and ZenFuel does not collect any payments. Plans shown in the app are marked &quot;Coming Soon&quot;.</li>
-        <li>A free 7-day trial of premium features may be offered in the app. It requires no payment details, is recorded only in your browser, and ends automatically.</li>
-        <li>If paid plans are introduced, these Terms will be updated with pricing, billing, cancellation and refund terms before any payment is taken.</li>
+        <li>ZenFuel is <strong className="text-slate-800 dark:text-slate-200">free during its beta</strong>. All features available in the app can be used at no cost.</li>
+        <li>There are no subscriptions, paid tiers or trials, and ZenFuel does not collect any payments.</li>
+        <li>If paid plans are introduced in the future, these Terms will be updated with pricing, billing, cancellation and refund terms before any payment is taken.</li>
       </UL>
 
       <H2>6. Intellectual Property</H2>
