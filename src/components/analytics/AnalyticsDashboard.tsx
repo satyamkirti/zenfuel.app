@@ -14,6 +14,7 @@ import { HabitComparisonChart } from '@/components/charts/HabitComparisonChart';
 import { computeAnalytics } from '@/utils/analytics';
 import { filterEntriesByPeriod } from '@/utils/dateUtils';
 import { LockOverlay } from '@/components/subscription/LockOverlay';
+import { usePrivacy } from '@/context/PrivacyContext';
 
 interface AnalyticsDashboardProps {
   entries: LogEntry[];
@@ -26,6 +27,7 @@ const DAY_COUNT: Record<string, number> = { today: 1, '7d': 7, '30d': 30, '90d':
 export function AnalyticsDashboard({ entries, habits, isPremium = true }: AnalyticsDashboardProps) {
   const [period, setPeriod] = useState<FilterPeriod>('30d');
   const [selectedHabitId, setSelectedHabitId] = useState('all');
+  const { habitName, habitIcon } = usePrivacy();
 
   const filteredEntries = useMemo(() => {
     const periodFiltered = filterEntriesByPeriod(entries, period);
@@ -38,11 +40,12 @@ export function AnalyticsDashboard({ entries, habits, isPremium = true }: Analyt
     const periodFiltered = filterEntriesByPeriod(entries, period);
     return habits.map(h => ({
       ...computeAnalytics(periodFiltered.filter(e => e.habitId === h.id)),
-      habitId: h.id, habitName: h.name, habitIcon: h.icon, habitColor: h.color,
+      // Display labels only (masked in Hidden Mode).
+      habitId: h.id, habitName: habitName(h), habitIcon: habitIcon(h), habitColor: h.color,
       percentOfTotal: periodFiltered.length > 0 ? Math.round((periodFiltered.filter(e => e.habitId === h.id).length / periodFiltered.length) * 100) : 0,
       streak: { currentStreak: 0, longestStreak: 0, streakHistory: [], totalStreaks: 0, averageStreakLength: 0 },
     }));
-  }, [entries, habits, period]);
+  }, [entries, habits, period, habitName, habitIcon]);
 
   const usedHabits = useMemo(() => {
     const ids = new Set(filterEntriesByPeriod(entries, period).map(e => e.habitId));
@@ -56,9 +59,9 @@ export function AnalyticsDashboard({ entries, habits, isPremium = true }: Analyt
       <div className="flex flex-col sm:flex-row sm:items-center gap-3">
         <h2 className="text-lg font-bold text-slate-900 dark:text-white flex-1">Analytics</h2>
         <div className="flex flex-wrap gap-2">
-          <select value={selectedHabitId} onChange={e => setSelectedHabitId(e.target.value)} className="input w-auto text-sm py-1.5">
+          <select value={selectedHabitId} onChange={e => setSelectedHabitId(e.target.value)} aria-label="Habit" className="input w-auto text-sm py-1.5">
             <option value="all">All Habits</option>
-            {usedHabits.map(h => <option key={h.id} value={h.id}>{h.icon} {h.name}</option>)}
+            {usedHabits.map(h => <option key={h.id} value={h.id}>{habitIcon(h)} {habitName(h)}</option>)}
           </select>
           <DateFilter value={period} onChange={setPeriod} />
         </div>

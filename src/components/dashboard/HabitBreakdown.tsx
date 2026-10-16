@@ -1,11 +1,15 @@
 'use client';
 
 import { useApp } from '@/context/AppContext';
+import { usePrivacy } from '@/context/PrivacyContext';
 import { Card } from '@/components/ui/Card';
 import { Zap } from 'lucide-react';
 
 export function HabitBreakdown() {
   const { habitAnalytics, analytics } = useApp();
+  const { habitName, habitIcon } = usePrivacy();
+  const ref = (h: { habitId: string; habitName: string; habitIcon: string } | undefined) =>
+    h ? { id: h.habitId, name: h.habitName, icon: h.habitIcon } : undefined;
   const active = habitAnalytics.filter(h => h.lifetimeCount > 0).sort((a, b) => b.lifetimeCount - a.lifetimeCount);
 
   if (active.length === 0) {
@@ -24,8 +28,8 @@ export function HabitBreakdown() {
           <div key={h.habitId}>
             <div className="flex items-center justify-between mb-1">
               <div className="flex items-center gap-2">
-                <span className="text-base leading-none">{h.habitIcon}</span>
-                <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{h.habitName}</span>
+                <span className="text-base leading-none" aria-hidden="true">{habitIcon(ref(h))}</span>
+                <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{habitName(ref(h))}</span>
                 {h.streak.currentStreak > 0 && (
                   <span className="text-[10px] px-1.5 py-0.5 bg-orange-100 dark:bg-orange-500/20 text-orange-600 dark:text-orange-400 rounded-full font-medium">
                     🔥 {h.streak.currentStreak}d
@@ -51,15 +55,15 @@ export function HabitBreakdown() {
             <div>
               <p className="text-xs text-slate-400">Most Active</p>
               <p className="text-sm font-semibold text-slate-700 dark:text-slate-200 flex items-center justify-center gap-1">
-                <span>{active[0]?.habitIcon}</span>
-                <span className="truncate">{active[0]?.habitName}</span>
+                <span aria-hidden="true">{habitIcon(ref(active[0]))}</span>
+                <span className="truncate">{habitName(ref(active[0]))}</span>
               </p>
             </div>
             <div>
               <p className="text-xs text-slate-400">Least Active</p>
               <p className="text-sm font-semibold text-slate-700 dark:text-slate-200 flex items-center justify-center gap-1">
-                <span>{active[active.length - 1]?.habitIcon}</span>
-                <span className="truncate">{active[active.length - 1]?.habitName}</span>
+                <span aria-hidden="true">{habitIcon(ref(active[active.length - 1]))}</span>
+                <span className="truncate">{habitName(ref(active[active.length - 1]))}</span>
               </p>
             </div>
             <div>

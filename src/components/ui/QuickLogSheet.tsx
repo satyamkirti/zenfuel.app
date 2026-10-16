@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Plus, X, Check, ChevronDown } from 'lucide-react';
 import { useApp } from '@/context/AppContext';
+import { usePrivacy } from '@/context/PrivacyContext';
 import { clsx } from 'clsx';
 
 // ── Toast ──────────────────────────────────────────────────────────────────────
@@ -12,7 +13,7 @@ interface ToastState { visible: boolean; habitName: string; icon: string }
 function Toast({ toast }: { toast: ToastState }) {
   if (!toast.visible) return null;
   return (
-    <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[100] animate-slide-up">
+    <div role="status" className="fixed top-[calc(1rem+env(safe-area-inset-top))] left-1/2 -translate-x-1/2 z-[100] animate-slide-up">
       <div className="flex items-center gap-2 px-4 py-3 bg-slate-900 dark:bg-slate-700 text-white rounded-2xl shadow-2xl text-sm font-semibold">
         <span>{toast.icon}</span>
         <span>{toast.habitName} logged</span>
@@ -32,6 +33,7 @@ interface SheetProps {
 
 function QuickLogBottomSheet({ open, onClose, onLogged }: SheetProps) {
   const { habits, habitAnalytics, logEntry } = useApp();
+  const { habitName, habitIcon } = usePrivacy();
   const [note, setNote] = useState('');
   const [showNote, setShowNote] = useState(false);
   const [logging, setLogging] = useState<string | null>(null);
@@ -53,9 +55,17 @@ function QuickLogBottomSheet({ open, onClose, onLogged }: SheetProps) {
 
   // Close on Escape
   useEffect(() => {
+    if (!open) return;
+    const previous = document.activeElement as HTMLElement | null;
+    sheetRef.current?.querySelector<HTMLElement>('button')?.focus();
     const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
-    if (open) window.addEventListener('keydown', handler);
-    return () => window.removeEventListener('keydown', handler);
+    window.addEventListener('keydown', handler);
+    document.body.style.overflow = 'hidden';
+    return () => {
+      window.removeEventListener('keydown', handler);
+      document.body.style.overflow = '';
+      previous?.focus?.();
+    };
   }, [open, onClose]);
 
   // Reset state when closed
@@ -68,25 +78,28 @@ function QuickLogBottomSheet({ open, onClose, onLogged }: SheetProps) {
     if (!habit || logging) return;
     setLogging(habitId);
     logEntry(habitId, note || undefined);
-    onLogged(habit.name, habit.icon);
+    onLogged(habitName(habit), habitIcon(habit));
     onClose();
     setLogging(null);
-  }, [habits, logEntry, note, onLogged, onClose, logging]);
+  }, [habits, logEntry, note, onLogged, onClose, logging, habitName, habitIcon]);
 
   if (!open) return null;
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end justify-center"
+      className="fixed inset-0 z-[60] flex items-end justify-center"
       onClick={handleBackdrop}
     >
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm pointer-events-none" aria-hidden="true" />
 
       {/* Sheet */}
       <div
         ref={sheetRef}
-        className="relative w-full max-w-lg bg-white dark:bg-slate-800 rounded-t-3xl shadow-2xl border-t border-slate-200 dark:border-slate-700 animate-slide-up"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="quick-log-title"
+        className="relative w-full max-w-lg max-h-[85dvh] overflow-y-auto bg-white dark:bg-slate-800 rounded-t-3xl shadow-2xl border-t border-slate-200 dark:border-slate-700 animate-slide-up pb-[calc(1rem+env(safe-area-inset-bottom))]"
       >
         {/* Handle */}
         <div className="flex justify-center pt-3 pb-2">
@@ -95,9 +108,9 @@ function QuickLogBottomSheet({ open, onClose, onLogged }: SheetProps) {
 
         {/* Header */}
         <div className="flex items-center justify-between px-5 pb-3">
-          <h3 className="font-bold text-slate-900 dark:text-white">Quick Log</h3>
-          <button onClick={onClose} className="p-1.5 rounded-lg btn-ghost">
-            <X size={16} />
+          <h3 id="quick-log-title" className="font-bold text-slate-900 dark:text-white">Quick Log</h3>
+          <button onClick={onClose} aria-label="Close quick log" className="p-2 rounded-lg btn-ghost">
+            <X size={16} aria-hidden="true" />
           </button>
         </div>
 
@@ -108,6 +121,7 @@ function QuickLogBottomSheet({ open, onClose, onLogged }: SheetProps) {
               key={habit.id}
               onClick={() => handleLog(habit.id)}
               disabled={!!logging}
+              aria-label={`Log ${habitName(habit)}`}
               className={clsx(
                 'flex flex-col items-center gap-1.5 p-3 rounded-2xl border-2 transition-all active:scale-95',
                 logging === habit.id
@@ -115,9 +129,9 @@ function QuickLogBottomSheet({ open, onClose, onLogged }: SheetProps) {
                   : 'border-slate-200 dark:border-slate-700 hover:border-violet-400 dark:hover:border-violet-500 hover:bg-violet-50/50 dark:hover:bg-violet-500/5'
               )}
             >
-              <span className="text-2xl leading-none">{habit.icon}</span>
-              <span className="text-[10px] font-semibold text-slate-600 dark:text-slate-400 text-center leading-tight truncate w-full">
-                {habit.name.split(' ')[0]}
+              <span className="text-2xl leading-none" aria-hidden="true">{habitIcon(habit)}</span>
+              <span className="text-[10px] font-semibold text-slate-600 dark:text-slate-400 text-center leading-tight line-clamp-2 w-full" aria-hidden="true">
+                {habitName(habit)}
               </span>
             </button>
           ))}
@@ -127,7 +141,8 @@ function QuickLogBottomSheet({ open, onClose, onLogged }: SheetProps) {
         <div className="px-4 pb-4">
           <button
             onClick={() => setShowNote(v => !v)}
-            className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors mb-2"
+            aria-expanded={showNote}
+            className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors mb-2 py-1"
           >
             <ChevronDown size={12} className={`transition-transform ${showNote ? 'rotate-180' : ''}`} />
             {showNote ? 'Hide note' : 'Add a note (optional)'}
@@ -140,13 +155,12 @@ function QuickLogBottomSheet({ open, onClose, onLogged }: SheetProps) {
               placeholder="What triggered this? (optional)"
               className="input text-sm"
               maxLength={100}
+              aria-label="Note"
               autoFocus
             />
           )}
         </div>
 
-        {/* Safe area spacer for iOS */}
-        <div className="h-safe-area-inset-bottom pb-4" />
       </div>
     </div>
   );
@@ -169,21 +183,23 @@ export function FloatingActionButton() {
     <>
       <Toast toast={toast} />
 
-      {/* FAB — sits above mobile bottom nav (h ~64px) and to the right */}
+      {/* FAB — sits above the mobile bottom nav (56 px plus the home-indicator inset) */}
       <button
         onClick={() => setOpen(true)}
         className={clsx(
-          'fixed z-40 right-5 bottom-24 lg:bottom-6',
+          'fixed z-40 right-4 bottom-[calc(4.5rem+env(safe-area-inset-bottom))] lg:bottom-6 lg:right-6',
           'w-14 h-14 rounded-full shadow-2xl',
           'bg-gradient-to-br from-teal-500 to-emerald-600',
           'flex items-center justify-center',
-          'transition-all hover:scale-110 active:scale-95',
+          'transition-all hover:scale-110 active:scale-95 focus:outline-none focus-visible:ring-4 focus-visible:ring-teal-300',
           'shadow-teal-500/40 hover:shadow-teal-500/60',
           open ? 'rotate-45' : ''
         )}
-        aria-label="Quick log a trigger"
+        aria-label="Quick log"
+        aria-haspopup="dialog"
+        aria-expanded={open}
       >
-        <Plus size={26} className="text-white" strokeWidth={2.5} />
+        <Plus size={26} className="text-white" strokeWidth={2.5} aria-hidden="true" />
       </button>
 
       <QuickLogBottomSheet

@@ -2,10 +2,12 @@
 
 import { Flame, Trophy, BarChart2, TrendingUp } from 'lucide-react';
 import { useApp } from '@/context/AppContext';
+import { usePrivacy } from '@/context/PrivacyContext';
 import { Card } from '@/components/ui/Card';
 
 export function StreakCard() {
   const { streaks, habitAnalytics } = useApp();
+  const { habitName, habitIcon, discreet } = usePrivacy();
 
   const perHabitStreaks = habitAnalytics
     .filter(h => h.streak.currentStreak > 0 || h.streak.longestStreak > 0)
@@ -17,7 +19,7 @@ export function StreakCard() {
       <div className="px-5 pt-5 pb-3 border-b border-slate-200 dark:border-slate-700">
         <h3 className="font-semibold text-slate-900 dark:text-white flex items-center gap-2">
           <Flame size={16} className="text-orange-500" />
-          Detox Streaks
+          {discreet('Detox Streaks', 'Streaks')}
         </h3>
         <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Consecutive days without triggering a habit</p>
       </div>
@@ -44,8 +46,8 @@ export function StreakCard() {
             {perHabitStreaks.map(h => (
               <div key={h.habitId} className="flex flex-col gap-1 p-3 bg-slate-50 dark:bg-slate-700/50 rounded-xl">
                 <div className="flex items-center gap-1.5">
-                  <span className="text-base leading-none">{h.habitIcon}</span>
-                  <span className="text-xs text-slate-500 dark:text-slate-400 truncate">{h.habitName}</span>
+                  <span className="text-base leading-none" aria-hidden="true">{habitIcon({ id: h.habitId, name: h.habitName, icon: h.habitIcon })}</span>
+                  <span className="text-xs text-slate-500 dark:text-slate-400 truncate">{habitName({ id: h.habitId, name: h.habitName, icon: h.habitIcon })}</span>
                 </div>
                 <p className={`text-lg font-bold ${h.streak.currentStreak > 0 ? 'text-orange-500' : 'text-slate-400'}`}>
                   {h.streak.currentStreak}d

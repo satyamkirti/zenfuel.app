@@ -2,6 +2,7 @@
 
 import { Lightbulb } from 'lucide-react';
 import { useApp } from '@/context/AppContext';
+import { usePrivacy } from '@/context/PrivacyContext';
 import { Card } from '@/components/ui/Card';
 import { clsx } from 'clsx';
 
@@ -14,6 +15,7 @@ const typeStyles = {
 
 export function InsightsPanel() {
   const { insights } = useApp();
+  const { maskText } = usePrivacy();
   return (
     <Card padding="none">
       <div className="px-5 py-4 border-b border-slate-200 dark:border-slate-700 flex items-center gap-2">
@@ -23,8 +25,8 @@ export function InsightsPanel() {
       <div className="p-4 grid gap-2.5">
         {insights.map(insight => (
           <div key={insight.id} className={clsx('flex items-start gap-3 p-3 rounded-lg border text-sm', typeStyles[insight.type])}>
-            <span className="text-base leading-none mt-0.5 shrink-0">{insight.icon}</span>
-            <p className="leading-snug">{insight.message}</p>
+            <span className="text-base leading-none mt-0.5 shrink-0" aria-hidden="true">{maskText(insight.icon)}</span>
+            <p className="leading-snug">{maskText(insight.message)}</p>
           </div>
         ))}
         {insights.length === 0 && (

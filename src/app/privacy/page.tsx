@@ -30,15 +30,18 @@ export default function PrivacyPage() {
         <li>Habit log entries — the habit, date, time, and any notes you add</li>
         <li>Your habits, including custom habits you create</li>
         <li>Goals and challenges, and their progress</li>
-        <li>App settings — theme, PIN lock settings (the PIN is stored as a hash, not as the digits you typed), auto-lock time, and Hidden Mode settings</li>
+        <li>App settings — theme, PIN lock settings (the PIN is stored as a hash, not as the digits you typed, together with its length), auto-lock time, and Hidden Mode settings</li>
         <li>Notification preferences, including the optional name you enter for reminder messages</li>
         <li>Any plan or trial status saved by an earlier version of the app (it no longer affects which features you can use)</li>
-        <li>Small interface preferences, such as which banners or alerts you have dismissed</li>
+        <li>Small interface preferences, such as which banners or alerts you have dismissed, and a count of recent incorrect PIN attempts used to slow down guessing</li>
       </UL>
       <P>This data stays on your device. We do not have a copy of it, cannot see it, and cannot recover it for you if it is lost — for example, if you clear your browser data, use a different browser or device, or browse in a private window.</P>
 
       <H3>Reminders</H3>
-      <P>If you enable notifications, reminders are shown by your browser while ZenFuel is open. Your notification preferences are stored locally; no push-notification server is used.</P>
+      <P>If you enable notifications, reminders are shown by your browser while ZenFuel is open. On some devices this uses a small service worker installed from this website, which only displays the reminder; it does not store or send your data. Your notification preferences are stored locally; no push-notification server is used.</P>
+
+      <H3>Hidden Mode and PIN lock</H3>
+      <P>Hidden Mode changes only what ZenFuel shows on screen (a neutral title and placeholders for habit names and notes). The PIN lock hides the app on your device. Neither encrypts your data, and neither changes what is stored or exported.</P>
 
       <H2>4. Google Analytics</H2>
       <P>ZenFuel currently uses Google Analytics 4, a web analytics service provided by Google. When you visit the website, Google Analytics may collect information such as:</P>
@@ -61,13 +64,12 @@ export default function PrivacyPage() {
       <H3>Delete</H3>
       <P>Because your tracker data is stored on your device, you control its deletion:</P>
       <UL>
-        <li><strong className={strong}>Settings → Data Management → Clear All</strong> deletes your habit log entries, goals, challenges, custom habits and app settings (including your PIN) from this browser.</li>
-        <li>Clear All does <strong className={strong}>not</strong> currently remove every item. Any saved plan or trial status, notification preferences (including the optional name), and dismissed-alert preferences remain.</li>
-        <li>To remove everything ZenFuel has stored on this device, clear this site&apos;s data (local storage and cookies) in your browser settings.</li>
+        <li><strong className={strong}>Settings → Data Management → Clear All</strong> deletes all ZenFuel data stored in this browser: habit log entries and notes, goals, challenges, custom habits, app settings (including your PIN), notification preferences (including the optional name), any saved plan or trial status, and dismissed-alert preferences. Default habits and built-in challenges are set up again afterwards.</li>
+        <li>Clear All does not change your browser&apos;s notification permission or remove Google Analytics cookies. To remove those, use your browser&apos;s site settings or clear this site&apos;s data (local storage and cookies).</li>
       </UL>
       <P>Deleting data on one device or browser does not affect other devices or browsers, because nothing is synced between them.</P>
-      <H3>Export</H3>
-      <P>You can export your habit log entries as a CSV or JSON file from <strong className={strong}>Settings → Data Management</strong>.</P>
+      <H3>Export and restore</H3>
+      <P>From <strong className={strong}>Settings → Data Management</strong> you can export a full backup as a JSON file (entries, habits, goals, challenges, settings including your PIN lock, notification preferences and any saved plan status) or your entries as a CSV file. A JSON backup can be restored on this or another device. Backup files are saved to your device; we never receive them.</P>
 
       <H2>8. Children&apos;s Privacy</H2>
       <P>ZenFuel is not directed at children under the age of 13. If you believe a child has used ZenFuel and want help understanding what is stored, contact us at <MailLink />.</P>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Trophy, Play, Square, CheckCircle2, AlertCircle, Plus } from 'lucide-react';
 import { useApp } from '@/context/AppContext';
 import { AppLayout } from '@/components/layout/AppLayout';
@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Challenge } from '@/types';
 import { computeChallengeProgress } from '@/utils/challenges';
 import { Modal } from '@/components/ui/Modal';
+import { usePrivacy } from '@/context/PrivacyContext';
 
 export default function ChallengesPage() {
   const { challenges, habits, entries, startChallenge, stopChallenge, completeChallenge, addChallenge } = useApp();
@@ -18,6 +19,22 @@ export default function ChallengesPage() {
   const [newDesc, setNewDesc] = useState('');
   const [newHabitId, setNewHabitId] = useState(habits[0]?.id ?? '');
   const [newDays, setNewDays] = useState(7);
+  const [confirmStopId, setConfirmStopId] = useState<string | null>(null);
+  const { challengeName, challengeDescription, habitName, habitIcon, masked } = usePrivacy();
+
+  // Habits load after the first render (e.g. on a hard refresh); fall back to the first habit.
+  const selectedHabitId = newHabitId === 'all' || habits.some(h => h.id === newHabitId) ? newHabitId : habits[0]?.id ?? 'all';
+
+  useEffect(() => {
+    if (!confirmStopId) return;
+    const t = setTimeout(() => setConfirmStopId(null), 4000);
+    return () => clearTimeout(t);
+  }, [confirmStopId]);
+
+  const handleStop = (id: string) => {
+    if (confirmStopId === id) { stopChallenge(id); setConfirmStopId(null); }
+    else setConfirmStopId(id);
+  };
 
   const habitMap = new Map(habits.map(h => [h.id, h]));
   const active = challenges.filter(c => c.isActive);
@@ -29,7 +46,7 @@ export default function ChallengesPage() {
     addChallenge({
       name: newName.trim(),
       description: newDesc.trim(),
-      habitId: newHabitId,
+      habitId: selectedHabitId,
       durationDays: newDays,
       startDate: null,
       isActive: false,
@@ -46,12 +63,12 @@ export default function ChallengesPage() {
     return (
       <Card>
         <div className="flex items-start gap-3 mb-3">
-          <div className="w-11 h-11 rounded-xl bg-amber-100 dark:bg-amber-500/20 flex items-center justify-center text-2xl shrink-0">
-            {habit?.icon ?? '🧠'}
+          <div className="w-11 h-11 rounded-xl bg-amber-100 dark:bg-amber-500/20 flex items-center justify-center text-2xl shrink-0" aria-hidden="true">
+            {habit ? habitIcon(habit) : masked ? '🏁' : '🧠'}
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <h3 className="font-semibold text-slate-900 dark:text-white">{c.name}</h3>
+              <h3 className="font-semibold text-slate-900 dark:text-white break-words">{challengeName(c)}</h3>
               {c.isBuiltIn && <Badge variant="purple">Built-in</Badge>}
               {c.isActive && (
                 progress.isViolated
@@ -60,9 +77,9 @@ export default function ChallengesPage() {
               )}
               {c.isCompleted && <Badge variant="success">Completed ✓</Badge>}
             </div>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{c.description}</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{challengeDescription(c)}</p>
             <p className="text-xs text-slate-400 mt-0.5">
-              {habit?.name ?? 'All Habits'} · {c.durationDays} days
+              {c.habitId === 'all' ? 'All Habits' : habitName(habit, c.habitId)} · {c.durationDays} days
             </p>
           </div>
         </div>
@@ -92,7 +109,7 @@ export default function ChallengesPage() {
           </div>
         )}
 
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           {!c.isActive && !c.isCompleted && (
             <Button size="sm" icon={<Play size={13} />} onClick={() => startChallenge(c.id)}>Start</Button>
           )}
@@ -101,7 +118,9 @@ export default function ChallengesPage() {
               {progress.percentage >= 100 && !progress.isViolated && (
                 <Button size="sm" variant="secondary" icon={<CheckCircle2 size={13} />} onClick={() => completeChallenge(c.id)}>Mark Complete</Button>
               )}
-              <Button size="sm" variant="outline" icon={<Square size={13} />} onClick={() => stopChallenge(c.id)}>Stop</Button>
+              <Button size="sm" variant={confirmStopId === c.id ? 'danger' : 'outline'} icon={<Square size={13} />} onClick={() => handleStop(c.id)}>
+                {confirmStopId === c.id ? 'Stop and lose progress?' : 'Stop'}
+              </Button>
             </>
           )}
           {c.isCompleted && (
@@ -159,23 +178,23 @@ export default function ChallengesPage() {
       <Modal open={showAddModal} onClose={() => setShowAddModal(false)} title="Create Custom Challenge" size="sm">
         <div className="p-6 space-y-4">
           <div>
-            <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Challenge Name</label>
-            <input value={newName} onChange={e => setNewName(e.target.value)} placeholder="e.g. 14-Day Social Media Break" className="input" />
+            <label htmlFor="challenge-name" className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Challenge Name</label>
+            <input id="challenge-name" value={newName} onChange={e => setNewName(e.target.value)} placeholder="e.g. 14-Day Social Media Break" className="input" />
           </div>
           <div>
-            <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Description</label>
-            <input value={newDesc} onChange={e => setNewDesc(e.target.value)} placeholder="Brief description..." className="input" />
+            <label htmlFor="challenge-desc" className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Description</label>
+            <input id="challenge-desc" value={newDesc} onChange={e => setNewDesc(e.target.value)} placeholder="Brief description..." className="input" />
           </div>
           <div>
-            <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Habit</label>
-            <select value={newHabitId} onChange={e => setNewHabitId(e.target.value)} className="input">
+            <label htmlFor="challenge-habit" className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Habit</label>
+            <select id="challenge-habit" value={selectedHabitId} onChange={e => setNewHabitId(e.target.value)} className="input">
               <option value="all">All Habits</option>
-              {habits.map(h => <option key={h.id} value={h.id}>{h.icon} {h.name}</option>)}
+              {habits.map(h => <option key={h.id} value={h.id}>{habitIcon(h)} {habitName(h)}</option>)}
             </select>
           </div>
           <div>
-            <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Duration (days)</label>
-            <input type="number" value={newDays} onChange={e => setNewDays(Math.max(1, parseInt(e.target.value) || 1))} min={1} max={365} className="input" />
+            <label htmlFor="challenge-days" className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Duration (days)</label>
+            <input id="challenge-days" type="number" value={newDays} onChange={e => setNewDays(Math.max(1, parseInt(e.target.value) || 1))} min={1} max={365} className="input" />
           </div>
         </div>
         <div className="px-6 pb-6 flex gap-2 justify-end">

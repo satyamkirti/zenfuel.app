@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/Badge';
 import { HabitModal } from '@/components/habits/HabitModal';
 import { UpgradeBanner } from '@/components/subscription/UpgradeBanner';
 import { Habit } from '@/types';
+import { usePrivacy } from '@/context/PrivacyContext';
 
 const CATEGORY_LABELS: Record<string, string> = {
   digital: 'Digital', adult: 'Adult', food: 'Food & Drink', substance: 'Substance', other: 'Other',
@@ -21,6 +22,7 @@ export default function HabitsPage() {
   const [showModal, setShowModal] = useState(false);
   const [editingHabit, setEditingHabit] = useState<Habit | null>(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const { habitName, habitIcon, masked } = usePrivacy();
 
   const analyticsMap = new Map(habitAnalytics.map(h => [h.habitId, h]));
   const FREE_LIMIT = 3;
@@ -92,21 +94,21 @@ export default function HabitsPage() {
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex items-center gap-3">
                       <div className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl" style={{ backgroundColor: habit.color + '20', border: `2px solid ${habit.color}33` }}>
-                        {habit.icon}
+                        <span aria-hidden="true">{habitIcon(habit)}</span>
                       </div>
-                      <div>
-                        <h3 className="font-semibold text-slate-900 dark:text-white">{habit.name}</h3>
+                      <div className="min-w-0">
+                        <h3 className="font-semibold text-slate-900 dark:text-white truncate">{habitName(habit)}</h3>
                         <div className="flex gap-1.5 mt-0.5">
                           <Badge variant={habit.isDefault ? 'purple' : 'default'}>{habit.isDefault ? 'Default' : 'Custom'}</Badge>
-                          <Badge variant="default">{CATEGORY_LABELS[habit.category]}</Badge>
+                          {!masked && <Badge variant="default">{CATEGORY_LABELS[habit.category]}</Badge>}
                         </div>
                       </div>
                     </div>
                     <div className="flex gap-1">
-                      <button onClick={() => { setEditingHabit(habit); setShowModal(true); }} className="p-1.5 rounded-lg btn-ghost"><Edit3 size={14} /></button>
+                      <button onClick={() => { setEditingHabit(habit); setShowModal(true); }} aria-label={`Edit ${habitName(habit)}`} className="p-2 rounded-lg btn-ghost"><Edit3 size={15} aria-hidden="true" /></button>
                       {!habit.isDefault && (
-                        <button onClick={() => handleDelete(habit.id)} className={`p-1.5 rounded-lg transition-colors ${confirmDeleteId === habit.id ? 'bg-red-100 dark:bg-red-500/20 text-red-600' : 'btn-ghost text-slate-400 hover:text-red-500'}`}>
-                          <Trash2 size={14} />
+                        <button onClick={() => handleDelete(habit.id)} aria-label={confirmDeleteId === habit.id ? `Confirm delete ${habitName(habit)}` : `Delete ${habitName(habit)}`} className={`p-2 rounded-lg transition-colors ${confirmDeleteId === habit.id ? 'bg-red-100 dark:bg-red-500/20 text-red-600' : 'btn-ghost text-slate-400 hover:text-red-500'}`}>
+                          <Trash2 size={15} aria-hidden="true" />
                         </button>
                       )}
                     </div>
@@ -126,7 +128,7 @@ export default function HabitsPage() {
                     </div>
                   )}
                   {confirmDeleteId === habit.id && (
-                    <p className="mt-2 text-xs text-red-500 text-center">Click delete again to confirm</p>
+                    <p role="status" className="mt-2 text-xs text-red-500 text-center">Tap delete again to confirm. Logged entries are kept.</p>
                   )}
                 </div>
               </Card>

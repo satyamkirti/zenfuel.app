@@ -1,16 +1,14 @@
 /**
- * Notification service for ZenFuel.
+ * Reminder notifications for ZenFuel.
  *
- * Architecture:
- * - Browser Notification API for in-tab + installed-PWA banners (no backend needed)
- * - Firebase Cloud Messaging for background push (requires Firebase config + backend)
- * - localStorage for user preferences
- * - setTimeout-based in-session scheduler (fires while app is open)
+ * What works today (no backend):
+ * - Reminders are scheduled with timers while ZenFuel is open in a tab or an installed
+ *   app window. Nothing is delivered while the app is closed.
+ * - Notifications are shown through a small service worker (public/sw.js) where the browser
+ *   requires one (Chrome on Android), otherwise with the Notification API.
+ * - Preferences are stored in localStorage.
  *
- * To enable background push after closing the app:
- *   1. Add Firebase project config to .env.local (see bottom of file)
- *   2. Uncomment the FCM block in initFCM()
- *   3. Deploy a Cloud Function (template at the bottom) to send at scheduled times
+ * Planned, not built: background push through Firebase Cloud Messaging (notes at the end).
  */
 
 export interface NotificationPrefs {
@@ -25,7 +23,9 @@ export interface NotificationPrefs {
   fcmToken?: string;
 }
 
-const PREFS_KEY = 'zenfuel_notification_prefs';
+export const PREFS_KEY = 'zenfuel_notification_prefs';
+// Fired in this tab after preferences change, so the scheduler can reschedule.
+export const PREFS_CHANGED_EVENT = 'zenfuel:notification-prefs';
 
 const DEFAULT_PREFS: NotificationPrefs = {
   enabled: false,
@@ -37,6 +37,10 @@ const DEFAULT_PREFS: NotificationPrefs = {
   vulnerableTime: '21:00',
   userName: '',
 };
+
+export function getDefaultNotificationPrefs(): NotificationPrefs {
+  return { ...DEFAULT_PREFS };
+}
 
 // ── Preferences ───────────────────────────────────────────────────────────────
 
@@ -53,9 +57,20 @@ export function getNotificationPrefs(): NotificationPrefs {
 export function saveNotificationPrefs(updates: Partial<NotificationPrefs>): void {
   const current = getNotificationPrefs();
   try { localStorage.setItem(PREFS_KEY, JSON.stringify({ ...current, ...updates })); } catch {}
+  try { window.dispatchEvent(new Event(PREFS_CHANGED_EVENT)); } catch {}
 }
 
-// ── Permission ────────────────────────────────────────────────────────────────
+// ── Support and permission ────────────────────────────────────────────────────
+
+export type NotificationSupport = 'supported' | 'install-required' | 'unsupported';
+
+export function getNotificationSupport(): NotificationSupport {
+  if (typeof window === 'undefined') return 'unsupported';
+  if ('Notification' in window) return 'supported';
+  // iPhone and iPad only offer notifications to web apps added to the Home Screen.
+  const ios = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  return ios ? 'install-required' : 'unsupported';
+}
 
 export async function requestPermission(): Promise<NotificationPermission> {
   if (typeof window === 'undefined' || !('Notification' in window)) return 'denied';
@@ -68,66 +83,117 @@ export function getPermissionStatus(): NotificationPermission {
   return Notification.permission;
 }
 
+// ── Service worker ────────────────────────────────────────────────────────────
+
+let registration: Promise<ServiceWorkerRegistration | null> | null = null;
+
+/** Registers public/sw.js (display only — no caching). Safe to call repeatedly. */
+export function registerNotificationWorker(): Promise<ServiceWorkerRegistration | null> {
+  if (typeof window === 'undefined' || !('serviceWorker' in navigator)) return Promise.resolve(null);
+  if (!registration) {
+    registration = navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(() => null);
+  }
+  return registration;
+}
+
 // ── Show notification ─────────────────────────────────────────────────────────
 
-export async function showNotification(
-  title: string,
-  body: string,
-  tag?: string
-): Promise<void> {
-  if (getPermissionStatus() !== 'granted') return;
+/** Shows a notification. Returns false if the browser refused or could not show it. */
+export async function showNotification(title: string, body: string, tag?: string): Promise<boolean> {
+  if (getPermissionStatus() !== 'granted') return false;
+  const options: NotificationOptions = { body, icon: '/images/zenfuel-icon-192.png', tag };
 
-  // Use plain Notification API (service worker removed)
-  new Notification(title, { body, icon: '/images/zenfuel-logo.png', tag });
+  const reg = await registerNotificationWorker();
+  if (reg) {
+    try {
+      // Wait briefly for the worker to activate on first use.
+      const ready = await Promise.race([
+        navigator.serviceWorker.ready,
+        new Promise<null>(resolve => setTimeout(() => resolve(null), 3000)),
+      ]);
+      await (ready ?? reg).showNotification(title, options);
+      return true;
+    } catch {}
+  }
+  try {
+    // Browsers without a usable worker. Throws on Android, which requires the worker.
+    new Notification(title, options);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 // ── In-session scheduler ──────────────────────────────────────────────────────
-// Fires while the app tab is open. For background push, wire up FCM (below).
+
+export type ReminderKind = 'morning' | 'evening' | 'vulnerable';
+
+export interface ReminderContext {
+  detoxScore: number;
+  streakDays: number;
+  /** Hidden Mode: neutral wording that mentions no habits, scores or app name. */
+  discreet: boolean;
+  discreetTitle: string;
+}
 
 let scheduledTimers: ReturnType<typeof setTimeout>[] = [];
 
-export function scheduleInSessionNotifications(
-  prefs: NotificationPrefs,
-  detoxScore: number,
-  streakDays: number
-): void {
-  // Clear any previous timers
+export function clearScheduledNotifications(): void {
   scheduledTimers.forEach(t => clearTimeout(t));
   scheduledTimers = [];
-
-  if (!prefs.enabled || getPermissionStatus() !== 'granted') return;
-
-  const schedule = (time: string, title: string, body: string) => {
-    const [h, m] = time.split(':').map(Number);
-    const target = new Date();
-    target.setHours(h, m, 0, 0);
-    const ms = target.getTime() - Date.now();
-    if (ms > 0 && ms < 86_400_000) {
-      scheduledTimers.push(setTimeout(() => showNotification(title, body), ms));
-    }
-  };
-
-  const name = prefs.userName ? ` ${prefs.userName}` : '';
-
-  if (prefs.morningEnabled) {
-    const streak = streakDays > 0 ? `Day ${streakDays} of your reset 🌅` : 'Good morning 🌅';
-    schedule(prefs.morningTime, streak, `Quick check-in${name} — how are you starting today?`);
-  }
-
-  if (prefs.eveningEnabled) {
-    const label = detoxScore >= 70 ? 'Strong day 💪' : detoxScore >= 40 ? 'Decent day 🙂' : 'Tough day — tomorrow is fresh ✨';
-    schedule(prefs.eveningTime, `Your ZenFuel score today: ${detoxScore}/100`, label);
-  }
-
-  if (prefs.vulnerableEnabled) {
-    schedule(prefs.vulnerableTime, 'Your high-risk window 🧠', 'This is when triggers usually hit. Stay aware.');
-  }
 }
 
-// registerServiceWorker() removed — service worker disabled until
-// Firebase backend is configured. Re-add when Supabase + FCM are wired up.
+/** Milliseconds until the clock next shows HH:MM (today if still ahead, otherwise tomorrow). */
+export function msUntil(time: string, from = new Date()): number | null {
+  const [h, m] = time.split(':').map(Number);
+  if (!Number.isFinite(h) || !Number.isFinite(m)) return null;
+  const target = new Date(from);
+  target.setHours(h, m, 0, 0);
+  if (target.getTime() <= from.getTime()) target.setDate(target.getDate() + 1);
+  return target.getTime() - from.getTime();
+}
 
-// ── FCM setup (uncomment after adding Firebase config) ───────────────────────
+export function buildReminder(kind: ReminderKind, prefs: NotificationPrefs, ctx: ReminderContext): { title: string; body: string } {
+  if (ctx.discreet) return { title: ctx.discreetTitle, body: 'You have a reminder.' };
+  const name = prefs.userName ? ` ${prefs.userName}` : '';
+  if (kind === 'morning') {
+    return {
+      title: ctx.streakDays > 0 ? `Day ${ctx.streakDays} of your reset 🌅` : 'Good morning 🌅',
+      body: `Quick check-in${name} — how are you starting today?`,
+    };
+  }
+  if (kind === 'evening') {
+    const label = ctx.detoxScore >= 70 ? 'Strong day 💪' : ctx.detoxScore >= 40 ? 'Decent day 🙂' : 'Tough day — tomorrow is fresh ✨';
+    return { title: `Your ZenFuel score today: ${ctx.detoxScore}/100`, body: label };
+  }
+  return { title: 'Your high-risk window 🧠', body: 'This is when triggers usually hit. Stay aware.' };
+}
+
+/**
+ * Schedules the enabled reminders while the app stays open. Each reminder reschedules
+ * itself for the next day after it fires. `getContext` is read when a reminder fires, so
+ * the message uses the current score and Hidden Mode setting.
+ */
+export function scheduleInSessionNotifications(prefs: NotificationPrefs, getContext: () => ReminderContext): void {
+  clearScheduledNotifications();
+  if (!prefs.enabled || getPermissionStatus() !== 'granted') return;
+
+  const plan = (kind: ReminderKind, time: string) => {
+    const ms = msUntil(time);
+    if (ms === null) return;
+    scheduledTimers.push(setTimeout(() => {
+      const { title, body } = buildReminder(kind, prefs, getContext());
+      void showNotification(title, body, `zenfuel-${kind}`);
+      plan(kind, time);
+    }, ms));
+  };
+
+  if (prefs.morningEnabled) plan('morning', prefs.morningTime);
+  if (prefs.eveningEnabled) plan('evening', prefs.eveningTime);
+  if (prefs.vulnerableEnabled) plan('vulnerable', prefs.vulnerableTime);
+}
+
+// ── FCM setup (planned — uncomment after adding Firebase config) ─────────────
 //
 // 1. Create a Firebase project at console.firebase.google.com
 // 2. Add Web App → copy config → paste into .env.local:

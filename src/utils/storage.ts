@@ -1,7 +1,10 @@
 import { LogEntry, AppSettings, Habit, Challenge, Goal } from '@/types';
 import { formatDate, formatTime } from './dateUtils';
+import { SUB_KEY } from './subscription';
+import { PREFS_KEY } from '@/lib/notifications';
+import { DISMISS_STORAGE_KEY } from '@/lib/risk-calculator';
 
-const KEYS = {
+export const KEYS = {
   ENTRIES: 'mt_entries',
   SETTINGS: 'mt_settings',
   LAST_ACTIVE: 'mt_last_active',
@@ -16,7 +19,7 @@ const DEFAULT_SETTINGS: AppSettings = {
   pinHash: '',
   autoLockMinutes: 5,
   hiddenMode: false,
-  hiddenTitle: 'Habit Tracker',
+  hiddenTitle: 'Personal Space',
 };
 
 export const DEFAULT_HABITS: Habit[] = [
@@ -189,40 +192,35 @@ export const storage = {
   // ── Activity ─────────────────────────────────────────────────────────────
   getLastActive(): number { return safeRead<number>(KEYS.LAST_ACTIVE, Date.now()); },
   touchLastActive(): void { safeWrite(KEYS.LAST_ACTIVE, Date.now()); },
+  /** Marks the app as locked, so a reload stays locked until the PIN is entered. */
+  markLocked(): void { safeWrite(KEYS.LAST_ACTIVE, 0); },
 
-  // ── Backup ───────────────────────────────────────────────────────────────
-  exportBackup(): string {
-    return JSON.stringify({
-      version: 2,
-      app: 'Dopamine Detox Tracker',
-      exportedAt: new Date().toISOString(),
-      entries: storage.getEntries(),
-      habits: storage.getHabits(),
-      challenges: storage.getChallenges(),
-      goals: storage.getGoals(),
-      settings: storage.getSettings(),
-    }, null, 2);
-  },
-  importBackup(json: string): { success: boolean; count: number } {
-    try {
-      const data = JSON.parse(json) as {
-        entries?: LogEntry[];
-        habits?: Habit[];
-        challenges?: Challenge[];
-        goals?: Goal[];
-        settings?: Partial<AppSettings>;
-      };
-      if (!Array.isArray(data.entries)) return { success: false, count: 0 };
-      storage.saveEntries(migrateEntries(data.entries));
-      if (data.habits) storage.saveHabits(data.habits);
-      if (data.challenges) storage.saveChallenges(data.challenges);
-      if (data.goals) storage.saveGoals(data.goals);
-      if (data.settings) storage.saveSettings(data.settings);
-      return { success: true, count: data.entries.length };
-    } catch { return { success: false, count: 0 }; }
-  },
+  // ── Clear All ────────────────────────────────────────────────────────────
+  // Removes every key ZenFuel owns in this browser. Defaults (built-in habits and
+  // challenges, default settings) come back automatically on the next read.
   clearAll(): void {
     if (typeof window === 'undefined') return;
-    Object.values(KEYS).forEach(k => localStorage.removeItem(k));
+    APP_LOCAL_STORAGE_KEYS.forEach(k => { try { localStorage.removeItem(k); } catch {} });
+    try {
+      Object.keys(sessionStorage)
+        .filter(k => k.startsWith(BANNER_DISMISS_PREFIX))
+        .forEach(k => sessionStorage.removeItem(k));
+    } catch {}
   },
 };
+
+// Failed PIN attempts and the retry delay (see usePinLock). Not part of backups.
+export const PIN_ATTEMPTS_KEY = 'zenfuel_pin_attempts';
+
+// Every localStorage key written by the app. Third-party keys and cookies are not touched.
+export const APP_LOCAL_STORAGE_KEYS: string[] = [
+  ...Object.values(KEYS),
+  SUB_KEY,
+  PREFS_KEY,
+  DISMISS_STORAGE_KEY,
+  PIN_ATTEMPTS_KEY,
+  // Written only by the removed legacy-demo notice (never released); still cleared if present.
+  'zenfuel_legacy_demo_notice_dismissed',
+];
+// sessionStorage flags written by UpgradeBanner.
+const BANNER_DISMISS_PREFIX = 'banner_dismissed_';

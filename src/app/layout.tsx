@@ -1,11 +1,12 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import { AppProvider } from '@/context/AppContext';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
-const APP_URL = 'https://zenfuel.app';
+// zenfuel.app permanently redirects (308) to www.zenfuel.app, so www is the canonical host.
+const APP_URL = 'https://www.zenfuel.app';
 const OG_IMAGE = `${APP_URL}/images/zenfuel-logo.png`;
 
 export const metadata: Metadata = {
@@ -45,9 +46,9 @@ export const metadata: Metadata = {
     images: [OG_IMAGE],
   },
   icons: {
-    icon: '/images/zenfuel-logo.png',
-    apple: '/images/zenfuel-logo.png',
-    shortcut: '/images/zenfuel-logo.png',
+    icon: '/images/zenfuel-icon-192.png',
+    apple: '/images/zenfuel-icon-192.png',
+    shortcut: '/images/zenfuel-icon-192.png',
   },
   manifest: '/manifest.json',
   robots: {
@@ -56,6 +57,14 @@ export const metadata: Metadata = {
     googleBot: { index: true, follow: true, 'max-image-preview': 'large', 'max-snippet': -1 },
   },
   alternates: { canonical: APP_URL },
+};
+
+// viewport-fit=cover lets the layout pad for the notch and home indicator (env(safe-area-inset-*)).
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  viewportFit: 'cover',
+  themeColor: '#7c3aed',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -84,10 +93,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           }}
         />
 
-        {/* Theme — sets dark class before first paint */}
+        {/*
+          Before first paint: theme class, and the Hidden Mode flag so the brand is hidden
+          (CSS: html[data-discreet] [data-brand]) and the tab title is neutral until React takes over.
+        */}
         <script
           dangerouslySetInnerHTML={{
-            __html: "try{var s=JSON.parse(localStorage.getItem('mt_settings')||'{}');if(s.theme!=='light')document.documentElement.classList.add('dark');}catch(e){}",
+            __html: "try{var d=document.documentElement,s=JSON.parse(localStorage.getItem('mt_settings')||'{}');if(s.theme!=='light')d.classList.add('dark');if(s.hiddenMode){d.setAttribute('data-discreet','');var t=String(s.hiddenTitle||'').trim()||'Personal Space';document.title=t;document.addEventListener('DOMContentLoaded',function(){document.title=t;});}}catch(e){}",
           }}
         />
       </head>

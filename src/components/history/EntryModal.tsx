@@ -5,7 +5,8 @@ import { Trash2, Save } from 'lucide-react';
 import { LogEntry, Habit } from '@/types';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
-import { formatDate, formatTime } from '@/utils/dateUtils';
+import { formatDate } from '@/utils/dateUtils';
+import { usePrivacy } from '@/context/PrivacyContext';
 
 interface EntryModalProps {
   entry: LogEntry | null;
@@ -21,6 +22,7 @@ export function EntryModal({ entry, habits, onClose, onSave, onDelete }: EntryMo
   const [time, setTime] = useState('');
   const [notes, setNotes] = useState('');
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const { habitName, habitIcon, masked, reveal } = usePrivacy();
 
   useEffect(() => {
     if (entry) {
@@ -44,24 +46,32 @@ export function EntryModal({ entry, habits, onClose, onSave, onDelete }: EntryMo
     <Modal open={!!entry} onClose={onClose} title="Edit Entry" size="sm">
       <div className="p-6 space-y-4">
         <div>
-          <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Habit</label>
-          <select value={habitId} onChange={e => setHabitId(e.target.value)} className="input">
-            {habits.map(h => <option key={h.id} value={h.id}>{h.icon} {h.name}</option>)}
+          <label htmlFor="entry-habit" className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Habit</label>
+          <select id="entry-habit" value={habitId} onChange={e => setHabitId(e.target.value)} className="input">
+            {habits.map(h => <option key={h.id} value={h.id}>{habitIcon(h)} {habitName(h)}</option>)}
           </select>
         </div>
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Date</label>
-            <input type="date" value={date} onChange={e => setDate(e.target.value)} max={formatDate(new Date())} className="input" />
+            <label htmlFor="entry-date" className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Date</label>
+            <input id="entry-date" type="date" value={date} onChange={e => setDate(e.target.value)} max={formatDate(new Date())} className="input" />
           </div>
           <div>
-            <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Time</label>
-            <input type="time" value={time} onChange={e => setTime(e.target.value)} className="input" />
+            <label htmlFor="entry-time" className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Time</label>
+            <input id="entry-time" type="time" value={time} onChange={e => setTime(e.target.value)} className="input" />
           </div>
         </div>
         <div>
-          <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Notes</label>
-          <textarea value={notes} onChange={e => setNotes(e.target.value)} rows={2} placeholder="Optional notes..." className="input resize-none" />
+          <label htmlFor="entry-notes" className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Notes</label>
+          {masked && notes ? (
+            // The real note stays in state and is saved unchanged; it is only not displayed.
+            <div className="flex items-center justify-between gap-3 px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-700 text-sm text-slate-500 dark:text-slate-400">
+              <span>Note hidden</span>
+              <button type="button" onClick={reveal} className="text-xs font-medium text-violet-600 dark:text-violet-400 hover:underline">Show to edit</button>
+            </div>
+          ) : (
+            <textarea id="entry-notes" value={notes} onChange={e => setNotes(e.target.value)} rows={2} placeholder="Optional notes..." className="input resize-none" />
+          )}
         </div>
         <p className="text-xs text-slate-400">Logged: {new Date(entry.createdAt).toLocaleString()}</p>
       </div>

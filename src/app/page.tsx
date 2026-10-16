@@ -21,6 +21,7 @@ export default function HomePage() {
       */}
       <section
         aria-label="ZenFuel app description"
+        data-seo
         className="sr-only"
       >
         <h1>ZenFuel — Free Brain Reset App</h1>
@@ -31,11 +32,12 @@ export default function HomePage() {
 
         <h2>What is ZenFuel?</h2>
         <p>
-          ZenFuel is a private, local-first dopamine detox tracker that
+          ZenFuel is a local-first dopamine detox tracker that
           helps you monitor and reduce compulsive habits like social media
           scrolling, gaming, junk food, and other dopamine-seeking
           behaviours. Your habit logs are stored locally in your browser,
-          not on a ZenFuel server.
+          not on a ZenFuel server. The website uses Google Analytics to
+          measure visits.
         </p>
 
         <h2>Key Features</h2>
@@ -48,7 +50,7 @@ export default function HomePage() {
           <li>30-day dopamine reset challenges</li>
           <li>Personal goals: reduce by %, max sessions per week, streak targets</li>
           <li>GitHub-style yearly activity heatmap</li>
-          <li>Risk alarm system — real-time alerts when habit patterns spike</li>
+          <li>In-app risk alerts when your logging pattern spikes</li>
           <li>Habit logs stored locally in your browser — no account required</li>
           <li>No download required — runs in your browser</li>
         </ul>

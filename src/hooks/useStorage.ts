@@ -3,6 +3,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { LogEntry, Habit, Challenge, Goal } from '@/types';
 import { storage } from '@/utils/storage';
+import { formatDate } from '@/utils/dateUtils';
+import { parseBackupText, applyBackup } from '@/utils/backup';
 
 export function useStorage() {
   const [entries, setEntries] = useState<LogEntry[]>([]);
@@ -61,7 +63,9 @@ export function useStorage() {
 
   // ── Challenges ─────────────────────────────────────────────────────────────
   const startChallenge = useCallback((id: string) => {
-    storage.updateChallenge(id, { isActive: true, startDate: new Date().toISOString().split('T')[0], isCompleted: false });
+    // Local calendar date (toISOString would give the UTC date, a day early in India before 5:30 am).
+    const now = new Date();
+    storage.updateChallenge(id, { isActive: true, startDate: formatDate(now), startedAt: now.getTime(), isCompleted: false });
     setChallenges(storage.getChallenges());
   }, []);
 
@@ -103,15 +107,17 @@ export function useStorage() {
   }, []);
 
   // ── Backup ─────────────────────────────────────────────────────────────────
+  // Validated, all-or-nothing replace. Settings uses the two-step parse/confirm flow instead.
   const importBackup = useCallback((json: string) => {
-    const result = storage.importBackup(json);
-    if (result.success) {
-      setEntries(storage.getEntries());
-      setHabits(storage.getHabits());
-      setChallenges(storage.getChallenges());
-      setGoals(storage.getGoals());
-    }
-    return result;
+    const parsed = parseBackupText(json);
+    if (!parsed.ok) return { success: false, count: 0 };
+    const result = applyBackup(parsed.backup, 'replace');
+    if (!result.ok) return { success: false, count: 0 };
+    setEntries(storage.getEntries());
+    setHabits(storage.getHabits());
+    setChallenges(storage.getChallenges());
+    setGoals(storage.getGoals());
+    return { success: true, count: result.entryCount };
   }, []);
 
   const clearAll = useCallback(() => {

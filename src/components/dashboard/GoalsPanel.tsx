@@ -3,11 +3,13 @@
 import Link from 'next/link';
 import { Target, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { useApp } from '@/context/AppContext';
+import { usePrivacy } from '@/context/PrivacyContext';
 import { Card } from '@/components/ui/Card';
 import { computeGoalProgress } from '@/utils/goals';
 
 export function GoalsPanel() {
   const { goals, entries, habits } = useApp();
+  const { goalName, habitIcon } = usePrivacy();
   const active = goals.filter(g => g.isActive);
   if (active.length === 0) return null;
 
@@ -30,9 +32,9 @@ export function GoalsPanel() {
             <div key={goal.id} className="space-y-1.5">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <span>{habit?.icon ?? '🎯'}</span>
+                  <span aria-hidden="true">{habit ? habitIcon(habit) : '🎯'}</span>
                   <div>
-                    <p className="text-sm font-medium text-slate-800 dark:text-slate-200">{goal.name}</p>
+                    <p className="text-sm font-medium text-slate-800 dark:text-slate-200">{goalName(goal)}</p>
                     <p className="text-xs text-slate-400">{progress.label}</p>
                   </div>
                 </div>

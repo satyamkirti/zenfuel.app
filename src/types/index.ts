@@ -137,6 +137,8 @@ export interface Challenge {
   habitId: string;
   durationDays: number;
   startDate: string | null;
+  /** When the challenge was started (ms). Older records only have startDate. */
+  startedAt?: number;
   isActive: boolean;
   isCompleted: boolean;
   isBuiltIn: boolean;
@@ -160,6 +162,8 @@ export interface AppSettings {
   theme: Theme;
   pinEnabled: boolean;
   pinHash: string;
+  /** Digits in the PIN. Missing for PINs set before this was recorded. */
+  pinLength?: number;
   autoLockMinutes: number;
   hiddenMode: boolean;
   hiddenTitle: string;

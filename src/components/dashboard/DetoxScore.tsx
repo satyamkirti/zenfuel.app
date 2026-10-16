@@ -2,6 +2,7 @@
 
 import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import { DetoxScore as DetoxScoreType } from '@/types';
+import { usePrivacy } from '@/context/PrivacyContext';
 
 interface DetoxScoreProps {
   score: DetoxScoreType;
@@ -16,15 +17,16 @@ const CIRC = 2 * Math.PI * R;
 
 export function DetoxScoreCard({ score, currentStreak, todayCount }: DetoxScoreProps) {
   const offset = CIRC * (1 - score.score / 100);
+  const { discreet } = usePrivacy();
 
   const TrendIcon = score.trend === 'up' ? TrendingUp : score.trend === 'down' ? TrendingDown : Minus;
   const trendColor = score.trend === 'up' ? 'text-emerald-500' : score.trend === 'down' ? 'text-red-500' : 'text-slate-400';
 
   return (
-    <div className="bg-gradient-to-br from-slate-900 to-slate-800 dark:from-slate-900 dark:to-slate-800 rounded-2xl p-5 text-white shadow-xl border border-slate-700">
+    <div className="surface-dark bg-gradient-to-br from-slate-900 to-slate-800 dark:from-slate-900 dark:to-slate-800 rounded-2xl p-5 text-white shadow-xl border border-slate-700">
       <div className="flex items-center justify-between mb-4">
         <div>
-          <p className="text-xs font-medium text-slate-400 uppercase tracking-wider">Dopamine Detox Score</p>
+          <p className="text-xs font-medium text-slate-300 uppercase tracking-wider">{discreet('Dopamine Detox Score', 'Daily score')}</p>
           <p className="text-sm text-slate-300 mt-0.5">{score.label}</p>
         </div>
         <div className={`flex items-center gap-1 text-xs font-medium ${trendColor}`}>

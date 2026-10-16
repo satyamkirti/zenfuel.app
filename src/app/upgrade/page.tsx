@@ -3,11 +3,12 @@ import Link from 'next/link';
 import { Sparkles, CheckCircle2 } from 'lucide-react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Card } from '@/components/ui/Card';
+import { PremiumUpgradeView } from '@/components/subscription/PremiumUpgradeView';
+import { MONETIZATION_UI_ENABLED } from '@/utils/subscription';
 
-export const metadata: Metadata = {
-  title: 'Free Beta',
-  description: 'ZenFuel is free during its beta. Every feature in the app is available to everyone, with no subscription or payment.',
-};
+export const metadata: Metadata = MONETIZATION_UI_ENABLED
+  ? { title: 'Premium', description: 'ZenFuel Premium plans.' }
+  : { title: 'Free Beta', description: 'ZenFuel is free during its beta. Every feature in the app is available to everyone, with no subscription or payment.' };
 
 // Only features that exist in the app today.
 const INCLUDED = [
@@ -20,7 +21,12 @@ const INCLUDED = [
   'PIN lock',
 ];
 
-export default function FreeBetaPage() {
+export default function UpgradePage() {
+  // The paid-plan page is kept for the future but never rendered during the Free Beta.
+  return MONETIZATION_UI_ENABLED ? <PremiumUpgradeView /> : <FreeBetaInfo />;
+}
+
+function FreeBetaInfo() {
   return (
     <AppLayout title="Free Beta">
       <div className="space-y-4 max-w-2xl">

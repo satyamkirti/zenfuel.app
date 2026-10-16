@@ -2,7 +2,7 @@ import { MetadataRoute } from 'next';
 
 export const dynamic = 'force-static';
 
-const BASE = 'https://zenfuel.app';
+const BASE = 'https://www.zenfuel.app';
 const LAST_MODIFIED = '2026-07-07';
 
 export default function sitemap(): MetadataRoute.Sitemap {

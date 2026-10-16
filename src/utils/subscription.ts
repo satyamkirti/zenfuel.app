@@ -103,6 +103,11 @@ export function isPremium(sub: Subscription): boolean {
 // storage untouched but do not affect access while this is true.
 export const FREE_BETA = true;
 
+// Pricing, trials, plan badges and "Upgrade to Premium" entry points stay hidden while
+// FREE_BETA is on. The future paid-plan design is kept in code behind this flag and
+// documented in docs/future-monetization-plan.md.
+export const MONETIZATION_UI_ENABLED = !FREE_BETA;
+
 export function hasFullAccess(sub: Subscription): boolean {
   return FREE_BETA || isPremium(sub);
 }
@@ -144,7 +149,7 @@ export function getEffectiveSubscription(sub: Subscription): Subscription {
   return isLegacyDemoGrant(sub) ? DEFAULT_SUBSCRIPTION : sub;
 }
 
-const SUB_KEY = 'ddt_subscription';
+export const SUB_KEY = 'ddt_subscription';
 
 export function loadSubscription(): Subscription {
   if (typeof window === 'undefined') return DEFAULT_SUBSCRIPTION;

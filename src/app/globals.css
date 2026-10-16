@@ -34,6 +34,30 @@
     font-variation-settings: 'opsz' 32;
   }
 
+  /* Visible keyboard focus for links and controls that do not draw their own ring. */
+  :focus-visible {
+    outline: 2px solid rgb(139 92 246);
+    outline-offset: 2px;
+  }
+
+  /* Readability: the lightest muted greys fall below 4.5:1 contrast on their backgrounds. */
+  /* (:not(:hover) leaves hover colours to the utilities; .surface-dark marks always-dark panels.) */
+  html:not(.dark) .text-slate-400:not(:hover):not(.surface-dark *) {
+    color: rgb(100 116 139);
+  }
+  html.dark .dark\:text-slate-500:not(:hover) {
+    color: rgb(148 163 184);
+  }
+
+  /* Hidden Mode saved: keep the ZenFuel brand off screen until React renders the neutral title. */
+  html[data-discreet] [data-brand] {
+    visibility: hidden;
+  }
+  /* The screen-reader-only description on the home page names the app and its habits. */
+  html[data-discreet] [data-seo] {
+    display: none;
+  }
+
   ::-webkit-scrollbar {
     @apply w-1.5 h-1.5;
   }

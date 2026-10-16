@@ -5,6 +5,7 @@ import { LogEntry, Habit } from '@/types';
 import { Card } from '@/components/ui/Card';
 import { WEEKDAYS, getStartOfDay, formatHour } from '@/utils/dateUtils';
 import { Brain } from 'lucide-react';
+import { usePrivacy } from '@/context/PrivacyContext';
 
 interface Pattern {
   icon: string;
@@ -173,6 +174,7 @@ const SUGGESTION_STYLES = {
 
 export function PatternInsights({ entries, habits }: PatternInsightsProps) {
   const patterns = useMemo(() => computePatterns(entries, habits), [entries, habits]);
+  const { maskText } = usePrivacy();
 
   if (patterns.length === 0) {
     return null;
@@ -189,12 +191,12 @@ export function PatternInsights({ entries, habits }: PatternInsightsProps) {
         {patterns.map((p, i) => (
           <div key={i} className={`p-4 rounded-xl border ${TYPE_STYLES[p.type]}`}>
             <div className="flex items-start gap-3">
-              <span className="text-xl leading-none mt-0.5 shrink-0">{p.icon}</span>
+              <span className="text-xl leading-none mt-0.5 shrink-0" aria-hidden="true">{maskText(p.icon)}</span>
               <div className="flex-1 min-w-0">
                 <p className="text-xs font-bold uppercase tracking-wider opacity-70 mb-0.5">{p.title}</p>
-                <p className="text-sm font-medium leading-snug mb-2">{p.insight}</p>
+                <p className="text-sm font-medium leading-snug mb-2">{maskText(p.insight)}</p>
                 <p className={`text-xs leading-snug ${SUGGESTION_STYLES[p.type]}`}>
-                  💡 {p.suggestion}
+                  💡 {maskText(p.suggestion)}
                 </p>
               </div>
             </div>

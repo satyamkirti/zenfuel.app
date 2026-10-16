@@ -19,18 +19,8 @@ import { UpgradeBanner } from '@/components/subscription/UpgradeBanner';
 import { RiskAlert } from '@/components/alerts/RiskAlert';
 
 export function DashboardContent() {
-  const { analytics, streaks, detoxScore, isLoaded, isPremium, entries, challenges, goals, habits, riskAssessment } = useApp();
-
-  if (!isLoaded) {
-    return (
-      <div className="fixed inset-0 bg-slate-50 dark:bg-[#020617] flex items-center justify-center">
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-10 h-10 rounded-full border-2 border-violet-600 border-t-transparent animate-spin" />
-          <p className="text-slate-500 dark:text-slate-400 text-sm">Loading...</p>
-        </div>
-      </div>
-    );
-  }
+  // AppLayout shows a loading state until stored data has been read.
+  const { analytics, streaks, detoxScore, isPremium, entries, challenges, goals, habits, riskAssessment } = useApp();
 
   return (
     <AppLayout title="Dashboard">

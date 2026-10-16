@@ -6,6 +6,7 @@ import {
   RiskAssessment, RiskLevel, RISK_PALETTE, RISK_LEVEL_ORDER, DISMISS_STORAGE_KEY,
 } from '@/lib/risk-calculator';
 import { clsx } from 'clsx';
+import { usePrivacy } from '@/context/PrivacyContext';
 
 // ── Dismiss helpers ────────────────────────────────────────────────────────────
 
@@ -46,7 +47,12 @@ const LEVEL_LABELS: Record<RiskLevel, string> = {
 };
 
 export function RiskAlert({ assessment }: RiskAlertProps) {
-  const { level, title, message, suggestion, triggers, timerMinutes } = assessment;
+  const { maskText } = usePrivacy();
+  const { level, timerMinutes } = assessment;
+  const title = maskText(assessment.title);
+  const message = maskText(assessment.message);
+  const suggestion = maskText(assessment.suggestion);
+  const triggers = assessment.triggers.map(maskText);
   const palette = RISK_PALETTE[level];
 
   const [visible, setVisible] = useState(false);

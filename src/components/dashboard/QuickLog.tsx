@@ -3,12 +3,15 @@
 import { useState } from 'react';
 import { Plus, Clock, ChevronDown, Check, Zap } from 'lucide-react';
 import { useApp } from '@/context/AppContext';
+import { usePrivacy } from '@/context/PrivacyContext';
 import { Button } from '@/components/ui/Button';
 import { formatDate, formatTime } from '@/utils/dateUtils';
 
 export function QuickLog() {
   const { logEntry, habits } = useApp();
+  const { habitName, habitIcon } = usePrivacy();
   const [selectedHabitId, setSelectedHabitId] = useState(habits[0]?.id ?? 'social-media');
+  const selectedName = (h: { id: string; name: string; icon: string } | undefined) => (h ? habitName(h) : 'Event');
   const [showOptions, setShowOptions] = useState(false);
   const [notes, setNotes] = useState('');
   const [useCustomTime, setUseCustomTime] = useState(false);
@@ -44,14 +47,15 @@ export function QuickLog() {
           <button
             key={h.id}
             onClick={() => setSelectedHabitId(h.id)}
+            aria-pressed={selectedHabitId === h.id}
             className={`flex items-center gap-2 px-2.5 py-2 rounded-xl text-sm font-medium transition-all ${
               selectedHabitId === h.id
                 ? 'bg-white text-violet-700 shadow-sm'
                 : 'bg-white/10 text-white hover:bg-white/20'
             }`}
           >
-            <span>{h.icon}</span>
-            <span className="truncate text-xs">{h.name}</span>
+            <span aria-hidden="true">{habitIcon(h)}</span>
+            <span className="truncate text-xs">{habitName(h)}</span>
           </button>
         ))}
       </div>
@@ -60,31 +64,33 @@ export function QuickLog() {
         <select
           value={selectedHabitId}
           onChange={e => setSelectedHabitId(e.target.value)}
+          aria-label="Habit"
           className="mb-4 w-full px-3 py-1.5 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:ring-2 focus:ring-white/40"
         >
-          {habits.map(h => <option key={h.id} value={h.id}>{h.icon} {h.name}</option>)}
+          {habits.map(h => <option key={h.id} value={h.id} className="text-slate-900">{habitIcon(h)} {habitName(h)}</option>)}
         </select>
       )}
 
-      <button onClick={handleLog} className="relative group mx-auto mb-3">
+      <button onClick={handleLog} aria-label={`Log ${selectedName(selectedHabit)}`} className="relative group mx-auto mb-3 rounded-full focus:outline-none focus-visible:ring-4 focus-visible:ring-white/60">
         <div className="absolute inset-0 rounded-full bg-white/20 scale-0 group-active:scale-150 transition-transform duration-300" />
         <div className={`w-20 h-20 rounded-full flex items-center justify-center shadow-2xl transition-all duration-200 ${
           success ? 'bg-emerald-500 scale-110' : 'bg-white hover:bg-white/95 active:scale-95'
         }`}>
           {success
             ? <Check size={36} className="text-white" strokeWidth={3} />
-            : <span className="text-3xl">{selectedHabit?.icon ?? '+'}</span>
+            : <span className="text-3xl" aria-hidden="true">{selectedHabit ? habitIcon(selectedHabit) : '+'}</span>
           }
         </div>
       </button>
 
-      <p className="text-center text-white text-sm font-semibold mb-1">
-        {success ? `${selectedHabit?.name} logged!` : `Log ${selectedHabit?.name ?? 'Event'}`}
+      <p className="text-center text-white text-sm font-semibold mb-1" aria-live="polite">
+        {success ? `${selectedName(selectedHabit)} logged!` : `Log ${selectedName(selectedHabit)}`}
       </p>
 
       <button
         onClick={() => setShowOptions(v => !v)}
-        className="flex items-center justify-center gap-1.5 text-violet-200 hover:text-white text-xs transition-colors mt-auto"
+        aria-expanded={showOptions}
+        className="flex items-center justify-center gap-1.5 text-violet-100 hover:text-white text-xs transition-colors mt-auto py-1"
       >
         <ChevronDown size={12} className={`transition-transform ${showOptions ? 'rotate-180' : ''}`} />
         {showOptions ? 'Hide options' : 'Notes / custom time'}
@@ -96,6 +102,7 @@ export function QuickLog() {
             value={notes}
             onChange={e => setNotes(e.target.value)}
             placeholder="Optional note..."
+            aria-label="Note"
             rows={2}
             className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-violet-300 text-xs focus:outline-none focus:ring-2 focus:ring-white/40 resize-none"
           />
@@ -105,8 +112,8 @@ export function QuickLog() {
           </label>
           {useCustomTime && (
             <div className="flex gap-2">
-              <input type="date" value={customDate} onChange={e => setCustomDate(e.target.value)} max={formatDate(new Date())} className="flex-1 px-2 py-1.5 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:ring-2 focus:ring-white/40" />
-              <input type="time" value={customTime} onChange={e => setCustomTime(e.target.value)} className="flex-1 px-2 py-1.5 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:ring-2 focus:ring-white/40" />
+              <input type="date" aria-label="Date" value={customDate} onChange={e => setCustomDate(e.target.value)} max={formatDate(new Date())} className="flex-1 px-2 py-1.5 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:ring-2 focus:ring-white/40" />
+              <input type="time" aria-label="Time" value={customTime} onChange={e => setCustomTime(e.target.value)} className="flex-1 px-2 py-1.5 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:ring-2 focus:ring-white/40" />
             </div>
           )}
           <Button onClick={handleLog} variant="secondary" size="sm" className="w-full bg-white/20 hover:bg-white/30 text-white border-0">

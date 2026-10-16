@@ -6,9 +6,11 @@ import { Subscription, PremiumFeature, SubscriptionPlan } from '@/types/subscrip
 import { useStorage } from '@/hooks/useStorage';
 import { useAnalytics } from '@/hooks/useAnalytics';
 import { useTheme } from '@/hooks/useTheme';
-import { usePinLock } from '@/hooks/usePinLock';
+import { usePinLock, UnlockResult } from '@/hooks/usePinLock';
 import { useSubscription } from '@/hooks/useSubscription';
 import { calculateRisk, RiskAssessment } from '@/lib/risk-calculator';
+import { PrivacyProvider } from '@/context/PrivacyContext';
+import { NotificationScheduler } from '@/components/system/NotificationScheduler';
 
 interface AppContextType {
   // Data
@@ -48,10 +50,13 @@ interface AppContextType {
   setTheme: (t: Theme) => void;
   // PIN Lock
   isLocked: boolean;
+  /** False until the PIN setting has been read; protected screens wait for it. */
+  lockReady: boolean;
   pinEnabled: boolean;
+  pinLength: number | null;
   autoLockMinutes: number;
   lock: () => void;
-  unlock: (pin: string) => boolean;
+  unlock: (pin: string, opts?: { silent?: boolean }) => UnlockResult;
   enablePin: (pin: string) => void;
   disablePin: () => void;
   updateAutoLock: (minutes: number) => void;
@@ -89,7 +94,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     [detoxScore.score, entries, streaks.currentStreak]
   );
   const { theme, toggleTheme, setTheme } = useTheme();
-  const { isLocked, pinEnabled, autoLockMinutes, lock, unlock, enablePin, disablePin, updateAutoLock } = usePinLock();
+  const { isLocked, lockReady, pinEnabled, pinLength, autoLockMinutes, lock, unlock, enablePin, disablePin, updateAutoLock } = usePinLock();
   const {
     subscription, legacyDemoEnded, isPremium, checkFeature, historyCutoff,
     daysLeft, trialDaysLeft, activateDemo, startTrial, cancel: cancelSubscription,
@@ -104,12 +109,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
       startChallenge, stopChallenge, completeChallenge, addChallenge,
       addGoal, updateGoal, deleteGoal,
       theme, toggleTheme, setTheme,
-      isLocked, pinEnabled, autoLockMinutes, lock, unlock, enablePin, disablePin, updateAutoLock,
+      isLocked, lockReady, pinEnabled, pinLength, autoLockMinutes, lock, unlock, enablePin, disablePin, updateAutoLock,
       subscription, legacyDemoEnded, isPremium, checkFeature, historyCutoff, daysLeft, trialDaysLeft,
       activateDemo, startTrial, cancelSubscription,
       riskAssessment,
     }}>
-      {children}
+      <PrivacyProvider habits={habits}>
+        {children}
+        <NotificationScheduler />
+      </PrivacyProvider>
     </AppContext.Provider>
   );
 }

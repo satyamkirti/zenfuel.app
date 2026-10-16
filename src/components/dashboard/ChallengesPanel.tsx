@@ -3,11 +3,13 @@
 import Link from 'next/link';
 import { Trophy, ArrowRight, CheckCircle2, AlertCircle } from 'lucide-react';
 import { useApp } from '@/context/AppContext';
+import { usePrivacy } from '@/context/PrivacyContext';
 import { Card } from '@/components/ui/Card';
 import { computeChallengeProgress } from '@/utils/challenges';
 
 export function ChallengesPanel() {
   const { challenges, entries, habits } = useApp();
+  const { challengeName, habitIcon, masked } = usePrivacy();
   const active = challenges.filter(c => c.isActive);
   if (active.length === 0) return null;
 
@@ -30,9 +32,9 @@ export function ChallengesPanel() {
             <div key={c.id} className="space-y-2">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <span className="text-base">{habit?.icon ?? '🧠'}</span>
+                  <span className="text-base" aria-hidden="true">{habit ? habitIcon(habit) : masked ? '🏁' : '🧠'}</span>
                   <div>
-                    <p className="text-sm font-medium text-slate-800 dark:text-slate-200">{c.name}</p>
+                    <p className="text-sm font-medium text-slate-800 dark:text-slate-200">{challengeName(c)}</p>
                     <p className="text-xs text-slate-400">{c.durationDays} days · {progress.daysDone} done</p>
                   </div>
                 </div>
