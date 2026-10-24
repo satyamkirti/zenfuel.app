@@ -118,7 +118,7 @@ export interface HabitAnalytics extends AppAnalytics {
 
 export interface DetoxScore {
   score: number;
-  label: 'Excellent' | 'Good' | 'Moderate' | 'Needs Improvement';
+  label: 'Excellent' | 'Good' | 'Moderate' | 'Needs Improvement' | 'Not enough data yet';
   color: string;
   trend: 'up' | 'down' | 'stable';
 }

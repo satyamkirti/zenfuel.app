@@ -4,7 +4,7 @@ import { computeStreaks } from './streaks';
 
 export function computeDetoxScore(entries: LogEntry[]): DetoxScore {
   if (entries.length === 0) {
-    return { score: 100, label: 'Excellent', color: '#10b981', trend: 'stable' };
+    return { score: 0, label: 'Not enough data yet', color: '#94a3b8', trend: 'stable' };
   }
 
   const now = new Date();

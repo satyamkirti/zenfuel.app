@@ -11,7 +11,8 @@ export function QuickLog() {
   const { logEntry, habits } = useApp();
   const { habitName, habitIcon } = usePrivacy();
   const [selectedHabitId, setSelectedHabitId] = useState(habits[0]?.id ?? 'social-media');
-  const selectedName = (h: { id: string; name: string; icon: string } | undefined) => (h ? habitName(h) : 'Event');
+  const selectedName = (h: (typeof habits)[number] | undefined) =>
+    h ? (h.category === 'adult' ? 'Personal Habit' : habitName(h)) : 'Event';
   const [showOptions, setShowOptions] = useState(false);
   const [notes, setNotes] = useState('');
   const [useCustomTime, setUseCustomTime] = useState(false);
@@ -20,6 +21,10 @@ export function QuickLog() {
   const [success, setSuccess] = useState(false);
 
   const selectedHabit = habits.find(h => h.id === selectedHabitId) ?? habits[0];
+  const standardHabits = habits.filter(h => h.category !== 'adult');
+  const personalHabits = habits.filter(h => h.category === 'adult');
+  const quickHabits = standardHabits.slice(0, 6);
+  const additionalHabits = standardHabits.slice(6);
 
   const handleLog = () => {
     if (!selectedHabit) return;
@@ -44,7 +49,7 @@ export function QuickLog() {
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-4" role="group" aria-label="Habit">
-        {habits.slice(0, 6).map(h => {
+        {quickHabits.map(h => {
           const selected = selectedHabit?.id === h.id;
           return (
             <button
@@ -66,16 +71,53 @@ export function QuickLog() {
         })}
       </div>
 
-      {habits.length > 6 && (
+      {additionalHabits.length > 0 && (
         <select
-          value={habits.slice(6).some(h => h.id === selectedHabit?.id) ? selectedHabit?.id : ''}
+          value={additionalHabits.some(h => h.id === selectedHabit?.id) ? selectedHabit?.id : ''}
           onChange={e => { if (e.target.value) setSelectedHabitId(e.target.value); }}
           aria-label="More habits"
           className="input mt-2 text-ink-2"
         >
-          <option value="">{habits.length - 6} more habit{habits.length - 6 === 1 ? '' : 's'}…</option>
-          {habits.slice(6).map(h => <option key={h.id} value={h.id}>{habitIcon(h)} {habitName(h)}</option>)}
+          <option value="">{additionalHabits.length} more habit{additionalHabits.length === 1 ? '' : 's'}…</option>
+          {additionalHabits.map(h => <option key={h.id} value={h.id}>{habitIcon(h)} {habitName(h)}</option>)}
         </select>
+      )}
+
+      {personalHabits.length > 0 && (
+        <details className="group mt-2 overflow-hidden rounded-xl border border-line bg-surface">
+          <summary className="flex min-h-[44px] cursor-pointer list-none select-none items-center justify-between gap-3 px-3 text-sm font-medium text-ink-2 transition-colors hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500/40 [&::-webkit-details-marker]:hidden">
+            <span className="flex items-center gap-2">
+              <span aria-hidden="true">🔒</span>
+              <span>Personal Habits</span>
+              <span className="text-xs font-normal text-muted">({personalHabits.length})</span>
+            </span>
+            <ChevronDown size={16} className="shrink-0 transition-transform group-open:rotate-180" aria-hidden="true" />
+          </summary>
+          <div className="grid grid-cols-2 gap-2 border-t border-line p-3" role="group" aria-label="Personal habits">
+            {personalHabits.map(h => {
+              const selected = selectedHabit?.id === h.id;
+              return (
+                <button
+                  key={h.id}
+                  type="button"
+                  onClick={() => setSelectedHabitId(h.id)}
+                  aria-pressed={selected}
+                  className={clsx(
+                    'flex min-h-[44px] items-center gap-2 rounded-xl border px-3 text-left text-sm font-medium transition-colors',
+                    'focus:outline-none focus-visible:ring-4 focus-visible:ring-violet-500/30',
+                    selected
+                      ? 'bg-violet-600/10 border-violet-500/60 text-brand-text'
+                      : 'bg-surface-2 border-transparent text-ink-2 hover:text-ink hover:border-line-strong'
+                  )}
+                >
+                  <span className="text-base leading-none" aria-hidden="true">{habitIcon(h)}</span>
+                  <span className="min-w-0 flex-1 truncate">{habitName(h)}</span>
+                  {selected && <Check size={14} aria-hidden="true" />}
+                </button>
+              );
+            })}
+          </div>
+        </details>
       )}
 
       <div className="mt-auto pt-4 space-y-3">
