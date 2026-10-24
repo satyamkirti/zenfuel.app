@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   description: 'ZenFuel Privacy Policy — what is stored on your device, what Google Analytics collects, and how to delete your data.',
 };
 
-const strong = 'text-slate-800 dark:text-slate-200';
+const strong = 'text-ink';
 
 export default function PrivacyPage() {
   return (
@@ -79,7 +79,7 @@ export default function PrivacyPage() {
 
       <H2>10. Contact</H2>
       <InfoBox>
-        <p className="font-semibold text-slate-700 dark:text-slate-300">For privacy questions or requests:</p>
+        <p className="font-semibold text-ink-2">For privacy questions or requests:</p>
         <p>Email: <MailLink /></p>
         <p>See also our <Link href="/terms" className="text-violet-600 dark:text-violet-400 hover:underline">Terms of Service</Link>.</p>
       </InfoBox>

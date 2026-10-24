@@ -22,7 +22,7 @@ export default function TermsPage() {
         <li>Review your progress through scores, streaks and charts</li>
       </UL>
       <InfoBox>
-        <p className="font-medium text-slate-700 dark:text-slate-300">⚠️ Important</p>
+        <p className="font-medium text-ink-2">⚠️ Important</p>
         <p>ZenFuel is a self-help tool. It is not a medical device, therapy service, or clinical treatment, and its scores and risk alerts are estimates based on the data you enter. It should not replace professional medical or psychological advice.</p>
       </InfoBox>
 
@@ -45,7 +45,7 @@ export default function TermsPage() {
 
       <H2>5. Free Beta</H2>
       <UL>
-        <li>ZenFuel is <strong className="text-slate-800 dark:text-slate-200">free during its beta</strong>. All features available in the app can be used at no cost.</li>
+        <li>ZenFuel is <strong className="text-ink">free during its beta</strong>. All features available in the app can be used at no cost.</li>
         <li>There are no subscriptions, paid tiers or trials, and ZenFuel does not collect any payments.</li>
         <li>If paid plans are introduced in the future, these Terms will be updated with pricing, billing, cancellation and refund terms before any payment is taken.</li>
       </UL>
@@ -76,7 +76,7 @@ export default function TermsPage() {
 
       <H2>12. Contact</H2>
       <InfoBox>
-        <p className="font-semibold text-slate-700 dark:text-slate-300">For questions about these Terms:</p>
+        <p className="font-semibold text-ink-2">For questions about these Terms:</p>
         <p>Email: <MailLink /></p>
       </InfoBox>
 

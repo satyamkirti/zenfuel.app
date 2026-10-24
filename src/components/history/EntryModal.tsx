@@ -46,26 +46,26 @@ export function EntryModal({ entry, habits, onClose, onSave, onDelete }: EntryMo
     <Modal open={!!entry} onClose={onClose} title="Edit Entry" size="sm">
       <div className="p-6 space-y-4">
         <div>
-          <label htmlFor="entry-habit" className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Habit</label>
+          <label htmlFor="entry-habit" className="block text-xs font-medium text-muted mb-1">Habit</label>
           <select id="entry-habit" value={habitId} onChange={e => setHabitId(e.target.value)} className="input">
             {habits.map(h => <option key={h.id} value={h.id}>{habitIcon(h)} {habitName(h)}</option>)}
           </select>
         </div>
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label htmlFor="entry-date" className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Date</label>
+            <label htmlFor="entry-date" className="block text-xs font-medium text-muted mb-1">Date</label>
             <input id="entry-date" type="date" value={date} onChange={e => setDate(e.target.value)} max={formatDate(new Date())} className="input" />
           </div>
           <div>
-            <label htmlFor="entry-time" className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Time</label>
+            <label htmlFor="entry-time" className="block text-xs font-medium text-muted mb-1">Time</label>
             <input id="entry-time" type="time" value={time} onChange={e => setTime(e.target.value)} className="input" />
           </div>
         </div>
         <div>
-          <label htmlFor="entry-notes" className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Notes</label>
+          <label htmlFor="entry-notes" className="block text-xs font-medium text-muted mb-1">Notes</label>
           {masked && notes ? (
             // The real note stays in state and is saved unchanged; it is only not displayed.
-            <div className="flex items-center justify-between gap-3 px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-700 text-sm text-slate-500 dark:text-slate-400">
+            <div className="flex items-center justify-between gap-3 px-3 py-2 rounded-lg bg-surface-2 text-sm text-muted">
               <span>Note hidden</span>
               <button type="button" onClick={reveal} className="text-xs font-medium text-violet-600 dark:text-violet-400 hover:underline">Show to edit</button>
             </div>
@@ -73,7 +73,7 @@ export function EntryModal({ entry, habits, onClose, onSave, onDelete }: EntryMo
             <textarea id="entry-notes" value={notes} onChange={e => setNotes(e.target.value)} rows={2} placeholder="Optional notes..." className="input resize-none" />
           )}
         </div>
-        <p className="text-xs text-slate-400">Logged: {new Date(entry.createdAt).toLocaleString()}</p>
+        <p className="text-xs text-muted">Logged: {new Date(entry.createdAt).toLocaleString()}</p>
       </div>
       <div className="px-6 pb-6 flex items-center justify-between gap-3">
         <Button variant={confirmDelete ? 'danger' : 'outline'} size="sm" icon={<Trash2 size={14} />} onClick={() => { if (confirmDelete) { onDelete(entry.id); onClose(); } else setConfirmDelete(true); }}>

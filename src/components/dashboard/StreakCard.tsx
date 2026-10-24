@@ -1,9 +1,10 @@
 'use client';
 
-import { Flame, Trophy, BarChart2, TrendingUp } from 'lucide-react';
+import { Flame } from 'lucide-react';
 import { useApp } from '@/context/AppContext';
 import { usePrivacy } from '@/context/PrivacyContext';
-import { Card } from '@/components/ui/Card';
+import { Card, CardHeader } from '@/components/ui/Card';
+import { formatDisplayDate } from '@/utils/dateUtils';
 
 export function StreakCard() {
   const { streaks, habitAnalytics } = useApp();
@@ -14,64 +15,62 @@ export function StreakCard() {
     .sort((a, b) => b.streak.currentStreak - a.streak.currentStreak)
     .slice(0, 4);
 
+  const stats = [
+    { label: 'Current', value: `${streaks.currentStreak}d`, highlight: streaks.currentStreak > 0 },
+    { label: 'Longest', value: `${streaks.longestStreak}d` },
+    { label: 'Streaks', value: String(streaks.totalStreaks) },
+    { label: 'Average', value: streaks.averageStreakLength > 0 ? `${streaks.averageStreakLength}d` : '—' },
+  ];
+
   return (
     <Card padding="none">
-      <div className="px-5 pt-5 pb-3 border-b border-slate-200 dark:border-slate-700">
-        <h3 className="font-semibold text-slate-900 dark:text-white flex items-center gap-2">
-          <Flame size={16} className="text-orange-500" />
-          {discreet('Detox Streaks', 'Streaks')}
-        </h3>
-        <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Consecutive days without triggering a habit</p>
-      </div>
-
-      <div className="grid grid-cols-2 sm:grid-cols-4 divide-x divide-y sm:divide-y-0 divide-slate-200 dark:divide-slate-700">
-        {[
-          { label: 'Global Streak', value: `${streaks.currentStreak}d`, icon: <Flame size={18} className="text-orange-500" />, highlight: streaks.currentStreak > 0 },
-          { label: 'Longest Ever', value: `${streaks.longestStreak}d`, icon: <Trophy size={18} className="text-amber-500" /> },
-          { label: 'Total Streaks', value: streaks.totalStreaks, icon: <BarChart2 size={18} className="text-violet-500" /> },
-          { label: 'Avg Length', value: streaks.averageStreakLength > 0 ? `${streaks.averageStreakLength}d` : '—', icon: <TrendingUp size={18} className="text-blue-500" /> },
-        ].map(item => (
-          <div key={item.label} className="p-4">
-            <div className="flex items-center gap-2 mb-2">{item.icon}</div>
-            <p className={`text-2xl font-bold ${item.highlight ? 'text-orange-500' : 'text-slate-900 dark:text-white'}`}>{item.value}</p>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{item.label}</p>
+      <CardHeader
+        icon={<Flame size={16} />}
+        title={discreet('Detox streaks', 'Streaks')}
+        subtitle="Consecutive days without logging a habit"
+      />
+      <dl className="grid grid-cols-4 gap-2 px-5">
+        {stats.map(s => (
+          <div key={s.label} className="rounded-xl bg-surface-2 px-2 py-2.5 text-center flex flex-col-reverse">
+            <dt className="text-[11px] text-muted">{s.label}</dt>
+            <dd className={`text-lg font-semibold tabular-nums ${s.highlight ? 'text-orange-600 dark:text-orange-400' : 'text-ink'}`}>{s.value}</dd>
           </div>
         ))}
-      </div>
+      </dl>
 
       {perHabitStreaks.length > 0 && (
-        <div className="px-5 py-4 border-t border-slate-200 dark:border-slate-700">
-          <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-3">Per-Habit Streaks</p>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-            {perHabitStreaks.map(h => (
-              <div key={h.habitId} className="flex flex-col gap-1 p-3 bg-slate-50 dark:bg-slate-700/50 rounded-xl">
-                <div className="flex items-center gap-1.5">
-                  <span className="text-base leading-none" aria-hidden="true">{habitIcon({ id: h.habitId, name: h.habitName, icon: h.habitIcon })}</span>
-                  <span className="text-xs text-slate-500 dark:text-slate-400 truncate">{habitName({ id: h.habitId, name: h.habitName, icon: h.habitIcon })}</span>
-                </div>
-                <p className={`text-lg font-bold ${h.streak.currentStreak > 0 ? 'text-orange-500' : 'text-slate-400'}`}>
-                  {h.streak.currentStreak}d
-                </p>
-                <p className="text-[10px] text-slate-400">Best: {h.streak.longestStreak}d</p>
-              </div>
-            ))}
-          </div>
+        <div className="px-5 pt-4">
+          <p className="eyebrow mb-2">By habit</p>
+          <ul className="space-y-1.5">
+            {perHabitStreaks.map(h => {
+              const ref = { id: h.habitId, name: h.habitName, icon: h.habitIcon };
+              return (
+                <li key={h.habitId} className="flex items-center gap-2 text-sm">
+                  <span aria-hidden="true">{habitIcon(ref)}</span>
+                  <span className="flex-1 min-w-0 truncate text-ink-2">{habitName(ref)}</span>
+                  <span className={`tabular-nums font-semibold ${h.streak.currentStreak > 0 ? 'text-orange-600 dark:text-orange-400' : 'text-muted'}`}>{h.streak.currentStreak}d</span>
+                  <span className="tabular-nums text-xs text-muted w-16 text-right">best {h.streak.longestStreak}d</span>
+                </li>
+              );
+            })}
+          </ul>
         </div>
       )}
 
       {streaks.streakHistory.length > 0 && (
-        <div className="px-5 pb-4 border-t border-slate-200 dark:border-slate-700 pt-4">
-          <p className="text-xs font-medium text-slate-400 mb-2">Top Global Streaks</p>
-          <div className="flex flex-wrap gap-2">
+        <div className="px-5 pt-4">
+          <p className="eyebrow mb-2">Top streaks</p>
+          <div className="flex flex-wrap gap-1.5">
             {streaks.streakHistory.slice(0, 5).map((s, i) => (
-              <div key={i} className="flex items-center gap-1.5 px-2.5 py-1 bg-orange-50 dark:bg-orange-500/10 rounded-full border border-orange-200 dark:border-orange-500/20">
-                <span className="text-xs font-semibold text-orange-700 dark:text-orange-400">{s.length}d</span>
-                <span className="text-xs text-orange-500/70">{s.start}</span>
-              </div>
+              <span key={i} className="inline-flex items-center gap-1.5 px-2 py-1 rounded-lg bg-surface-2 text-xs">
+                <span className="font-semibold text-ink tabular-nums">{s.length}d</span>
+                <span className="text-muted">from {formatDisplayDate(s.start)}</span>
+              </span>
             ))}
           </div>
         </div>
       )}
+      <div className="h-5" />
     </Card>
   );
 }

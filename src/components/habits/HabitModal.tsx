@@ -52,8 +52,8 @@ export function HabitModal({ habit, onClose, onSave }: HabitModalProps) {
     return (
       <Modal open={true} onClose={onClose} title="Edit Habit" size="sm">
         <div className="p-6 space-y-4 text-center">
-          <EyeOff size={28} className="mx-auto text-slate-400" aria-hidden="true" />
-          <p className="text-sm text-slate-600 dark:text-slate-300">Habit details are hidden while Hidden Mode is on.</p>
+          <EyeOff size={28} className="mx-auto text-muted" aria-hidden="true" />
+          <p className="text-sm text-ink-2">Habit details are hidden while Hidden Mode is on.</p>
           <div className="flex gap-2 justify-center">
             <Button variant="ghost" size="sm" onClick={onClose}>Cancel</Button>
             <Button size="sm" onClick={reveal}>Show to edit</Button>
@@ -67,15 +67,15 @@ export function HabitModal({ habit, onClose, onSave }: HabitModalProps) {
     <Modal open={true} onClose={onClose} title={habit ? 'Edit Habit' : 'Add Custom Habit'} size="sm">
       <div className="p-6 space-y-4">
         <div>
-          <label htmlFor="habit-name" className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Habit Name</label>
+          <label htmlFor="habit-name" className="block text-xs font-medium text-muted mb-1">Habit Name</label>
           <input id="habit-name" type="text" value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Online Shopping" className="input" maxLength={30} />
         </div>
 
         <div>
-          <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Icon</label>
+          <label className="block text-xs font-medium text-muted mb-1">Icon</label>
           <div className="flex flex-wrap gap-2">
             {ICONS.map(ic => (
-              <button key={ic} onClick={() => setIcon(ic)} aria-label={`Icon ${ic}`} aria-pressed={icon === ic} className={`w-9 h-9 rounded-lg text-lg flex items-center justify-center transition-all ${icon === ic ? 'bg-violet-100 dark:bg-violet-500/20 ring-2 ring-violet-500' : 'bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600'}`}>
+              <button key={ic} onClick={() => setIcon(ic)} aria-label={`Icon ${ic}`} aria-pressed={icon === ic} className={`w-9 h-9 rounded-lg text-lg flex items-center justify-center transition-all ${icon === ic ? 'bg-violet-100 dark:bg-violet-500/20 ring-2 ring-violet-500' : 'bg-surface-2 hover:bg-line'}`}>
                 {ic}
               </button>
             ))}
@@ -83,7 +83,7 @@ export function HabitModal({ habit, onClose, onSave }: HabitModalProps) {
         </div>
 
         <div>
-          <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Color</label>
+          <label className="block text-xs font-medium text-muted mb-1">Color</label>
           <div className="flex flex-wrap gap-2">
             {COLORS.map(c => (
               <button key={c} onClick={() => setColor(c)} aria-label={`Colour ${c}`} aria-pressed={color === c} className={`w-7 h-7 rounded-full transition-all ${color === c ? 'ring-2 ring-offset-2 ring-violet-500 dark:ring-offset-slate-800 scale-110' : 'hover:scale-105'}`} style={{ backgroundColor: c }} />
@@ -92,17 +92,17 @@ export function HabitModal({ habit, onClose, onSave }: HabitModalProps) {
         </div>
 
         <div>
-          <label htmlFor="habit-category" className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Category</label>
+          <label htmlFor="habit-category" className="block text-xs font-medium text-muted mb-1">Category</label>
           <select id="habit-category" value={category} onChange={e => setCategory(e.target.value as HabitCategory)} className="input">
             {CATEGORIES.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
           </select>
         </div>
 
-        <div className="flex items-center gap-2 p-3 bg-slate-50 dark:bg-slate-700/50 rounded-xl">
+        <div className="flex items-center gap-2 p-3 bg-surface-2 rounded-xl">
           <span className="text-2xl">{icon}</span>
           <div>
             <p className="text-sm font-medium" style={{ color }}>{name || 'Preview'}</p>
-            <p className="text-xs text-slate-400">{CATEGORIES.find(c => c.value === category)?.label}</p>
+            <p className="text-xs text-muted">{CATEGORIES.find(c => c.value === category)?.label}</p>
           </div>
         </div>
       </div>

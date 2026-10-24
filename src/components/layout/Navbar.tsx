@@ -78,10 +78,11 @@ function MoreSheet({ open, onClose }: { open: boolean; onClose: () => void }) {
         role="dialog"
         aria-modal="true"
         aria-labelledby="more-title"
-        className="relative w-full max-h-[85dvh] overflow-y-auto bg-white dark:bg-slate-900 rounded-t-3xl border-t border-slate-200 dark:border-slate-700 shadow-2xl animate-slide-up pb-[calc(1rem+env(safe-area-inset-bottom))]"
+        className="relative w-full max-h-[85dvh] overflow-y-auto bg-surface rounded-t-3xl border-t border-line shadow-pop animate-slide-up pb-[calc(1rem+env(safe-area-inset-bottom))]"
       >
-        <div className="flex items-center justify-between px-5 pt-4 pb-2">
-          <h2 id="more-title" className="font-bold text-slate-900 dark:text-white">More</h2>
+        <div className="flex justify-center pt-2.5" aria-hidden="true"><span className="w-10 h-1 rounded-full bg-line-strong" /></div>
+        <div className="flex items-center justify-between px-5 pt-2 pb-2">
+          <h2 id="more-title" className="text-base font-semibold text-ink">More</h2>
           <button onClick={onClose} aria-label="Close menu" className="p-2 rounded-lg btn-ghost min-w-[40px] min-h-[40px] flex items-center justify-center">
             <X size={18} aria-hidden="true" />
           </button>
@@ -95,45 +96,45 @@ function MoreSheet({ open, onClose }: { open: boolean; onClose: () => void }) {
               aria-current={pathname === href ? 'page' : undefined}
               className={clsx(
                 'flex items-center gap-3 px-3 py-3 rounded-xl transition-colors',
-                pathname === href ? 'bg-violet-50 dark:bg-violet-500/10 text-violet-700 dark:text-violet-300' : 'hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200'
+                pathname === href ? 'bg-violet-600/10 text-brand-text' : 'hover:bg-surface-2 text-ink'
               )}
             >
-              <span className="w-9 h-9 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center shrink-0"><Icon size={18} aria-hidden="true" /></span>
+              <span className="w-10 h-10 rounded-xl bg-surface-2 flex items-center justify-center shrink-0"><Icon size={18} aria-hidden="true" /></span>
               <span className="flex-1 min-w-0">
                 <span className="block text-sm font-semibold">{label}</span>
-                <span className="block text-xs text-slate-500 dark:text-slate-400">{description}</span>
+                <span className="block text-xs text-muted">{description}</span>
               </span>
             </Link>
           ))}
         </nav>
 
-        <div className="mx-5 my-3 h-px bg-slate-200 dark:bg-slate-700" />
+        <div className="mx-5 my-3 h-px bg-line" />
 
         <div className="px-5 space-y-3">
           <div className="flex items-center justify-between gap-3">
-            <span className="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
+            <span className="flex items-center gap-2 text-sm text-ink-2">
               <EyeOff size={16} aria-hidden="true" /> Hidden Mode
             </span>
             <Switch checked={hiddenMode} onChange={setHiddenMode} label="Hidden Mode" />
           </div>
           <div className="flex flex-wrap gap-2">
-            <button onClick={toggleTheme} className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-sm text-slate-700 dark:text-slate-300 min-h-[40px]">
+            <button onClick={toggleTheme} className="inline-flex items-center gap-2 px-3.5 rounded-xl bg-surface-2 hover:bg-line text-sm font-medium text-ink-2 min-h-[44px] transition-colors">
               {theme === 'dark' ? <Sun size={15} aria-hidden="true" /> : <Moon size={15} aria-hidden="true" />}
               {theme === 'dark' ? 'Light theme' : 'Dark theme'}
             </button>
             {pinEnabled && (
-              <button onClick={() => { onClose(); lock(); }} className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-sm text-slate-700 dark:text-slate-300 min-h-[40px]">
+              <button onClick={() => { onClose(); lock(); }} className="inline-flex items-center gap-2 px-3.5 rounded-xl bg-surface-2 hover:bg-line text-sm font-medium text-ink-2 min-h-[44px] transition-colors">
                 <Lock size={15} aria-hidden="true" /> Lock now
               </button>
             )}
           </div>
         </div>
 
-        <div className="mx-5 my-3 h-px bg-slate-200 dark:bg-slate-700" />
+        <div className="mx-5 my-3 h-px bg-line" />
 
         <nav aria-label="Information" className="px-5 flex flex-wrap gap-x-4 gap-y-2">
           {INFO_LINKS.map(([label, href]) => (
-            <Link key={href} href={href} className="text-sm text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 py-1">
+            <Link key={href} href={href} className="text-sm text-muted hover:text-ink py-1">
               {label}
             </Link>
           ))}
@@ -149,12 +150,16 @@ export function BottomNav() {
   const closeMore = useRef(() => setMoreOpen(false)).current;
   const moreActive = MORE_LINKS.some(l => l.href === pathname);
 
-  const item = 'flex-1 min-w-0 flex flex-col items-center justify-center gap-0.5 min-h-[56px] text-[10px] font-medium transition-colors focus:outline-none focus-visible:bg-slate-100 dark:focus-visible:bg-slate-800';
+  const item = 'group flex-1 min-w-0 flex flex-col items-center justify-center gap-1 min-h-[60px] text-[11px] font-medium transition-colors focus:outline-none';
+  const pill = (active: boolean) => clsx(
+    'flex items-center justify-center w-12 h-7 rounded-full transition-colors',
+    active ? 'bg-violet-600/10 dark:bg-violet-400/15' : 'group-hover:bg-surface-2 group-focus-visible:bg-surface-2 group-focus-visible:ring-2 group-focus-visible:ring-violet-500'
+  );
 
   return (
     <>
-      <nav aria-label="Main" className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 pb-[env(safe-area-inset-bottom)]">
-        <div className="flex">
+      <nav aria-label="Main" className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-surface/95 backdrop-blur-md border-t border-line pb-[env(safe-area-inset-bottom)]">
+        <div className="flex px-1">
           {NAV.map(({ href, label, icon: Icon }) => {
             const active = pathname === href;
             return (
@@ -162,10 +167,10 @@ export function BottomNav() {
                 key={href}
                 href={href}
                 aria-current={active ? 'page' : undefined}
-                className={clsx(item, active ? 'text-violet-600 dark:text-violet-400' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200')}
+                className={clsx(item, active ? 'text-brand-text' : 'text-muted hover:text-ink')}
               >
-                <Icon size={20} aria-hidden="true" />
-                <span className="truncate max-w-full px-0.5">{label}</span>
+                <span className={pill(active)}><Icon size={20} strokeWidth={active ? 2.25 : 1.75} aria-hidden="true" /></span>
+                <span className={clsx('truncate max-w-full px-0.5', active && 'font-semibold')}>{label}</span>
               </Link>
             );
           })}
@@ -174,10 +179,10 @@ export function BottomNav() {
             onClick={() => setMoreOpen(true)}
             aria-haspopup="dialog"
             aria-expanded={moreOpen}
-            className={clsx(item, moreActive ? 'text-violet-600 dark:text-violet-400' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200')}
+            className={clsx(item, moreActive ? 'text-brand-text' : 'text-muted hover:text-ink')}
           >
-            <MoreHorizontal size={20} aria-hidden="true" />
-            <span>More</span>
+            <span className={pill(moreActive)}><MoreHorizontal size={20} aria-hidden="true" /></span>
+            <span className={clsx(moreActive && 'font-semibold')}>More</span>
           </button>
         </div>
       </nav>
@@ -188,12 +193,12 @@ export function BottomNav() {
 
 export function TopBar({ title }: { title?: string }) {
   return (
-    <header className="lg:hidden sticky top-0 z-30 bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm border-b border-slate-200 dark:border-slate-800 pt-[env(safe-area-inset-top)]">
-      <div className="flex items-center justify-between gap-3 px-4 h-12">
+    <header className="lg:hidden sticky top-0 z-30 bg-bg/85 backdrop-blur-md border-b border-line pt-[env(safe-area-inset-top)]">
+      <div className="flex items-center justify-between gap-3 px-4 h-[52px]">
         <Logo size="sm" />
         <div className="flex items-center gap-2 min-w-0">
           {title && title !== 'Dashboard' && (
-            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 truncate">{title}</span>
+            <span className="text-sm font-medium text-ink-2 truncate">{title}</span>
           )}
           <PrivacyRevealButton compact />
         </div>

@@ -2,7 +2,7 @@
 
 import { useMemo } from 'react';
 import { LogEntry, Habit } from '@/types';
-import { Card } from '@/components/ui/Card';
+import { Card, CardHeader } from '@/components/ui/Card';
 import { WEEKDAYS, getStartOfDay, formatHour } from '@/utils/dateUtils';
 import { Brain } from 'lucide-react';
 import { usePrivacy } from '@/context/PrivacyContext';
@@ -160,16 +160,10 @@ interface PatternInsightsProps {
   habits: Habit[];
 }
 
-const TYPE_STYLES = {
-  warning: 'bg-orange-50 dark:bg-orange-500/10 border-orange-200 dark:border-orange-500/20 text-orange-800 dark:text-orange-300',
-  positive: 'bg-emerald-50 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/20 text-emerald-800 dark:text-emerald-300',
-  info: 'bg-blue-50 dark:bg-blue-500/10 border-blue-200 dark:border-blue-500/20 text-blue-800 dark:text-blue-300',
-};
-
-const SUGGESTION_STYLES = {
-  warning: 'text-orange-600 dark:text-orange-400',
-  positive: 'text-emerald-600 dark:text-emerald-400',
-  info: 'text-blue-600 dark:text-blue-400',
+const TONE = {
+  warning: { label: 'Watch', cls: 'bg-amber-50 text-amber-800 dark:bg-amber-500/10 dark:text-amber-300' },
+  positive: { label: 'Good sign', cls: 'bg-emerald-50 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-300' },
+  info: { label: 'Pattern', cls: 'bg-sky-50 text-sky-800 dark:bg-sky-500/10 dark:text-sky-300' },
 };
 
 export function PatternInsights({ entries, habits }: PatternInsightsProps) {
@@ -182,27 +176,22 @@ export function PatternInsights({ entries, habits }: PatternInsightsProps) {
 
   return (
     <Card padding="none">
-      <div className="px-5 py-4 border-b border-slate-200 dark:border-slate-700 flex items-center gap-2">
-        <Brain size={16} className="text-violet-500" />
-        <h3 className="font-semibold text-slate-900 dark:text-white">Trigger Patterns</h3>
-        <span className="ml-auto text-xs text-slate-400">Auto-detected from your logs</span>
-      </div>
-      <div className="p-4 space-y-3">
+      <CardHeader icon={<Brain size={16} />} title="Trigger patterns" subtitle="Detected automatically from your logs" />
+      <ul className="px-5 pb-5 space-y-3">
         {patterns.map((p, i) => (
-          <div key={i} className={`p-4 rounded-xl border ${TYPE_STYLES[p.type]}`}>
-            <div className="flex items-start gap-3">
-              <span className="text-xl leading-none mt-0.5 shrink-0" aria-hidden="true">{maskText(p.icon)}</span>
-              <div className="flex-1 min-w-0">
-                <p className="text-xs font-bold uppercase tracking-wider opacity-70 mb-0.5">{p.title}</p>
-                <p className="text-sm font-medium leading-snug mb-2">{maskText(p.insight)}</p>
-                <p className={`text-xs leading-snug ${SUGGESTION_STYLES[p.type]}`}>
-                  💡 {maskText(p.suggestion)}
-                </p>
-              </div>
+          <li key={i} className="flex items-start gap-3 rounded-xl bg-surface-2 p-3.5">
+            <span className="text-lg leading-6 shrink-0" aria-hidden="true">{maskText(p.icon)}</span>
+            <div className="flex-1 min-w-0">
+              <p className="flex items-center gap-2 flex-wrap">
+                <span className="text-sm font-semibold text-ink">{p.title}</span>
+                <span className={`text-[11px] font-medium px-1.5 py-0.5 rounded-md ${TONE[p.type].cls}`}>{TONE[p.type].label}</span>
+              </p>
+              <p className="text-sm text-ink-2 leading-relaxed mt-1">{maskText(p.insight)}</p>
+              <p className="text-xs text-muted leading-relaxed mt-1.5"><span className="font-medium text-ink-2">Try: </span>{maskText(p.suggestion)}</p>
             </div>
-          </div>
+          </li>
         ))}
-      </div>
+      </ul>
     </Card>
   );
 }

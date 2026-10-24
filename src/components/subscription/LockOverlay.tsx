@@ -30,8 +30,8 @@ export function LockOverlay({ children, feature, description, blur = true, class
             <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg">
               <Crown size={24} className="text-white" />
             </div>
-            {feature && <p className="font-bold text-slate-800 dark:text-white text-sm">{feature}</p>}
-            {description && <p className="text-xs text-slate-500 dark:text-slate-400 max-w-xs">{description}</p>}
+            {feature && <p className="font-bold text-ink text-sm">{feature}</p>}
+            {description && <p className="text-xs text-muted max-w-xs">{description}</p>}
             <Link
               href="/upgrade"
               className="px-5 py-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl text-sm font-bold shadow-lg hover:shadow-amber-500/30 transition-all hover:scale-105 active:scale-95"

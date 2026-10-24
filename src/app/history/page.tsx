@@ -7,6 +7,7 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { EntryList } from '@/components/history/EntryList';
 import { Card } from '@/components/ui/Card';
 import { UpgradeBanner } from '@/components/subscription/UpgradeBanner';
+import { PageHeader } from '@/components/ui/PageHeader';
 
 export default function HistoryPage() {
   const { entries, habits, updateEntry, deleteEntry, isPremium, historyCutoff } = useApp();
@@ -21,17 +22,10 @@ export default function HistoryPage() {
   return (
     <AppLayout title="History">
       <div className="space-y-4">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-violet-100 dark:bg-violet-500/20 flex items-center justify-center">
-            <History size={18} className="text-violet-600 dark:text-violet-400" />
-          </div>
-          <div>
-            <h1 className="text-xl font-bold text-slate-900 dark:text-white">Event History</h1>
-            <p className="text-sm text-slate-500 dark:text-slate-400">
-              {isPremium ? `${entries.length} total events` : `Showing last 30 days (${visibleEntries.length} events)`}
-            </p>
-          </div>
-        </div>
+        <PageHeader
+          title="Event History"
+          description={isPremium ? `${entries.length} total events · search, filter, edit or delete` : `Showing last 30 days (${visibleEntries.length} events)`}
+        />
 
         {!isPremium && hiddenCount > 0 && (
           <UpgradeBanner

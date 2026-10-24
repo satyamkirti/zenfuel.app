@@ -12,6 +12,7 @@ import { HabitModal } from '@/components/habits/HabitModal';
 import { UpgradeBanner } from '@/components/subscription/UpgradeBanner';
 import { Habit } from '@/types';
 import { usePrivacy } from '@/context/PrivacyContext';
+import { PageHeader } from '@/components/ui/PageHeader';
 
 const CATEGORY_LABELS: Record<string, string> = {
   digital: 'Digital', adult: 'Adult', food: 'Food & Drink', substance: 'Substance', other: 'Other',
@@ -47,27 +48,18 @@ export default function HabitsPage() {
 
   return (
     <AppLayout title="Habits">
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-violet-100 dark:bg-violet-500/20 flex items-center justify-center">
-              <Zap size={18} className="text-violet-600 dark:text-violet-400" />
-            </div>
-            <div>
-              <h1 className="text-xl font-bold text-slate-900 dark:text-white">Habit Management</h1>
-              <p className="text-sm text-slate-500 dark:text-slate-400">
-                {habits.length} habits{!isPremium && ` / ${FREE_LIMIT} (free limit)`}
-              </p>
-            </div>
-          </div>
-          {atFreeLimit ? (
+      <div className="space-y-5">
+        <PageHeader
+          title="Habits"
+          description={`${habits.length} habits tracked${!isPremium ? ` · ${FREE_LIMIT} on the free plan` : ''}`}
+          actions={atFreeLimit ? (
             <Link href="/upgrade" className="flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl text-sm font-bold shadow hover:shadow-amber-500/30 transition-all hover:scale-105">
               <Lock size={13} /> Upgrade for More
             </Link>
           ) : (
-            <Button size="sm" icon={<Plus size={14} />} onClick={handleAddClick}>Add Habit</Button>
+            <Button size="sm" icon={<Plus size={15} />} onClick={handleAddClick}>Add habit</Button>
           )}
-        </div>
+        />
 
         {atFreeLimit && (
           <UpgradeBanner
@@ -97,7 +89,7 @@ export default function HabitsPage() {
                         <span aria-hidden="true">{habitIcon(habit)}</span>
                       </div>
                       <div className="min-w-0">
-                        <h3 className="font-semibold text-slate-900 dark:text-white truncate">{habitName(habit)}</h3>
+                        <h3 className="font-semibold text-ink truncate">{habitName(habit)}</h3>
                         <div className="flex gap-1.5 mt-0.5">
                           <Badge variant={habit.isDefault ? 'purple' : 'default'}>{habit.isDefault ? 'Default' : 'Custom'}</Badge>
                           {!masked && <Badge variant="default">{CATEGORY_LABELS[habit.category]}</Badge>}
@@ -107,24 +99,24 @@ export default function HabitsPage() {
                     <div className="flex gap-1">
                       <button onClick={() => { setEditingHabit(habit); setShowModal(true); }} aria-label={`Edit ${habitName(habit)}`} className="p-2 rounded-lg btn-ghost"><Edit3 size={15} aria-hidden="true" /></button>
                       {!habit.isDefault && (
-                        <button onClick={() => handleDelete(habit.id)} aria-label={confirmDeleteId === habit.id ? `Confirm delete ${habitName(habit)}` : `Delete ${habitName(habit)}`} className={`p-2 rounded-lg transition-colors ${confirmDeleteId === habit.id ? 'bg-red-100 dark:bg-red-500/20 text-red-600' : 'btn-ghost text-slate-400 hover:text-red-500'}`}>
+                        <button onClick={() => handleDelete(habit.id)} aria-label={confirmDeleteId === habit.id ? `Confirm delete ${habitName(habit)}` : `Delete ${habitName(habit)}`} className={`p-2 rounded-lg transition-colors ${confirmDeleteId === habit.id ? 'bg-red-100 dark:bg-red-500/20 text-red-600' : 'btn-ghost text-muted hover:text-red-500'}`}>
                           <Trash2 size={15} aria-hidden="true" />
                         </button>
                       )}
                     </div>
                   </div>
                   {ha && ha.lifetimeCount > 0 ? (
-                    <div className="grid grid-cols-3 gap-2 pt-3 border-t border-slate-100 dark:border-slate-700">
-                      <div><p className="text-xs text-slate-400">Total</p><p className="text-lg font-bold text-slate-900 dark:text-white">{ha.lifetimeCount}</p></div>
-                      <div><p className="text-xs text-slate-400">This Month</p><p className="text-lg font-bold text-slate-900 dark:text-white">{ha.monthCount}</p></div>
+                    <div className="grid grid-cols-3 gap-2 pt-3 border-t border-line">
+                      <div><p className="text-xs text-muted">Total</p><p className="text-lg font-bold text-ink">{ha.lifetimeCount}</p></div>
+                      <div><p className="text-xs text-muted">This Month</p><p className="text-lg font-bold text-ink">{ha.monthCount}</p></div>
                       <div>
-                        <p className="text-xs text-slate-400">Streak</p>
-                        <p className={`text-lg font-bold ${ha.streak.currentStreak > 0 ? 'text-orange-500' : 'text-slate-400'}`}>{ha.streak.currentStreak}d</p>
+                        <p className="text-xs text-muted">Streak</p>
+                        <p className={`text-lg font-bold ${ha.streak.currentStreak > 0 ? 'text-orange-500' : 'text-muted'}`}>{ha.streak.currentStreak}d</p>
                       </div>
                     </div>
                   ) : (
-                    <div className="pt-3 border-t border-slate-100 dark:border-slate-700">
-                      <p className="text-xs text-slate-400 flex items-center gap-1"><BarChart2 size={11} /> No events logged yet</p>
+                    <div className="pt-3 border-t border-line">
+                      <p className="text-xs text-muted flex items-center gap-1"><BarChart2 size={11} /> No events logged yet</p>
                     </div>
                   )}
                   {confirmDeleteId === habit.id && (
@@ -137,7 +129,7 @@ export default function HabitsPage() {
 
           {/* Add habit placeholder card */}
           {!atFreeLimit && (
-            <button onClick={handleAddClick} className="flex flex-col items-center justify-center gap-3 p-6 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl hover:border-violet-400 dark:hover:border-violet-500 hover:bg-violet-50/50 dark:hover:bg-violet-500/5 transition-all text-slate-400 dark:text-slate-500 hover:text-violet-600 dark:hover:text-violet-400">
+            <button onClick={handleAddClick} className="flex flex-col items-center justify-center gap-3 p-6 border-2 border-dashed border-line rounded-xl hover:border-violet-400 dark:hover:border-violet-500 hover:bg-violet-50/50 dark:hover:bg-violet-500/5 transition-all text-muted hover:text-violet-600 dark:hover:text-violet-400">
               <Plus size={24} />
               <span className="text-sm font-medium">Add Custom Habit</span>
             </button>

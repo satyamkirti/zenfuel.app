@@ -20,12 +20,12 @@ function ContactCard({
   return (
     <a
       href={href}
-      className="flex items-start gap-4 p-4 rounded-2xl border-2 border-slate-200 dark:border-slate-700 hover:border-violet-400 dark:hover:border-violet-500 hover:bg-violet-50/50 dark:hover:bg-violet-500/5 transition-all group"
+      className="flex items-start gap-4 p-4 rounded-2xl border-2 border-line hover:border-violet-400 dark:hover:border-violet-500 hover:bg-violet-50/50 dark:hover:bg-violet-500/5 transition-all group"
     >
       <div className="flex-1 min-w-0">
-        <p className="font-semibold text-slate-800 dark:text-slate-200 group-hover:text-violet-600 dark:group-hover:text-violet-400 transition-colors">{label}</p>
-        {description && <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">{description}</p>}
-        <p className="text-xs text-slate-400 mt-1">Subject: {subject}</p>
+        <p className="font-semibold text-ink group-hover:text-violet-600 dark:group-hover:text-violet-400 transition-colors">{label}</p>
+        {description && <p className="text-sm text-muted mt-0.5">{description}</p>}
+        <p className="text-xs text-muted mt-1">Subject: {subject}</p>
       </div>
       <span className="text-violet-500 opacity-0 group-hover:opacity-100 transition-opacity text-lg">→</span>
     </a>
@@ -37,7 +37,7 @@ export default function ContactPage() {
     <LegalLayout title="Contact Us" lastUpdated="October 17, 2026">
 
       <InfoBox>
-        <p className="font-semibold text-slate-700 dark:text-slate-300 text-base">ZenFuel — Brain Reset</p>
+        <p className="font-semibold text-ink-2 text-base">ZenFuel — Brain Reset</p>
         <p>Operated by Satyam Kumar Kirti</p>
         <p>Email: <MailLink /></p>
         <p>Response time: Within 2–3 business days</p>
@@ -81,7 +81,7 @@ export default function ContactPage() {
         <p>Subject: &quot;Privacy Request&quot;</p>
       </InfoBox>
 
-      <p className="text-sm text-slate-400 mt-8 italic">ZenFuel is operated by Satyam Kumar Kirti, India.</p>
+      <p className="text-sm text-muted mt-8 italic">ZenFuel is operated by Satyam Kumar Kirti, India.</p>
 
     </LegalLayout>
   );

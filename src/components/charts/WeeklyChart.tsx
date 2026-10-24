@@ -1,7 +1,8 @@
 'use client';
 
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine, Cell } from 'recharts';
 import { WeeklyCount } from '@/types';
+import { tooltipProps, axisTick, AXIS_CLASS, GRID_CLASS, BAR_CLASS, BAR_EMPTY_CLASS, BRAND_HEX, AVERAGE_HEX, chartTitleClass, plural } from './chartTheme';
 
 interface WeeklyChartProps {
   data: WeeklyCount[];
@@ -12,37 +13,30 @@ export function WeeklyChart({ data, averagePerWeek }: WeeklyChartProps) {
   const chartData = data.slice(-16);
 
   return (
-    <div>
-      <h4 className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">Weekly Activity</h4>
+    <figure aria-label={`Weekly activity over ${plural(chartData.length, 'week')}${averagePerWeek ? `, average ${averagePerWeek.toFixed(1)} per week` : ''}`}>
+      <div className="flex items-baseline justify-between gap-3 mb-3">
+        <h4 className="text-sm font-semibold text-ink">Weekly activity</h4>
+        {!!averagePerWeek && (
+          <span className="flex items-center gap-1.5 text-[11px] text-muted">
+            <span className="w-3 border-t-2 border-dashed border-amber-600" aria-hidden="true" />
+            Average {averagePerWeek.toFixed(1)}
+          </span>
+        )}
+      </div>
       <ResponsiveContainer width="100%" height={180}>
-        <BarChart data={chartData} barSize={12}>
-          <CartesianGrid strokeDasharray="3 3" stroke="currentColor" className="text-slate-200 dark:text-slate-700" vertical={false} />
-          <XAxis
-            dataKey="label"
-            tick={{ fill: 'currentColor', fontSize: 10 }}
-            className="text-slate-400"
-            tickLine={false}
-            axisLine={false}
-          />
-          <YAxis
-            tick={{ fill: 'currentColor', fontSize: 10 }}
-            className="text-slate-400"
-            tickLine={false}
-            axisLine={false}
-            allowDecimals={false}
-            width={20}
-          />
-          <Tooltip
-            contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: 8, fontSize: 12 }}
-            cursor={{ fill: 'rgba(139, 92, 246, 0.1)' }}
-            formatter={(v: number) => [`${v} sessions`, 'Week total']}
-          />
-          {averagePerWeek && (
-            <ReferenceLine y={averagePerWeek} stroke="#f59e0b" strokeDasharray="4 2" label={{ value: 'avg', position: 'insideTopRight', fontSize: 10, fill: '#f59e0b' }} />
-          )}
-          <Bar dataKey="count" fill="#8b5cf6" radius={[3, 3, 0, 0]} />
+        <BarChart data={chartData} barCategoryGap="25%" margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
+          <CartesianGrid stroke="currentColor" className={GRID_CLASS} vertical={false} />
+          <XAxis dataKey="label" tick={axisTick} className={AXIS_CLASS} tickLine={false} axisLine={false} minTickGap={8} />
+          <YAxis tick={axisTick} className={AXIS_CLASS} tickLine={false} axisLine={false} allowDecimals={false} width={24} />
+          <Tooltip {...tooltipProps} formatter={(v: number) => [plural(v, 'event'), '']} separator="" />
+          {!!averagePerWeek && <ReferenceLine y={averagePerWeek} stroke={AVERAGE_HEX} strokeDasharray="4 3" />}
+          <Bar dataKey="count" radius={[4, 4, 0, 0]} maxBarSize={20}>
+            {chartData.map((entry, i) => (
+              <Cell key={i} fill={BRAND_HEX} className={entry.count === 0 ? BAR_EMPTY_CLASS : BAR_CLASS} />
+            ))}
+          </Bar>
         </BarChart>
       </ResponsiveContainer>
-    </div>
+    </figure>
   );
 }

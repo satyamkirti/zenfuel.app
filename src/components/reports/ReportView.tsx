@@ -101,29 +101,29 @@ export function ReportView({ entries, habits, isPremium = true }: { entries: Log
           variant="prominent"
         />
       )}
-      <Card>
-        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-          <div className="flex gap-1">
+      <Card padding="sm">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+          <div className="flex gap-1 p-1 rounded-xl bg-surface-2 self-start" role="group" aria-label="Report type">
             {(['monthly', 'quarterly', 'annual'] as ReportType[]).map(t => {
               const locked = t === 'annual' && !isPremium;
               return (
-              <button key={t} onClick={() => !locked && setReportType(t)} aria-pressed={reportType === t} className={clsx('px-3 py-1.5 rounded-lg text-xs font-medium capitalize transition-all flex items-center gap-1', reportType === t ? 'bg-violet-600 text-white' : locked ? 'bg-slate-100 dark:bg-slate-700 text-slate-400 cursor-not-allowed opacity-60' : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-600')}>
+              <button key={t} onClick={() => !locked && setReportType(t)} aria-pressed={reportType === t} className={clsx('min-h-[32px] px-3 rounded-lg text-xs font-medium capitalize transition-colors flex items-center gap-1', reportType === t ? 'bg-surface text-ink shadow-sm' : locked ? 'text-muted cursor-not-allowed opacity-60' : 'text-muted hover:text-ink')}>
                 {locked && <Lock size={10} />}{t}
               </button>
               );
             })}
           </div>
           <div className="flex gap-2 flex-wrap">
-            <select value={selectedYear} onChange={e => setSelectedYear(Number(e.target.value))} aria-label="Year" className="input w-auto text-xs py-1.5">
+            <select value={selectedYear} onChange={e => setSelectedYear(Number(e.target.value))} aria-label="Year" className="input w-auto text-sm">
               {years.map(y => <option key={y} value={y}>{y}</option>)}
             </select>
             {reportType === 'monthly' && (
-              <select value={selectedMonth} onChange={e => setSelectedMonth(Number(e.target.value))} aria-label="Month" className="input w-auto text-xs py-1.5">
+              <select value={selectedMonth} onChange={e => setSelectedMonth(Number(e.target.value))} aria-label="Month" className="input w-auto text-sm">
                 {SHORT_MONTHS.map((m, i) => <option key={i} value={i}>{m}</option>)}
               </select>
             )}
             {reportType === 'quarterly' && (
-              <select value={selectedQuarter} onChange={e => setSelectedQuarter(Number(e.target.value))} aria-label="Quarter" className="input w-auto text-xs py-1.5">
+              <select value={selectedQuarter} onChange={e => setSelectedQuarter(Number(e.target.value))} aria-label="Quarter" className="input w-auto text-sm">
                 {['Q1', 'Q2', 'Q3', 'Q4'].map((q, i) => <option key={i} value={i}>{q}</option>)}
               </select>
             )}
@@ -132,8 +132,8 @@ export function ReportView({ entries, habits, isPremium = true }: { entries: Log
       </Card>
 
       <div className="flex items-center justify-between flex-wrap gap-3">
-        <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-          <Brain size={20} className="text-violet-500" />
+        <h2 className="text-lg font-semibold tracking-tight text-ink flex items-center gap-2">
+          <Brain size={18} className="text-brand-text" aria-hidden="true" />
           {heading}
         </h2>
         <div className="flex gap-2 flex-wrap">
@@ -141,14 +141,14 @@ export function ReportView({ entries, habits, isPremium = true }: { entries: Log
           {isPremium ? (
             <Button variant="outline" size="sm" icon={<Download size={14} />} onClick={() => requestExport('json')}>JSON</Button>
           ) : (
-            <Link href="/upgrade" className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium border border-slate-300 dark:border-slate-600 rounded-lg text-slate-400 opacity-70 hover:opacity-100 transition-opacity">
+            <Link href="/upgrade" className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium border border-line-strong rounded-lg text-muted opacity-70 hover:opacity-100 transition-opacity">
               <Lock size={11} /> JSON
             </Link>
           )}
           {isPremium ? (
             <Button variant="secondary" size="sm" icon={<Printer size={14} />} onClick={() => requestExport('print')}>Print / PDF</Button>
           ) : (
-            <Link href="/upgrade" className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-slate-100 dark:bg-slate-700 rounded-lg text-slate-400 opacity-70 hover:opacity-100 transition-opacity">
+            <Link href="/upgrade" className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-surface-2 rounded-lg text-muted opacity-70 hover:opacity-100 transition-opacity">
               <Lock size={11} /> PDF — Premium
             </Link>
           )}
@@ -189,18 +189,18 @@ export function ReportView({ entries, habits, isPremium = true }: { entries: Log
             <HabitComparisonChart data={habitAnalyticsForChart} period="lifetime" />
           </Card>
           <Card>
-            <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-4">Habit Rankings</h3>
+            <h3 className="text-sm font-semibold text-ink-2 mb-4">Habit Rankings</h3>
             <div className="space-y-2">
               {habitBreakdown.map((h, i) => (
                 <div key={h.id} className="flex items-center gap-3">
-                  <span className="text-xs font-bold text-slate-400 w-4">#{i + 1}</span>
+                  <span className="text-xs font-bold text-muted w-4">#{i + 1}</span>
                   <span className="text-lg" aria-hidden="true">{habitIcon(h)}</span>
                   <div className="flex-1 min-w-0">
                     <div className="flex justify-between items-center gap-2 mb-0.5">
-                      <span className="text-sm font-medium text-slate-700 dark:text-slate-300 truncate">{habitName(h)}</span>
-                      <span className="text-xs font-bold text-slate-700 dark:text-slate-300">{h.count} ({h.percentOfTotal}%)</span>
+                      <span className="text-sm font-medium text-ink-2 truncate">{habitName(h)}</span>
+                      <span className="text-xs font-bold text-ink-2">{h.count} ({h.percentOfTotal}%)</span>
                     </div>
-                    <div className="h-1.5 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+                    <div className="h-1.5 bg-surface-2 rounded-full overflow-hidden">
                       <div className="h-full rounded-full" style={{ width: `${h.percentOfTotal}%`, backgroundColor: h.color }} />
                     </div>
                   </div>
@@ -216,7 +216,7 @@ export function ReportView({ entries, habits, isPremium = true }: { entries: Log
       )}
 
       <Card>
-        <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-4 flex items-center gap-2"><FileText size={15} />Period Summary</h3>
+        <h3 className="text-sm font-semibold text-ink-2 mb-4 flex items-center gap-2"><FileText size={15} />Period Summary</h3>
         <div className="space-y-2 text-sm">
           {[
             ['Total events this period', analytics.lifetimeCount],
@@ -229,9 +229,9 @@ export function ReportView({ entries, habits, isPremium = true }: { entries: Log
             ['Longest streak ever', `${streaks.longestStreak} days`],
             ['Lifetime total (all time)', <span key="lt" className="text-violet-600 dark:text-violet-400 font-bold">{allAnalytics.lifetimeCount}</span>],
           ].map(([label, value], i) => (
-            <div key={i} className="flex justify-between py-2 border-b border-slate-100 dark:border-slate-700 last:border-0">
-              <span className="text-slate-500 dark:text-slate-400">{label}</span>
-              <span className="font-semibold text-slate-900 dark:text-white">{value}</span>
+            <div key={i} className="flex justify-between py-2 border-b border-line last:border-0">
+              <span className="text-muted">{label}</span>
+              <span className="font-semibold text-ink">{value}</span>
             </div>
           ))}
         </div>

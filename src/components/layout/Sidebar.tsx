@@ -48,14 +48,14 @@ export function Sidebar() {
   const { discreet } = usePrivacy();
 
   const scoreColor =
-    detoxScore.score >= 80 ? 'text-emerald-500' :
-    detoxScore.score >= 60 ? 'text-blue-500' :
-    detoxScore.score >= 40 ? 'text-amber-500' : 'text-red-500';
+    detoxScore.score >= 80 ? 'bg-emerald-500' :
+    detoxScore.score >= 60 ? 'bg-sky-500' :
+    detoxScore.score >= 40 ? 'bg-amber-500' : 'bg-red-500';
 
   return (
-    <aside className="hidden lg:flex flex-col w-60 shrink-0 h-screen sticky top-0 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800">
-      <div className="px-4 py-4 border-b border-slate-200 dark:border-slate-800">
-        <div className="flex items-center justify-between gap-2">
+    <aside className="hidden lg:flex flex-col w-64 shrink-0 h-screen sticky top-0 bg-surface border-r border-line">
+      <div className="px-5 h-16 flex items-center">
+        <div className="flex items-center justify-between gap-2 w-full">
           <Logo size="md" />
           {MONETIZATION_UI_ENABLED && <PlanBadge plan={subscription.plan} size="xs" />}
         </div>
@@ -71,26 +71,29 @@ export function Sidebar() {
 
       <div className="px-3 pt-3 empty:hidden"><PrivacyRevealButton /></div>
 
-      <nav aria-label="Main" className="flex-1 px-3 py-4 overflow-y-auto">
-        <div className="space-y-0.5 mb-4">
+      <nav aria-label="Main" className="flex-1 px-3 py-3 overflow-y-auto">
+        <div className="space-y-0.5">
           {NAV_PRIMARY.map(n => <NavLink key={n.href} {...n} />)}
         </div>
-        <p className="px-3 text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-600 mb-1 mt-4">Tools</p>
+        <p className="eyebrow px-3 mb-1.5 mt-6">Tools</p>
         <div className="space-y-0.5">
           {NAV_SECONDARY.map(n => <NavLink key={n.href} {...n} />)}
         </div>
       </nav>
 
-      <div className="px-3 py-4 border-t border-slate-200 dark:border-slate-800 space-y-2">
-        {/* Score card */}
-        <div className="px-3 py-2.5 rounded-lg bg-slate-50 dark:bg-slate-800 flex items-center justify-between">
+      <div className="px-3 py-4 border-t border-line space-y-3">
+        {/* Score summary */}
+        <div className="px-3 py-3 rounded-xl bg-surface-2 flex items-center justify-between">
           <div>
-            <p className="text-[10px] text-slate-500 dark:text-slate-400 uppercase tracking-wide">{discreet('Detox Score', 'Score')}</p>
-            <p className={`text-xl font-bold ${scoreColor}`}>{detoxScore.score}</p>
+            <p className="text-[11px] text-muted">{discreet('Detox score', 'Score')}</p>
+            <p className="text-xl font-semibold tabular-nums text-ink flex items-center gap-1.5">
+              <span className={`w-2 h-2 rounded-full ${scoreColor}`} aria-hidden="true" />
+              {detoxScore.score}
+            </p>
           </div>
           <div className="text-right">
-            <p className="text-[10px] text-slate-500 dark:text-slate-400">Events</p>
-            <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">{analytics.lifetimeCount}</p>
+            <p className="text-[11px] text-muted">Events</p>
+            <p className="text-sm font-semibold tabular-nums text-ink-2">{analytics.lifetimeCount}</p>
           </div>
         </div>
 
@@ -118,7 +121,7 @@ export function Sidebar() {
         {/* Legal links */}
         <nav aria-label="Information" className="flex flex-wrap gap-x-3 gap-y-1 px-1 pt-1">
           {INFO_LINKS.map(([label, href]) => (
-            <Link key={href} href={href} className="text-[11px] text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors">
+            <Link key={href} href={href} className="text-[11px] text-muted hover:text-ink transition-colors">
               {label}
             </Link>
           ))}

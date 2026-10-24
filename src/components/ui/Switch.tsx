@@ -22,9 +22,9 @@ export function Switch({ checked, onChange, label, disabled }: SwitchProps) {
       onClick={() => onChange(!checked)}
       className={clsx(
         'relative inline-flex w-11 h-6 shrink-0 items-center rounded-full transition-colors',
-        'focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-800',
+        'focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2 focus-visible:ring-offset-surface',
         'disabled:opacity-50 disabled:cursor-not-allowed',
-        checked ? 'bg-violet-600' : 'bg-slate-300 dark:bg-slate-600'
+        checked ? 'bg-violet-600' : 'bg-line-strong'
       )}
     >
       <span className={clsx('block w-4 h-4 rounded-full bg-white shadow transition-transform', checked ? 'translate-x-6' : 'translate-x-1')} />

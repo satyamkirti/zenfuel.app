@@ -2,36 +2,58 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+  ZenFuel design tokens. Light and dark are tuned separately (not inverted):
+  calm, slightly violet-tinted neutrals, one violet brand colour, and muted text that
+  stays at or above 4.5:1 contrast on its surface.
+*/
 @layer base {
   :root {
-    --bg: 248 250 252;
-    --surface: 255 255 255;
-    --surface-2: 241 245 249;
-    --border: 226 232 240;
-    --text: 15 23 42;
-    --text-muted: 100 116 139;
-    --primary: 109 40 217;
-    --primary-light: 139 92 246;
+    --bg: 246 246 251;          /* page background  #f6f6fb */
+    --surface: 255 255 255;     /* cards            #ffffff */
+    --surface-2: 241 240 248;   /* tiles, tracks    #f1f0f8 */
+    --line: 229 228 239;        /* hairlines        #e5e4ef */
+    --line-strong: 208 206 224; /* inputs           #d0cee0 */
+    --ink: 21 19 38;            /* primary text     #151326 */
+    --ink-2: 66 63 92;          /* secondary text   #423f5c */
+    --muted: 104 101 130;       /* supporting text  #686582 (5.6:1 on white) */
+    --brand: 124 58 237;        /* violet-600, solid buttons */
+    --brand-strong: 109 40 217; /* violet-700, hover */
+    --brand-text: 109 40 217;   /* brand-coloured text */
+    --shadow-card: 0 1px 2px rgb(21 19 38 / 0.04), 0 8px 24px -16px rgb(21 19 38 / 0.12);
+    --shadow-pop: 0 12px 40px -12px rgb(21 19 38 / 0.28);
+    color-scheme: light;
   }
   .dark {
-    --bg: 2 6 23;
-    --surface: 15 23 42;
-    --surface-2: 30 41 59;
-    --border: 51 65 85;
-    --text: 241 245 249;
-    --text-muted: 148 163 184;
-    --primary: 139 92 246;
-    --primary-light: 167 139 250;
+    --bg: 9 9 16;               /* #090910 */
+    --surface: 18 18 29;        /* #12121d */
+    --surface-2: 27 27 42;      /* #1b1b2a */
+    --line: 38 38 56;           /* #262638 */
+    --line-strong: 58 58 82;    /* #3a3a52 */
+    --ink: 240 239 250;         /* #f0effa */
+    --ink-2: 200 198 220;       /* #c8c6dc */
+    --muted: 152 150 178;       /* #9896b2 (6.3:1 on surface) */
+    --brand: 124 58 237;
+    --brand-strong: 139 92 246;
+    --brand-text: 196 181 253;  /* violet-300 */
+    --shadow-card: 0 0 0 0 transparent;
+    --shadow-pop: 0 16px 48px -12px rgb(0 0 0 / 0.6);
+    color-scheme: dark;
   }
 
   * {
-    @apply border-slate-200 dark:border-slate-700;
+    @apply border-line;
   }
 
   body {
-    @apply bg-slate-50 dark:bg-[#020617] text-slate-900 dark:text-slate-100;
+    @apply bg-bg text-ink;
     font-feature-settings: 'cv11', 'ss01';
     font-variation-settings: 'opsz' 32;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  h1, h2, h3 {
+    letter-spacing: -0.01em;
   }
 
   /* Visible keyboard focus for links and controls that do not draw their own ring. */
@@ -40,13 +62,12 @@
     outline-offset: 2px;
   }
 
-  /* Readability: the lightest muted greys fall below 4.5:1 contrast on their backgrounds. */
-  /* (:not(:hover) leaves hover colours to the utilities; .surface-dark marks always-dark panels.) */
+  /* Readability safety net for any remaining light greys (always-dark panels excluded). */
   html:not(.dark) .text-slate-400:not(:hover):not(.surface-dark *) {
-    color: rgb(100 116 139);
+    color: rgb(var(--muted));
   }
   html.dark .dark\:text-slate-500:not(:hover) {
-    color: rgb(148 163 184);
+    color: rgb(var(--muted));
   }
 
   /* Hidden Mode saved: keep the ZenFuel brand off screen until React renders the neutral title. */
@@ -65,47 +86,68 @@
     @apply bg-transparent;
   }
   ::-webkit-scrollbar-thumb {
-    @apply bg-slate-300 dark:bg-slate-600 rounded-full;
+    @apply bg-line-strong rounded-full;
   }
-  ::-webkit-scrollbar-thumb:hover {
-    @apply bg-slate-400 dark:bg-slate-500;
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
   }
 }
 
 @layer components {
   .card {
-    @apply bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl;
+    @apply bg-surface border border-line rounded-2xl shadow-card;
   }
   .card-hover {
-    @apply card hover:border-violet-400 dark:hover:border-violet-500 transition-colors;
+    @apply card hover:border-violet-300 dark:hover:border-violet-500/50 transition-colors;
   }
   .stat-value {
-    @apply text-2xl font-bold text-slate-900 dark:text-white;
+    @apply text-2xl font-semibold tracking-tight text-ink tabular-nums;
   }
   .stat-label {
-    @apply text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wide font-medium;
+    @apply text-xs font-medium text-muted;
+  }
+  .eyebrow {
+    @apply text-[11px] font-semibold uppercase tracking-[0.08em] text-muted;
   }
   .btn-primary {
-    @apply bg-violet-600 hover:bg-violet-700 active:bg-violet-800 text-white font-semibold rounded-lg transition-all;
+    @apply inline-flex items-center justify-center gap-2 bg-brand hover:bg-brand-strong active:bg-brand-strong text-white font-semibold rounded-xl transition-colors;
   }
   .btn-ghost {
-    @apply hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-lg transition-colors;
+    @apply hover:bg-surface-2 text-ink-2 rounded-lg transition-colors;
   }
   .input {
-    @apply w-full px-3 py-2 bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600
-           rounded-lg text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500
-           focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent
-           text-sm transition-all;
+    @apply w-full min-h-[40px] px-3 py-2 bg-surface border border-line-strong
+           rounded-xl text-ink placeholder:text-muted
+           focus:outline-none focus:ring-4 focus:ring-violet-500/15 focus:border-violet-500
+           text-sm transition-shadow;
+  }
+  select.input {
+    @apply pr-8;
   }
   .nav-link {
-    @apply flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400
-           hover:bg-slate-100 dark:hover:bg-slate-700/60 hover:text-slate-900 dark:hover:text-white
-           transition-all text-sm font-medium;
+    @apply flex items-center gap-3 px-3 py-2 rounded-xl text-ink-2
+           hover:bg-surface-2 hover:text-ink
+           transition-colors text-sm font-medium;
   }
   .nav-link-active {
-    @apply flex items-center gap-3 px-3 py-2.5 rounded-lg
-           bg-violet-50 dark:bg-violet-500/10 text-violet-700 dark:text-violet-400
-           border border-violet-200 dark:border-violet-500/20
+    @apply flex items-center gap-3 px-3 py-2 rounded-xl
+           bg-violet-600/10 text-brand-text
            text-sm font-semibold;
+  }
+  .chip {
+    @apply inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-colors;
+  }
+  .chip-off {
+    @apply chip bg-surface-2 text-ink-2 hover:text-ink;
+  }
+  .chip-on {
+    @apply chip bg-ink text-surface;
+  }
+  .track {
+    @apply h-2 rounded-full bg-surface-2 overflow-hidden;
   }
 }

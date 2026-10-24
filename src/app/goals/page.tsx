@@ -12,6 +12,8 @@ import { computeGoalProgress } from '@/utils/goals';
 import { Modal } from '@/components/ui/Modal';
 import { formatDate } from '@/utils/dateUtils';
 import { usePrivacy } from '@/context/PrivacyContext';
+import { PageHeader } from '@/components/ui/PageHeader';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 const GOAL_TYPES: { value: GoalType; label: string; description: string }[] = [
   { value: 'max_per_week', label: 'Max per week', description: 'Limit sessions to N per week' },
@@ -63,19 +65,19 @@ export default function GoalsPage() {
     return (
       <Card>
         <div className="flex items-start gap-3 mb-3">
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl shrink-0" style={{ backgroundColor: (masked ? '#64748b' : habit?.color ?? '#8b5cf6') + '20' }} aria-hidden="true">
+          <div className="w-10 h-10 rounded-xl bg-surface-2 flex items-center justify-center text-xl shrink-0" aria-hidden="true">
             {habit ? habitIcon(habit) : '🎯'}
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <h3 className="font-semibold text-slate-900 dark:text-white break-words">{goalName(goal)}</h3>
+              <h3 className="font-semibold text-ink break-words">{goalName(goal)}</h3>
               {progress.isAchieved && <Badge variant="success">Achieved ✓</Badge>}
               {!goal.isActive && <Badge variant="default">Inactive</Badge>}
             </div>
-            <p className="text-xs text-slate-400 mt-0.5">{habitName(habit, goal.habitId)} · {typeInfo?.label} · Target: {goal.targetValue}</p>
+            <p className="text-xs text-muted mt-0.5">{habitName(habit, goal.habitId)} · {typeInfo?.label} · Target: {goal.targetValue}</p>
           </div>
           <div className="flex gap-1 shrink-0">
-            <button onClick={() => updateGoal(goal.id, { isActive: !goal.isActive })} className="px-2 py-2 rounded-lg btn-ghost text-xs text-slate-500 dark:text-slate-400">
+            <button onClick={() => updateGoal(goal.id, { isActive: !goal.isActive })} className="min-h-[36px] px-2.5 rounded-lg btn-ghost text-xs font-medium">
               {goal.isActive ? 'Pause' : 'Resume'}
             </button>
             {confirmDeleteId === goal.id ? (
@@ -83,7 +85,7 @@ export default function GoalsPage() {
                 <Trash2 size={13} aria-hidden="true" /> Delete?
               </button>
             ) : (
-              <button onClick={() => handleDelete(goal.id)} aria-label="Delete goal" className="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 text-slate-400 hover:text-red-500 transition-colors">
+              <button onClick={() => handleDelete(goal.id)} aria-label="Delete goal" className="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 text-muted hover:text-red-500 transition-colors">
                 <Trash2 size={15} aria-hidden="true" />
               </button>
             )}
@@ -92,20 +94,20 @@ export default function GoalsPage() {
 
         <div className="space-y-1.5">
           <div className="flex justify-between text-xs">
-            <span className="text-slate-500">{progress.label}</span>
-            <span className={progress.isAchieved ? 'text-emerald-500 font-semibold' : 'text-slate-500'}>{progress.percentage}%</span>
+            <span className="text-muted">{progress.label}</span>
+            <span className={`tabular-nums font-semibold ${progress.isAchieved ? 'text-emerald-600 dark:text-emerald-400' : 'text-ink'}`}>{progress.percentage}%</span>
           </div>
-          <div className="h-2.5 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+          <div className="track">
             <div
-              className={`h-full rounded-full transition-all ${progress.isAchieved ? 'bg-emerald-500' : 'bg-blue-500'}`}
+              className={`h-full rounded-full transition-all ${progress.isAchieved ? 'bg-emerald-500' : 'bg-violet-500'}`}
               style={{ width: `${Math.min(100, progress.percentage)}%` }}
             />
           </div>
         </div>
 
         {progress.isAchieved && (
-          <div className="mt-3 flex items-center gap-2 text-xs text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 rounded-lg p-2">
-            <CheckCircle2 size={13} />
+          <div className="mt-3 flex items-center gap-2 text-xs font-medium text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-500/10 rounded-lg px-3 py-2">
+            <CheckCircle2 size={14} aria-hidden="true" />
             Goal achieved! Set a new target to keep improving.
           </div>
         )}
@@ -116,33 +118,26 @@ export default function GoalsPage() {
   return (
     <AppLayout title="Goals">
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-blue-100 dark:bg-blue-500/20 flex items-center justify-center">
-              <Target size={18} className="text-blue-600 dark:text-blue-400" />
-            </div>
-            <div>
-              <h1 className="text-xl font-bold text-slate-900 dark:text-white">Goals</h1>
-              <p className="text-sm text-slate-500 dark:text-slate-400">{active.length} active goal{active.length !== 1 ? 's' : ''}</p>
-            </div>
-          </div>
-          <Button size="sm" icon={<Plus size={14} />} onClick={() => setShowAdd(true)}>Set Goal</Button>
-        </div>
+        <PageHeader
+          title="Goals"
+          description={`${active.length} active goal${active.length !== 1 ? 's' : ''} · progress updates as you log`}
+          actions={<Button size="sm" icon={<Plus size={15} />} onClick={() => setShowAdd(true)}>Set Goal</Button>}
+        />
 
         {goals.length === 0 && (
-          <Card>
-            <div className="text-center py-10 text-slate-400">
-              <p className="text-4xl mb-3">🎯</p>
-              <p className="font-medium">No goals set yet</p>
-              <p className="text-sm mt-1">Set your first goal to start tracking progress</p>
-              <Button size="sm" className="mt-4" onClick={() => setShowAdd(true)}>Set First Goal</Button>
-            </div>
+          <Card padding="none">
+            <EmptyState
+              icon={<Target size={22} />}
+              title="No goals set yet"
+              description="Choose a habit and a target, such as a weekly limit or a streak. Progress is worked out from your logs."
+              action={<Button icon={<Plus size={15} />} onClick={() => setShowAdd(true)}>Set your first goal</Button>}
+            />
           </Card>
         )}
 
         {active.length > 0 && (
           <div>
-            <h2 className="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-3">Active Goals</h2>
+            <h2 className="eyebrow mb-3">Active Goals</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {active.map(g => <GoalCard key={g.id} goal={g} />)}
             </div>
@@ -151,7 +146,7 @@ export default function GoalsPage() {
 
         {inactive.length > 0 && (
           <div>
-            <h2 className="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-3">Paused Goals</h2>
+            <h2 className="eyebrow mb-3">Paused Goals</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {inactive.map(g => <GoalCard key={g.id} goal={g} />)}
             </div>
@@ -162,23 +157,24 @@ export default function GoalsPage() {
       <Modal open={showAdd} onClose={() => setShowAdd(false)} title="Set New Goal" size="sm">
         <div className="p-6 space-y-4">
           <div>
-            <label htmlFor="goal-name" className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Goal Name</label>
+            <label htmlFor="goal-name" className="block text-xs font-medium text-muted mb-1">Goal Name</label>
             <input id="goal-name" value={newName} onChange={e => setNewName(e.target.value)} placeholder={masked ? 'e.g. Personal goal' : 'e.g. Stay porn-free for 30 days'} className="input" />
           </div>
           <div>
-            <label htmlFor="goal-habit" className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Habit</label>
+            <label htmlFor="goal-habit" className="block text-xs font-medium text-muted mb-1">Habit</label>
             <select id="goal-habit" value={selectedHabitId} onChange={e => setNewHabitId(e.target.value)} className="input">
               {habits.map(h => <option key={h.id} value={h.id}>{habitIcon(h)} {habitName(h)}</option>)}
             </select>
           </div>
           <div>
-            <label htmlFor="goal-type" className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Goal Type</label>
+            <label htmlFor="goal-type" className="block text-xs font-medium text-muted mb-1">Goal Type</label>
             <select id="goal-type" value={newType} onChange={e => setNewType(e.target.value as GoalType)} className="input">
-              {GOAL_TYPES.map(t => <option key={t.value} value={t.value}>{t.label} — {t.description}</option>)}
+              {GOAL_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
             </select>
+            <p className="text-xs text-muted mt-1.5">{GOAL_TYPES.find(t => t.value === newType)?.description}</p>
           </div>
           <div>
-            <label htmlFor="goal-target" className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">
+            <label htmlFor="goal-target" className="block text-xs font-medium text-muted mb-1">
               Target Value {newType === 'reduce_by_percent' ? '(%)' : newType === 'max_per_week' ? '(sessions/week)' : '(days)'}
             </label>
             <input id="goal-target" type="number" value={newTarget} onChange={e => setNewTarget(Math.max(1, parseInt(e.target.value) || 1))} min={1} className="input" />

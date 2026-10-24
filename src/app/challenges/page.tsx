@@ -11,6 +11,7 @@ import { Challenge } from '@/types';
 import { computeChallengeProgress } from '@/utils/challenges';
 import { Modal } from '@/components/ui/Modal';
 import { usePrivacy } from '@/context/PrivacyContext';
+import { PageHeader } from '@/components/ui/PageHeader';
 
 export default function ChallengesPage() {
   const { challenges, habits, entries, startChallenge, stopChallenge, completeChallenge, addChallenge } = useApp();
@@ -63,12 +64,12 @@ export default function ChallengesPage() {
     return (
       <Card>
         <div className="flex items-start gap-3 mb-3">
-          <div className="w-11 h-11 rounded-xl bg-amber-100 dark:bg-amber-500/20 flex items-center justify-center text-2xl shrink-0" aria-hidden="true">
+          <div className="w-11 h-11 rounded-xl bg-surface-2 flex items-center justify-center text-2xl shrink-0" aria-hidden="true">
             {habit ? habitIcon(habit) : masked ? '🏁' : '🧠'}
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <h3 className="font-semibold text-slate-900 dark:text-white break-words">{challengeName(c)}</h3>
+              <h3 className="font-semibold text-ink break-words">{challengeName(c)}</h3>
               {c.isBuiltIn && <Badge variant="purple">Built-in</Badge>}
               {c.isActive && (
                 progress.isViolated
@@ -77,8 +78,8 @@ export default function ChallengesPage() {
               )}
               {c.isCompleted && <Badge variant="success">Completed ✓</Badge>}
             </div>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{challengeDescription(c)}</p>
-            <p className="text-xs text-slate-400 mt-0.5">
+            <p className="text-xs text-muted mt-0.5">{challengeDescription(c)}</p>
+            <p className="text-xs text-muted mt-0.5">
               {c.habitId === 'all' ? 'All Habits' : habitName(habit, c.habitId)} · {c.durationDays} days
             </p>
           </div>
@@ -87,10 +88,10 @@ export default function ChallengesPage() {
         {c.isActive && (
           <div className="mb-3">
             <div className="flex justify-between text-xs mb-1">
-              <span className="text-slate-500">{progress.daysDone} / {c.durationDays} days</span>
+              <span className="text-muted">{progress.daysDone} / {c.durationDays} days</span>
               <span className={progress.isViolated ? 'text-red-500' : 'text-emerald-500'}>{progress.percentage}%</span>
             </div>
-            <div className="h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+            <div className="track">
               <div
                 className={`h-full rounded-full ${progress.isViolated ? 'bg-red-500' : 'bg-emerald-500'}`}
                 style={{ width: `${Math.min(100, progress.percentage)}%` }}
@@ -111,7 +112,7 @@ export default function ChallengesPage() {
 
         <div className="flex flex-wrap gap-2">
           {!c.isActive && !c.isCompleted && (
-            <Button size="sm" icon={<Play size={13} />} onClick={() => startChallenge(c.id)}>Start</Button>
+            <Button size="sm" variant="secondary" icon={<Play size={13} />} onClick={() => startChallenge(c.id)}>Start</Button>
           )}
           {c.isActive && (
             <>
@@ -134,22 +135,15 @@ export default function ChallengesPage() {
   return (
     <AppLayout title="Challenges">
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-amber-100 dark:bg-amber-500/20 flex items-center justify-center">
-              <Trophy size={18} className="text-amber-600 dark:text-amber-400" />
-            </div>
-            <div>
-              <h1 className="text-xl font-bold text-slate-900 dark:text-white">Challenges</h1>
-              <p className="text-sm text-slate-500 dark:text-slate-400">{active.length} active · {completed.length} completed</p>
-            </div>
-          </div>
-          <Button size="sm" icon={<Plus size={14} />} onClick={() => setShowAddModal(true)}>Custom</Button>
-        </div>
+        <PageHeader
+          title="Challenges"
+          description={`${active.length} active · ${completed.length} completed`}
+          actions={<Button size="sm" icon={<Plus size={15} />} onClick={() => setShowAddModal(true)}>Create challenge</Button>}
+        />
 
         {active.length > 0 && (
           <div>
-            <h2 className="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-3">Active</h2>
+            <h2 className="eyebrow mb-3">Active</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {active.map(c => <ChallengeCard key={c.id} c={c} />)}
             </div>
@@ -158,7 +152,7 @@ export default function ChallengesPage() {
 
         {available.length > 0 && (
           <div>
-            <h2 className="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-3">Available</h2>
+            <h2 className="eyebrow mb-3">Available</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {available.map(c => <ChallengeCard key={c.id} c={c} />)}
             </div>
@@ -167,7 +161,7 @@ export default function ChallengesPage() {
 
         {completed.length > 0 && (
           <div>
-            <h2 className="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-3">Completed</h2>
+            <h2 className="eyebrow mb-3">Completed</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {completed.map(c => <ChallengeCard key={c.id} c={c} />)}
             </div>
@@ -178,22 +172,22 @@ export default function ChallengesPage() {
       <Modal open={showAddModal} onClose={() => setShowAddModal(false)} title="Create Custom Challenge" size="sm">
         <div className="p-6 space-y-4">
           <div>
-            <label htmlFor="challenge-name" className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Challenge Name</label>
+            <label htmlFor="challenge-name" className="block text-xs font-medium text-muted mb-1">Challenge Name</label>
             <input id="challenge-name" value={newName} onChange={e => setNewName(e.target.value)} placeholder="e.g. 14-Day Social Media Break" className="input" />
           </div>
           <div>
-            <label htmlFor="challenge-desc" className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Description</label>
+            <label htmlFor="challenge-desc" className="block text-xs font-medium text-muted mb-1">Description</label>
             <input id="challenge-desc" value={newDesc} onChange={e => setNewDesc(e.target.value)} placeholder="Brief description..." className="input" />
           </div>
           <div>
-            <label htmlFor="challenge-habit" className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Habit</label>
+            <label htmlFor="challenge-habit" className="block text-xs font-medium text-muted mb-1">Habit</label>
             <select id="challenge-habit" value={selectedHabitId} onChange={e => setNewHabitId(e.target.value)} className="input">
               <option value="all">All Habits</option>
               {habits.map(h => <option key={h.id} value={h.id}>{habitIcon(h)} {habitName(h)}</option>)}
             </select>
           </div>
           <div>
-            <label htmlFor="challenge-days" className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Duration (days)</label>
+            <label htmlFor="challenge-days" className="block text-xs font-medium text-muted mb-1">Duration (days)</label>
             <input id="challenge-days" type="number" value={newDays} onChange={e => setNewDays(Math.max(1, parseInt(e.target.value) || 1))} min={1} max={365} className="input" />
           </div>
         </div>

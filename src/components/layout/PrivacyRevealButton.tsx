@@ -22,7 +22,7 @@ export function PrivacyRevealButton({ compact }: { compact?: boolean }) {
         compact ? 'px-2' : 'px-3',
         revealed
           ? 'bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-300'
-          : 'btn-ghost text-slate-600 dark:text-slate-300'
+          : 'btn-ghost text-ink-2'
       )}
     >
       {revealed ? <EyeOff size={15} aria-hidden="true" /> : <Eye size={15} aria-hidden="true" />}

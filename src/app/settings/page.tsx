@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/Button';
 import { Switch } from '@/components/ui/Switch';
 import { usePrivacy, DEFAULT_HIDDEN_TITLE } from '@/context/PrivacyContext';
 import { APP_VERSION } from '@/lib/version';
+import { PageHeader } from '@/components/ui/PageHeader';
 import { PlanBadge } from '@/components/subscription/PlanBadge';
 import { PLANS, MONETIZATION_UI_ENABLED } from '@/utils/subscription';
 import { storage } from '@/utils/storage';
@@ -49,9 +50,9 @@ function dateRange(s: BackupSummary): string {
 function Section({ title, icon, children }: { title: string; icon: React.ReactNode; children: React.ReactNode }) {
   return (
     <Card padding="none">
-      <div className="px-5 py-4 border-b border-slate-200 dark:border-slate-700 flex items-center gap-2">
-        <span className="text-violet-500">{icon}</span>
-        <h2 className="font-semibold text-slate-900 dark:text-white">{title}</h2>
+      <div className="px-5 pt-5 pb-1 flex items-center gap-2.5">
+        <span className="w-8 h-8 rounded-lg bg-violet-600/10 text-brand-text flex items-center justify-center" aria-hidden="true">{icon}</span>
+        <h2 className="text-base font-semibold text-ink">{title}</h2>
       </div>
       <div className="p-5 space-y-4">{children}</div>
     </Card>
@@ -62,8 +63,8 @@ function Row({ label, sub, children }: { label: string; sub?: string; children: 
   return (
     <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
       <div className="flex-1 min-w-[10rem]">
-        <p className="text-sm font-medium text-slate-800 dark:text-slate-200">{label}</p>
-        {sub && <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{sub}</p>}
+        <p className="text-sm font-medium text-ink">{label}</p>
+        {sub && <p className="text-xs text-muted mt-0.5">{sub}</p>}
       </div>
       <div className="shrink-0">{children}</div>
     </div>
@@ -190,13 +191,8 @@ export default function SettingsPage() {
 
   return (
     <AppLayout title="Settings">
-      <div className="space-y-4 max-w-2xl">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="w-9 h-9 rounded-xl bg-violet-100 dark:bg-violet-500/20 flex items-center justify-center">
-            <Settings size={18} className="text-violet-600 dark:text-violet-400" />
-          </div>
-          <h1 className="text-xl font-bold text-slate-900 dark:text-white">Settings</h1>
-        </div>
+      <div className="space-y-4 max-w-3xl">
+        <PageHeader title="Settings" description="Reminders, appearance, privacy and your data — all stored in this browser." />
 
         {/* Subscription — future paid plans only, hidden during the Free Beta */}
         {MONETIZATION_UI_ENABLED && (
@@ -208,20 +204,20 @@ export default function SettingsPage() {
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <p className="font-semibold text-slate-900 dark:text-white">{isPremium ? PLANS[subscription.plan].name : 'Free Plan'}</p>
+                    <p className="font-semibold text-ink">{isPremium ? PLANS[subscription.plan].name : 'Free Plan'}</p>
                     <PlanBadge plan={subscription.plan} size="xs" />
                   </div>
                   {subscription.status === 'trial' && trialDaysLeft !== null && (
                     <p className="text-xs text-violet-500">Trial ends in {trialDaysLeft} day{trialDaysLeft !== 1 ? 's' : ''}</p>
                   )}
                   {isPremium && daysLeft !== null && (
-                    <p className="text-xs text-slate-400">Premium access ends in {daysLeft} day{daysLeft !== 1 ? 's' : ''}</p>
+                    <p className="text-xs text-muted">Premium access ends in {daysLeft} day{daysLeft !== 1 ? 's' : ''}</p>
                   )}
                   {isPremium && subscription.plan === 'lifetime' && (
                     <p className="text-xs text-emerald-500">Active forever ✓</p>
                   )}
                   {!isPremium && (
-                    <p className="text-xs text-slate-400">3 habits · 30-day history · basic features</p>
+                    <p className="text-xs text-muted">3 habits · 30-day history · basic features</p>
                   )}
                 </div>
               </div>
@@ -239,7 +235,7 @@ export default function SettingsPage() {
         {/* Notifications */}
         <Section title="Notifications" icon={<Bell size={16} />}>
           {notifSupport !== 'supported' ? (
-            <div className="flex items-start gap-3 p-3 bg-slate-50 dark:bg-slate-700/50 rounded-xl text-sm text-slate-600 dark:text-slate-300">
+            <div className="flex items-start gap-3 p-3 bg-surface-2 rounded-xl text-sm text-ink-2">
               <Bell size={16} className="shrink-0 mt-0.5" aria-hidden="true" />
               {notifSupport === 'install-required'
                 ? 'On iPhone and iPad, reminders are only available after adding this app to your Home Screen (Share → Add to Home Screen), then opening it from there.'
@@ -252,7 +248,7 @@ export default function SettingsPage() {
             </div>
           ) : notifPerms !== 'granted' ? (
             <div className="space-y-3">
-              <p className="text-sm text-slate-500 dark:text-slate-400">
+              <p className="text-sm text-muted">
                 Morning check-ins, evening score summaries and a reminder at a time you choose. Reminders are shown only while this app is open.
               </p>
               <Button size="sm" icon={<Bell size={14} />} onClick={handleEnableNotifications}>
@@ -267,7 +263,7 @@ export default function SettingsPage() {
               <Row label="Your name (optional)" sub="Used in notification messages">
                 <input type="text" value={notifPrefs.userName} onChange={e => updateNotifPref({ userName: e.target.value })} placeholder="e.g. Sam" aria-label="Your name (optional)" className="input w-32 text-sm" maxLength={20} />
               </Row>
-              <div className="h-px bg-slate-200 dark:bg-slate-700" />
+              <div className="h-px bg-line" />
               <Row label="Morning check-in" sub="Daily reminder to start the day intentionally">
                 <div className="flex items-center gap-2">
                   <input type="time" value={notifPrefs.morningTime} onChange={e => updateNotifPref({ morningTime: e.target.value })} disabled={!notifPrefs.morningEnabled} aria-label="Morning check-in time" className="input w-auto text-sm py-1 disabled:opacity-50" />
@@ -288,9 +284,9 @@ export default function SettingsPage() {
               </Row>
               <div className="flex flex-wrap items-center gap-3">
                 <Button variant="outline" size="sm" icon={<Bell size={14} />} onClick={handleTestNotification}>Send test notification</Button>
-                {testResult && <p role="status" className="text-xs text-slate-500 dark:text-slate-400 flex-1 min-w-[12rem]">{testResult}</p>}
+                {testResult && <p role="status" className="text-xs text-muted flex-1 min-w-[12rem]">{testResult}</p>}
               </div>
-              <p className="text-xs text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-700/50 rounded-xl px-3 py-2 leading-relaxed">
+              <p className="text-xs text-muted bg-surface-2 rounded-xl px-3 py-2 leading-relaxed">
                 Reminders are shown only while {appName} is open in a browser tab or app window. They are not delivered when it is
                 closed, and your browser or phone may delay or silence them (for example in battery-saver mode).
                 {hiddenMode && ' Hidden Mode is on, so reminders use neutral wording.'}
@@ -303,7 +299,7 @@ export default function SettingsPage() {
           <Row label="Theme" sub="Choose light or dark mode">
             <div className="flex gap-1">
               {(['light', 'dark'] as const).map(t => (
-                <button key={t} onClick={() => setTheme(t)} aria-pressed={theme === t} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium capitalize transition-all ${theme === t ? 'bg-violet-600 text-white' : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-600'}`}>
+                <button key={t} onClick={() => setTheme(t)} aria-pressed={theme === t} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium capitalize transition-all ${theme === t ? 'bg-violet-600 text-white' : 'bg-surface-2 text-ink-2 hover:bg-line'}`}>
                   {t === 'light' ? <Sun size={12} /> : <Moon size={12} />}{t}
                 </button>
               ))}
@@ -319,15 +315,15 @@ export default function SettingsPage() {
             }
           </Row>
           {pinStep !== 'idle' && !pinEnabled && (
-            <div className="p-4 bg-slate-50 dark:bg-slate-700/50 rounded-xl space-y-3">
-              <label htmlFor="pin-input" className="block text-sm font-medium text-slate-700 dark:text-slate-300">{pinStep === 'enter' ? 'Enter new PIN (4–6 digits)' : 'Enter the same PIN again'}</label>
+            <div className="p-4 bg-surface-2 rounded-xl space-y-3">
+              <label htmlFor="pin-input" className="block text-sm font-medium text-ink-2">{pinStep === 'enter' ? 'Enter new PIN (4–6 digits)' : 'Enter the same PIN again'}</label>
               <input id="pin-input" type="password" inputMode="numeric" pattern="[0-9]*" maxLength={6} autoComplete="off"
                 onKeyDown={e => { if (e.key === 'Enter') handleSetPin(); }}
                 value={pinStep === 'enter' ? pin1 : pin2}
                 onChange={e => pinStep === 'enter' ? setPin1(e.target.value.replace(/\D/g, '')) : setPin2(e.target.value.replace(/\D/g, ''))}
                 placeholder="••••" className="input text-center tracking-widest text-lg" />
               {pinError && <p role="alert" className="text-xs text-red-500">{pinError}</p>}
-              <p className="text-xs text-slate-500 dark:text-slate-400">If you forget the PIN, the only way back in is to erase this browser&apos;s {appName} data (you can restore a backup afterwards). The PIN hides the app; it does not encrypt your data.</p>
+              <p className="text-xs text-muted">If you forget the PIN, the only way back in is to erase this browser&apos;s {appName} data (you can restore a backup afterwards). The PIN hides the app; it does not encrypt your data.</p>
               <div className="flex gap-2">
                 <Button variant="ghost" size="sm" onClick={() => { setPinStep('idle'); setPin1(''); setPin2(''); setPinError(''); }}>Cancel</Button>
                 <Button size="sm" onClick={handleSetPin}>{pinStep === 'enter' ? 'Next' : 'Save PIN'}</Button>
@@ -341,7 +337,7 @@ export default function SettingsPage() {
               </select>
             </Row>
           )}
-          <div className="h-px bg-slate-200 dark:bg-slate-700" />
+          <div className="h-px bg-line" />
           <Row label="Hidden Mode" sub="Keep the app discreet and hide private details on screen">
             <Switch checked={hiddenMode} onChange={setHiddenMode} label="Hidden Mode" />
           </Row>
@@ -350,7 +346,7 @@ export default function SettingsPage() {
               <input type="text" value={storedHiddenTitle} onChange={e => setHiddenTitle(e.target.value)} aria-label="Neutral title" className="input w-44 text-sm" placeholder={DEFAULT_HIDDEN_TITLE} maxLength={40} />
             </Row>
           )}
-          <div className="text-xs text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-700/50 rounded-xl px-3 py-2.5 leading-relaxed space-y-1.5">
+          <div className="text-xs text-muted bg-surface-2 rounded-xl px-3 py-2.5 leading-relaxed space-y-1.5">
             <p className="flex items-start gap-1.5"><EyeOff size={13} className="shrink-0 mt-0.5" aria-hidden="true" />
               <span>Hidden Mode replaces the app name and logo with a neutral title, and shows habit names, notes, goals and challenges as placeholders such as &ldquo;Private habit 1&rdquo;. Use <strong>Show</strong> in the header to see details for two minutes.</span>
             </p>
@@ -367,7 +363,7 @@ export default function SettingsPage() {
             </div>
           )}
           {hiddenMode && (
-            <p className="text-xs text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-700/50 rounded-xl px-3 py-2">
+            <p className="text-xs text-ink-2 bg-surface-2 rounded-xl px-3 py-2">
               Hidden Mode is on. Backups and CSV exports still contain your real habit names and notes.
             </p>
           )}
@@ -391,7 +387,7 @@ export default function SettingsPage() {
               <Button variant="secondary" size="sm" icon={<Upload size={14} />} onClick={() => fileRef.current?.click()}>Import</Button>
             </div>
           </Row>
-          <p className="text-xs text-slate-400 bg-slate-50 dark:bg-slate-700/50 rounded-xl px-3 py-2 leading-relaxed">
+          <p className="text-xs text-muted bg-surface-2 rounded-xl px-3 py-2 leading-relaxed">
             Backups include entries, habits, goals, challenges, settings (including your PIN lock), notification
             preferences and any saved plan status. Not included: dismissed alerts and the auto-lock activity timer.
             Browser notification permission is controlled by your browser. Plan status does not change any features
@@ -442,7 +438,7 @@ export default function SettingsPage() {
             </div>
           )}
 
-          <div className="pt-2 border-t border-slate-200 dark:border-slate-700">
+          <div className="pt-2 border-t border-line">
             <Row label="Clear All Data" sub="Delete all of this app's data stored in this browser.">
               <Button variant="outline" size="sm" icon={<Trash2 size={14} />} onClick={() => { setConfirmClear(true); setPendingRestore(null); }} disabled={confirmClear}>Clear All</Button>
             </Row>
@@ -472,7 +468,7 @@ export default function SettingsPage() {
         </Section>
 
         <Section title="About" icon={<Brain size={16} />}>
-          <div className="space-y-2 text-sm text-slate-500 dark:text-slate-400">
+          <div className="space-y-2 text-sm text-muted">
             {[
               ['App', appName],
               ['Version', `${APP_VERSION} (beta)`],
@@ -484,7 +480,7 @@ export default function SettingsPage() {
             ].map(([label, value]) => (
               <div key={label as string} className="flex justify-between gap-4">
                 <span>{label}</span>
-                <span className={`font-medium text-right ${String(value).includes('browser only') ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-800 dark:text-slate-200'}`}>{value}</span>
+                <span className={`font-medium text-right ${String(value).includes('browser only') ? 'text-emerald-600 dark:text-emerald-400' : 'text-ink'}`}>{value}</span>
               </div>
             ))}
           </div>

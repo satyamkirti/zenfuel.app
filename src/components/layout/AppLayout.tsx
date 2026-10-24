@@ -17,7 +17,7 @@ function LoadingScreen({ label = 'Loading…' }: { label?: string }) {
     <div className="min-h-[50vh] flex items-center justify-center" role="status" aria-live="polite">
       <div className="flex flex-col items-center gap-3">
         <div className="w-10 h-10 rounded-full border-2 border-violet-600 border-t-transparent animate-spin" aria-hidden="true" />
-        <p className="text-slate-500 dark:text-slate-400 text-sm">{label}</p>
+        <p className="text-muted text-sm">{label}</p>
       </div>
     </div>
   );
@@ -62,7 +62,8 @@ export function AppLayout({ children, title }: { children: ReactNode; title?: st
         <BottomNav />
       </div>
 
-      {!NO_FAB.includes(pathname) && <FloatingActionButton />}
+      {/* Mounted after data loads so it can find the page's inline quick-log card. */}
+      {isLoaded && !NO_FAB.includes(pathname) && <FloatingActionButton />}
     </div>
   );
 }

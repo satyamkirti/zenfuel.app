@@ -15,6 +15,7 @@ import { computeAnalytics } from '@/utils/analytics';
 import { filterEntriesByPeriod } from '@/utils/dateUtils';
 import { LockOverlay } from '@/components/subscription/LockOverlay';
 import { usePrivacy } from '@/context/PrivacyContext';
+import { formatDisplayDate } from '@/utils/dateUtils';
 
 interface AnalyticsDashboardProps {
   entries: LogEntry[];
@@ -56,10 +57,10 @@ export function AnalyticsDashboard({ entries, habits, isPremium = true }: Analyt
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-        <h2 className="text-lg font-bold text-slate-900 dark:text-white flex-1">Analytics</h2>
-        <div className="flex flex-wrap gap-2">
-          <select value={selectedHabitId} onChange={e => setSelectedHabitId(e.target.value)} aria-label="Habit" className="input w-auto text-sm py-1.5">
+      <div className="flex flex-col lg:flex-row lg:items-center gap-3 bg-surface border border-line rounded-2xl shadow-card p-3">
+        <h2 className="text-sm font-semibold text-ink px-1 lg:flex-1">Explore your data</h2>
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2 min-w-0">
+          <select value={selectedHabitId} onChange={e => setSelectedHabitId(e.target.value)} aria-label="Habit" className="input sm:w-48 text-sm">
             <option value="all">All Habits</option>
             {usedHabits.map(h => <option key={h.id} value={h.id}>{habitIcon(h)} {habitName(h)}</option>)}
           </select>
@@ -75,7 +76,7 @@ export function AnalyticsDashboard({ entries, habits, isPremium = true }: Analyt
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        {analytics.highestActivityDay && <StatCard label="Peak Day" value={analytics.highestActivityDay.count} subValue={analytics.highestActivityDay.date} />}
+        {analytics.highestActivityDay && <StatCard label="Peak Day" value={analytics.highestActivityDay.count} subValue={formatDisplayDate(analytics.highestActivityDay.date)} />}
         {analytics.mostActiveWeekday && <StatCard label="Most Active Day" value={analytics.mostActiveWeekday.day} subValue={`${analytics.mostActiveWeekday.count} events`} />}
         {analytics.highestActivityMonth && <StatCard label="Peak Month" value={analytics.highestActivityMonth.count} subValue={analytics.highestActivityMonth.label} />}
       </div>
@@ -110,10 +111,10 @@ export function AnalyticsDashboard({ entries, habits, isPremium = true }: Analyt
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {isPremium ? (
-          <Card><HourlyChart data={analytics.hourlyStats} /></Card>
+          <Card className={analytics.yearlyCounts.length >= 2 ? '' : 'lg:col-span-2'}><HourlyChart data={analytics.hourlyStats} /></Card>
         ) : (
           <LockOverlay feature="Hourly Activity Chart" description="Identify your peak trigger hours. Premium feature." compact>
-            <Card><HourlyChart data={analytics.hourlyStats} /></Card>
+            <Card className={analytics.yearlyCounts.length >= 2 ? '' : 'lg:col-span-2'}><HourlyChart data={analytics.hourlyStats} /></Card>
           </LockOverlay>
         )}
         {analytics.yearlyCounts.length >= 2 && (
@@ -129,23 +130,23 @@ export function AnalyticsDashboard({ entries, habits, isPremium = true }: Analyt
 
       {analytics.mostActiveWeekday && (
         <Card>
-          <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-4">Weekday Breakdown</h4>
-          <div className="grid grid-cols-7 gap-2">
+          <h4 className="text-sm font-semibold text-ink mb-4">Weekday breakdown</h4>
+          <div className="grid grid-cols-7 gap-2 sm:gap-3">
             {analytics.weekdayStats.map(d => {
               const max = Math.max(1, ...analytics.weekdayStats.map(x => x.count));
               const height = Math.round((d.count / max) * 60) + 10;
               return (
-                <div key={d.day} className="flex flex-col items-center gap-1">
-                  <div className="w-full rounded-t bg-violet-500/20 border-t-2 border-violet-500" style={{ height }} title={`${d.day}: ${d.count}`} />
-                  <span className="text-[10px] text-slate-400">{d.shortDay}</span>
-                  <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">{d.count}</span>
+                <div key={d.day} className="flex flex-col items-center justify-end gap-1 h-[118px]">
+                  <span className="text-xs font-semibold tabular-nums text-ink">{d.count}</span>
+                  <div className={`w-full max-w-[40px] rounded-t-md ${d.count === 0 ? 'bg-line' : 'bg-violet-500 dark:bg-violet-400'}`} style={{ height: d.count === 0 ? 3 : height }} title={`${d.day}: ${d.count}`} />
+                  <span className="text-[11px] text-muted">{d.shortDay}</span>
                 </div>
               );
             })}
           </div>
-          <div className="mt-3 flex gap-4 text-xs text-slate-500 dark:text-slate-400">
-            <span>Most active: <strong className="text-slate-800 dark:text-slate-200">{analytics.mostActiveWeekday?.day}</strong></span>
-            {analytics.leastActiveWeekday && <span>Least active: <strong className="text-slate-800 dark:text-slate-200">{analytics.leastActiveWeekday.day}</strong></span>}
+          <div className="mt-3 flex gap-4 text-xs text-muted">
+            <span>Most active: <strong className="text-ink">{analytics.mostActiveWeekday?.day}</strong></span>
+            {analytics.leastActiveWeekday && <span>Least active: <strong className="text-ink">{analytics.leastActiveWeekday.day}</strong></span>}
           </div>
         </Card>
       )}

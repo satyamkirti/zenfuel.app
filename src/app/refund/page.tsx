@@ -19,7 +19,7 @@ export default function RefundPage() {
 
       <H2>Contact</H2>
       <InfoBox>
-        <p className="font-semibold text-slate-700 dark:text-slate-300">If you believe you have been charged in connection with ZenFuel, or have any other billing question:</p>
+        <p className="font-semibold text-ink-2">If you believe you have been charged in connection with ZenFuel, or have any other billing question:</p>
         <p>Email: <MailLink /></p>
       </InfoBox>
 

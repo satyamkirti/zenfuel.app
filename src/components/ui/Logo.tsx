@@ -25,10 +25,10 @@ export function Logo({ size = 'md', className, linked = true }: LogoProps) {
 
   const content = hiddenMode ? (
     <span className={clsx('inline-flex items-center gap-2 min-w-0', className)}>
-      <span className="shrink-0 rounded-lg bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-300 flex items-center justify-center" style={{ width: px, height: px }}>
+      <span className="shrink-0 rounded-lg bg-line text-slate-500 dark:text-slate-300 flex items-center justify-center" style={{ width: px, height: px }}>
         <LayoutGrid size={Math.round(px * 0.5)} aria-hidden="true" />
       </span>
-      <span className={clsx('font-semibold text-slate-800 dark:text-slate-100 truncate', size === 'lg' ? 'text-2xl' : 'text-base')}>{hiddenTitle}</span>
+      <span className={clsx('font-semibold text-ink truncate', size === 'lg' ? 'text-2xl' : 'text-base')}>{hiddenTitle}</span>
     </span>
   ) : (
     // data-brand: hidden by CSS before hydration when Hidden Mode is saved (see layout.tsx).

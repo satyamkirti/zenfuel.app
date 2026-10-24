@@ -1,10 +1,11 @@
 'use client';
 
 import Link from 'next/link';
-import { Target, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { Target, CheckCircle2 } from 'lucide-react';
+import { clsx } from 'clsx';
 import { useApp } from '@/context/AppContext';
 import { usePrivacy } from '@/context/PrivacyContext';
-import { Card } from '@/components/ui/Card';
+import { Card, CardHeader } from '@/components/ui/Card';
 import { computeGoalProgress } from '@/utils/goals';
 
 export function GoalsPanel() {
@@ -17,42 +18,40 @@ export function GoalsPanel() {
 
   return (
     <Card padding="none">
-      <div className="px-5 py-4 border-b border-slate-200 dark:border-slate-700 flex items-center gap-2">
-        <Target size={16} className="text-blue-500" />
-        <h3 className="font-semibold text-slate-900 dark:text-white">Active Goals</h3>
-        <Link href="/goals" className="ml-auto text-xs text-violet-500 hover:text-violet-700 flex items-center gap-0.5">
-          View all <ArrowRight size={12} />
-        </Link>
-      </div>
-      <div className="p-4 space-y-3">
+      <CardHeader
+        icon={<Target size={16} />}
+        title="Active goals"
+        action={<Link href="/goals" className="text-xs font-medium text-brand-text hover:underline">View all</Link>}
+      />
+      <ul className="px-5 pb-5 space-y-4">
         {active.slice(0, 3).map(goal => {
           const progress = computeGoalProgress(goal, entries);
           const habit = habitMap.get(goal.habitId);
           return (
-            <div key={goal.id} className="space-y-1.5">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span aria-hidden="true">{habit ? habitIcon(habit) : '🎯'}</span>
-                  <div>
-                    <p className="text-sm font-medium text-slate-800 dark:text-slate-200">{goalName(goal)}</p>
-                    <p className="text-xs text-slate-400">{progress.label}</p>
-                  </div>
+            <li key={goal.id}>
+              <div className="flex items-center gap-2.5">
+                <span className="w-8 h-8 rounded-lg bg-surface-2 flex items-center justify-center text-sm shrink-0" aria-hidden="true">
+                  {habit ? habitIcon(habit) : '🎯'}
+                </span>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-ink truncate">{goalName(goal)}</p>
+                  <p className="text-xs text-muted truncate">{progress.label}</p>
                 </div>
-                <div className="flex items-center gap-1">
-                  {progress.isAchieved && <CheckCircle2 size={14} className="text-emerald-500" />}
-                  <span className="text-sm font-bold text-slate-700 dark:text-slate-300">{progress.percentage}%</span>
-                </div>
+                <span className="flex items-center gap-1 text-sm font-semibold tabular-nums text-ink">
+                  {progress.isAchieved && <CheckCircle2 size={14} className="text-emerald-500" aria-label="Achieved" />}
+                  {progress.percentage}%
+                </span>
               </div>
-              <div className="h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+              <div className="track h-1.5 mt-2">
                 <div
-                  className={`h-full rounded-full transition-all ${progress.isAchieved ? 'bg-emerald-500' : 'bg-blue-500'}`}
+                  className={clsx('h-full rounded-full transition-all duration-500', progress.isAchieved ? 'bg-emerald-500' : 'bg-violet-500')}
                   style={{ width: `${Math.min(100, progress.percentage)}%` }}
                 />
               </div>
-            </div>
+            </li>
           );
         })}
-      </div>
+      </ul>
     </Card>
   );
 }

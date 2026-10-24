@@ -1,8 +1,8 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { DailyCount } from '@/types';
-import { SHORT_MONTHS } from '@/utils/dateUtils';
+import { SHORT_MONTHS, formatDisplayDate } from '@/utils/dateUtils';
 
 interface HeatmapCalendarProps {
   dailyCounts: DailyCount[];
@@ -18,17 +18,25 @@ function getLevel(count: number, max: number): number {
   return 4;
 }
 
+// Sequential single-hue ramp: empty days in the neutral tile colour, then light → dark violet.
 const LEVEL_CLASSES = [
-  'bg-slate-100 dark:bg-slate-800',
-  'bg-violet-200 dark:bg-violet-900/60',
+  'bg-surface-2 ring-1 ring-inset ring-line/60',
+  'bg-violet-200 dark:bg-violet-900',
   'bg-violet-400 dark:bg-violet-700',
   'bg-violet-600 dark:bg-violet-500',
-  'bg-violet-800 dark:bg-violet-400',
+  'bg-violet-800 dark:bg-violet-300',
 ];
 
 export function HeatmapCalendar({ dailyCounts, year }: HeatmapCalendarProps) {
   const [tooltip, setTooltip] = useState<{ text: string; x: number; y: number } | null>(null);
   const displayYear = year ?? new Date().getFullYear();
+  const scroller = useRef<HTMLDivElement>(null);
+
+  // On narrow screens open on the most recent weeks rather than January.
+  useEffect(() => {
+    const el = scroller.current;
+    if (el && displayYear === new Date().getFullYear()) el.scrollLeft = el.scrollWidth;
+  }, [displayYear]);
 
   const { cells, monthPositions, maxCount } = useMemo(() => {
     const countMap = new Map(dailyCounts.map(d => [d.date, d.count]));
@@ -53,7 +61,9 @@ export function HeatmapCalendar({ dailyCounts, year }: HeatmapCalendarProps) {
 
     while (cur <= end) {
       const row = cur.getDay();
-      if (row === 0 && col > 0) col++;
+      // Each Sunday after the first starts a new week column. (The old `col > 0` test never
+      // fired, so every day was drawn in the first column.)
+      if (row === 0 && allCells.length > 0) col++;
       const dateStr = `${cur.getFullYear()}-${String(cur.getMonth() + 1).padStart(2, '0')}-${String(cur.getDate()).padStart(2, '0')}`;
       const inYear = cur.getFullYear() === displayYear;
       const count = countMap.get(dateStr) ?? 0;
@@ -73,9 +83,9 @@ export function HeatmapCalendar({ dailyCounts, year }: HeatmapCalendarProps) {
   const totalCols = cells.length > 0 ? Math.max(...cells.map(c => c.col)) + 1 : 53;
 
   return (
-    <div className="relative overflow-x-auto select-none">
+    <div ref={scroller} className="relative overflow-x-auto select-none pb-1" role="img" aria-label={`${displayYear} activity heatmap: ${dailyCounts.filter(d => d.date.startsWith(String(displayYear))).reduce((s, d) => s + d.count, 0)} events on ${dailyCounts.filter(d => d.date.startsWith(String(displayYear)) && d.count > 0).length} days`}>
       <div className="min-w-max">
-        <div className="flex mb-1 text-xs text-slate-400 dark:text-slate-500" style={{ paddingLeft: 28 }}>
+        <div className="flex mb-1 text-xs text-muted" style={{ paddingLeft: 28 }}>
           {Array.from({ length: totalCols }, (_, i) => {
             const mp = monthPositions.find(m => m.col === i);
             return (
@@ -87,7 +97,7 @@ export function HeatmapCalendar({ dailyCounts, year }: HeatmapCalendarProps) {
         </div>
 
         <div className="flex gap-0.5">
-          <div className="flex flex-col gap-0.5 mr-1 text-[10px] text-slate-400 dark:text-slate-500">
+          <div className="flex flex-col gap-0.5 mr-1 text-[10px] text-muted">
             {['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map((d, i) => (
               <div key={d} style={{ height: 14, lineHeight: '14px' }}>
                 {i % 2 === 1 ? d : ''}
@@ -106,14 +116,15 @@ export function HeatmapCalendar({ dailyCounts, year }: HeatmapCalendarProps) {
                 return (
                   <div
                     key={row}
-                    className={`rounded-sm cursor-pointer transition-opacity hover:opacity-80 ${LEVEL_CLASSES[level]}`}
+                    className={`rounded-[3px] transition-opacity hover:opacity-80 ${LEVEL_CLASSES[level]}`}
                     style={{ width: 14, height: 14 }}
                     onMouseEnter={e => {
                       const r = e.currentTarget.getBoundingClientRect();
                       setTooltip({
-                        text: `${cell.date}: ${cell.count} session${cell.count !== 1 ? 's' : ''}`,
-                        x: r.left + window.scrollX,
-                        y: r.top + window.scrollY,
+                        text: `${formatDisplayDate(cell.date)}: ${cell.count} event${cell.count !== 1 ? "s" : ""}`,
+                        // The tooltip is position: fixed, so viewport coordinates (no scroll offset).
+                        x: r.left + r.width / 2,
+                        y: r.top,
                       });
                     }}
                     onMouseLeave={() => setTooltip(null)}
@@ -124,10 +135,10 @@ export function HeatmapCalendar({ dailyCounts, year }: HeatmapCalendarProps) {
           ))}
         </div>
 
-        <div className="flex items-center gap-1.5 mt-3 text-[10px] text-slate-400 dark:text-slate-500">
+        <div className="flex items-center gap-1.5 mt-3 text-[10px] text-muted">
           <span>Less</span>
           {LEVEL_CLASSES.map((cls, i) => (
-            <div key={i} className={`rounded-sm ${cls}`} style={{ width: 12, height: 12 }} />
+            <div key={i} className={`rounded-[3px] ${cls}`} style={{ width: 12, height: 12 }} />
           ))}
           <span>More</span>
         </div>
@@ -135,8 +146,8 @@ export function HeatmapCalendar({ dailyCounts, year }: HeatmapCalendarProps) {
 
       {tooltip && (
         <div
-          className="fixed z-50 px-2.5 py-1.5 text-xs font-medium bg-slate-900 dark:bg-slate-700 text-white rounded-lg shadow-xl pointer-events-none whitespace-nowrap"
-          style={{ left: tooltip.x - 60, top: tooltip.y - 38 }}
+          className="fixed z-50 px-2.5 py-1.5 text-xs font-medium bg-surface text-ink border border-line rounded-lg shadow-pop pointer-events-none whitespace-nowrap"
+          style={{ left: tooltip.x, top: tooltip.y - 8, transform: 'translate(-50%, -100%)' }}
         >
           {tooltip.text}
         </div>

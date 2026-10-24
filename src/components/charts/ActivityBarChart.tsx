@@ -3,6 +3,7 @@
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { DailyCount } from '@/types';
 import { SHORT_MONTHS } from '@/utils/dateUtils';
+import { tooltipProps, axisTick, AXIS_CLASS, GRID_CLASS, BAR_CLASS, BAR_PEAK_CLASS, BAR_EMPTY_CLASS, BRAND_HEX, chartTitleClass, plural } from './chartTheme';
 
 interface ActivityBarChartProps {
   data: DailyCount[];
@@ -32,50 +33,36 @@ export function ActivityBarChart({ data, days = 30, title = 'Daily Activity' }: 
   })();
 
   const maxVal = Math.max(1, ...chartData.map(d => d.count));
+  const total = chartData.reduce((s, d) => s + d.count, 0);
 
   return (
-    <div>
-      {title && <h4 className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">{title}</h4>}
-      <ResponsiveContainer width="100%" height={160}>
-        <BarChart data={chartData} barSize={days > 60 ? 3 : days > 30 ? 5 : 8}>
-          <CartesianGrid strokeDasharray="3 3" stroke="currentColor" className="text-slate-200 dark:text-slate-700" vertical={false} />
+    <figure aria-label={`${title}: ${plural(total, 'event')} in the last ${days} days`}>
+      {title && <h4 className={chartTitleClass}>{title}</h4>}
+      <ResponsiveContainer width="100%" height={168}>
+        <BarChart data={chartData} barCategoryGap={days > 60 ? 1 : 2} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
+          <CartesianGrid stroke="currentColor" className={GRID_CLASS} vertical={false} />
           <XAxis
             dataKey="label"
-            tick={{ fill: 'currentColor', fontSize: 10 }}
-            className="text-slate-400"
+            tick={axisTick}
+            className={AXIS_CLASS}
             tickLine={false}
             axisLine={false}
-            interval={Math.floor(days / 7)}
+            interval={Math.max(0, Math.floor(days / 6) - 1)}
+            minTickGap={8}
           />
-          <YAxis
-            tick={{ fill: 'currentColor', fontSize: 10 }}
-            className="text-slate-400"
-            tickLine={false}
-            axisLine={false}
-            allowDecimals={false}
-            width={20}
-          />
-          <Tooltip
-            contentStyle={{
-              backgroundColor: 'var(--color-surface, #1e293b)',
-              border: '1px solid #334155',
-              borderRadius: 8,
-              fontSize: 12,
-            }}
-            cursor={{ fill: 'rgba(139, 92, 246, 0.1)' }}
-            formatter={(v: number) => [`${v} session${v !== 1 ? 's' : ''}`, 'Count']}
-          />
-          <Bar dataKey="count" radius={[3, 3, 0, 0]}>
+          <YAxis tick={axisTick} className={AXIS_CLASS} tickLine={false} axisLine={false} allowDecimals={false} width={24} />
+          <Tooltip {...tooltipProps} formatter={(v: number) => [plural(v, 'event'), '']} separator="" />
+          <Bar dataKey="count" radius={[4, 4, 0, 0]} maxBarSize={14}>
             {chartData.map((entry, i) => (
               <Cell
                 key={i}
-                fill={entry.count === 0 ? '#e2e8f0' : entry.count === maxVal ? '#6d28d9' : '#8b5cf6'}
-                className={entry.count === 0 ? 'dark:fill-slate-700' : ''}
+                fill={BRAND_HEX}
+                className={entry.count === 0 ? BAR_EMPTY_CLASS : entry.count === maxVal ? BAR_PEAK_CLASS : BAR_CLASS}
               />
             ))}
           </Bar>
         </BarChart>
       </ResponsiveContainer>
-    </div>
+    </figure>
   );
 }

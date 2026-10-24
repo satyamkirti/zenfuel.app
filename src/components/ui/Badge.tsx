@@ -7,19 +7,19 @@ interface BadgeProps {
 }
 
 const variants = {
-  default: 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300',
-  success: 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400',
-  warning: 'bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400',
-  danger: 'bg-red-100 dark:bg-red-500/20 text-red-700 dark:text-red-400',
-  info: 'bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-400',
-  purple: 'bg-violet-100 dark:bg-violet-500/20 text-violet-700 dark:text-violet-400',
+  default: 'bg-surface-2 text-ink-2 ring-line',
+  success: 'bg-emerald-50 text-emerald-700 ring-emerald-600/20 dark:bg-emerald-500/10 dark:text-emerald-300 dark:ring-emerald-400/20',
+  warning: 'bg-amber-50 text-amber-800 ring-amber-600/20 dark:bg-amber-500/10 dark:text-amber-300 dark:ring-amber-400/20',
+  danger: 'bg-red-50 text-red-700 ring-red-600/20 dark:bg-red-500/10 dark:text-red-300 dark:ring-red-400/20',
+  info: 'bg-sky-50 text-sky-700 ring-sky-600/20 dark:bg-sky-500/10 dark:text-sky-300 dark:ring-sky-400/20',
+  purple: 'bg-violet-50 text-violet-700 ring-violet-600/20 dark:bg-violet-500/10 dark:text-violet-300 dark:ring-violet-400/20',
 };
 
 export function Badge({ children, variant = 'default', size = 'sm' }: BadgeProps) {
   return (
     <span className={clsx(
-      'inline-flex items-center font-medium rounded-full',
-      size === 'sm' ? 'px-2 py-0.5 text-xs' : 'px-3 py-1 text-sm',
+      'inline-flex items-center gap-1 font-medium rounded-md ring-1 ring-inset whitespace-nowrap',
+      size === 'sm' ? 'px-1.5 py-0.5 text-[11px]' : 'px-2.5 py-1 text-xs',
       variants[variant]
     )}>
       {children}

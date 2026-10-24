@@ -30,25 +30,26 @@ function FreeBetaInfo() {
   return (
     <AppLayout title="Free Beta">
       <div className="space-y-4 max-w-2xl">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="w-9 h-9 rounded-xl bg-violet-100 dark:bg-violet-500/20 flex items-center justify-center">
-            <Sparkles size={18} className="text-violet-600 dark:text-violet-400" />
-          </div>
-          <h1 className="text-xl font-bold text-slate-900 dark:text-white">ZenFuel is free during beta</h1>
+        <div className="rounded-2xl border border-line bg-surface shadow-card p-6 sm:p-8">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-violet-600/10 text-brand-text px-2.5 py-1 text-xs font-semibold">
+            <Sparkles size={13} aria-hidden="true" /> Free beta
+          </span>
+          <h1 className="mt-3 text-2xl sm:text-3xl font-semibold tracking-tight text-ink">ZenFuel is free during beta</h1>
+          <p className="mt-2 text-sm text-ink-2 leading-relaxed max-w-xl">Everything in the app works for everyone while ZenFuel is in beta. There is nothing to buy.</p>
         </div>
 
         <Card>
-          <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+          <p className="text-sm text-ink-2 leading-relaxed">
             Every feature currently in ZenFuel is available to everyone at no cost. There is no
             subscription, no trial and nothing to buy, and you never need to enter payment details.
           </p>
         </Card>
 
         <Card>
-          <h2 className="font-semibold text-slate-900 dark:text-white mb-3">Included for everyone</h2>
+          <h2 className="font-semibold text-ink mb-3">Included for everyone</h2>
           <ul className="space-y-2.5">
             {INCLUDED.map(item => (
-              <li key={item} className="flex items-start gap-2 text-sm text-slate-700 dark:text-slate-300">
+              <li key={item} className="flex items-start gap-2 text-sm text-ink-2">
                 <CheckCircle2 size={15} className="text-emerald-500 mt-0.5 shrink-0" />
                 <span>{item}</span>
               </li>
@@ -57,7 +58,7 @@ function FreeBetaInfo() {
         </Card>
 
         <Card>
-          <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+          <p className="text-sm text-ink-2 leading-relaxed">
             Your tracker data is stored locally in this browser. See our{' '}
             <Link href="/privacy" className="text-violet-600 dark:text-violet-400 hover:underline">Privacy Policy</Link>{' '}
             for details. If this ever changes, we will update our{' '}

@@ -20,17 +20,17 @@ const PERIODS: { value: FilterPeriod; label: string }[] = [
 
 export function DateFilter({ value, onChange }: DateFilterProps) {
   return (
-    <div className="flex flex-wrap gap-1.5" role="group" aria-label="Time period">
+    <div className="flex flex-wrap gap-1 p-1 rounded-xl bg-surface-2" role="group" aria-label="Time period">
       {PERIODS.map(p => (
         <button
           key={p.value}
           onClick={() => onChange(p.value)}
           aria-pressed={value === p.value}
           className={clsx(
-            'px-3 py-1.5 rounded-lg text-xs font-medium transition-all',
+            'min-h-[32px] px-2.5 rounded-lg text-xs font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500',
             value === p.value
-              ? 'bg-violet-600 text-white shadow-sm'
-              : 'bg-slate-100 dark:bg-slate-700/60 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
+              ? 'bg-surface text-ink shadow-sm'
+              : 'text-muted hover:text-ink'
           )}
         >
           {p.label}

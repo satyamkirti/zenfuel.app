@@ -2,7 +2,7 @@
 
 import { useMemo } from 'react';
 import { LogEntry } from '@/types';
-import { Card } from '@/components/ui/Card';
+import { Card, CardHeader } from '@/components/ui/Card';
 import { getRiskLevelForDay, RISK_PALETTE, RiskLevel } from '@/lib/risk-calculator';
 import { formatDate, getStartOfDay } from '@/utils/dateUtils';
 import { ShieldAlert } from 'lucide-react';
@@ -49,31 +49,27 @@ export function RiskTimeline({ entries, days = 14 }: RiskTimelineProps) {
 
   return (
     <Card padding="none">
-      <div className="px-5 py-4 border-b border-slate-200 dark:border-slate-700 flex items-center gap-2">
-        <ShieldAlert size={16} className="text-orange-500" />
-        <h3 className="font-semibold text-slate-900 dark:text-white">Risk Timeline</h3>
-        <span className="ml-auto text-xs text-slate-400">Last {days} days</span>
-      </div>
+      <CardHeader icon={<ShieldAlert size={16} />} title="Risk timeline" subtitle={`Last ${days} days · events per day`} />
 
-      <div className="p-5">
+      <div className="px-5 pb-5">
         {/* Day grid */}
-        <div className="flex gap-1.5 flex-wrap">
+        <div className="grid grid-cols-7 gap-1.5 sm:gap-2">
           {timeline.map((day, i) => {
             const palette = RISK_PALETTE[day.level];
             return (
               <div key={i} className="flex flex-col items-center gap-1 group" title={`${day.dateStr}: ${day.count} events — ${LEVEL_LABEL[day.level]} risk`}>
                 {/* Color block */}
                 <div
-                  className={`w-9 h-9 rounded-xl flex items-center justify-center text-xs font-bold transition-transform group-hover:scale-110 cursor-default ${
+                  className={`w-full max-w-[44px] aspect-square rounded-xl flex items-center justify-center text-xs font-semibold tabular-nums cursor-default ${
                     day.level === 'low'
-                      ? 'bg-slate-100 dark:bg-slate-700 text-slate-400 dark:text-slate-500'
+                      ? 'bg-surface-2 text-muted'
                       : `${palette.bg} ${palette.border} border ${palette.text}`
-                  } ${day.isToday ? 'ring-2 ring-violet-500 ring-offset-1 dark:ring-offset-slate-800' : ''}`}
+                  } ${day.isToday ? 'ring-2 ring-violet-500 ring-offset-2 ring-offset-surface' : ''}`}
                 >
                   {day.count > 0 ? day.count : '·'}
                 </div>
                 {/* Day label */}
-                <span className="text-[9px] text-slate-400 dark:text-slate-500 leading-none">{day.dayLabel}</span>
+                <span className="text-[9px] text-muted leading-none">{day.dayLabel}</span>
                 <span className="text-[9px] text-slate-300 dark:text-slate-600 leading-none">{day.dayNum}</span>
               </div>
             );
@@ -85,12 +81,12 @@ export function RiskTimeline({ entries, days = 14 }: RiskTimelineProps) {
           {(['low', 'moderate', 'high', 'critical'] as RiskLevel[]).map(level => (
             <div key={level} className="flex items-center gap-1.5">
               <div className={`w-3 h-3 rounded-sm ${RISK_PALETTE[level].accent}`} />
-              <span className="text-[10px] text-slate-400 capitalize">{LEVEL_LABEL[level]}</span>
+              <span className="text-[10px] text-muted capitalize">{LEVEL_LABEL[level]}</span>
             </div>
           ))}
           <div className="flex items-center gap-1.5">
-            <div className="w-3 h-3 rounded-sm bg-slate-100 dark:bg-slate-700" />
-            <span className="text-[10px] text-slate-400">No activity</span>
+            <div className="w-3 h-3 rounded-sm bg-surface-2" />
+            <span className="text-[10px] text-muted">No activity</span>
           </div>
         </div>
 
@@ -109,7 +105,7 @@ export function RiskTimeline({ entries, days = 14 }: RiskTimelineProps) {
                 ? riskDays.reduce((a, b) => b.count > a.count ? b : a, riskDays[0])
                 : null;
               return maxDay ? (
-                <div className="flex items-center gap-2 px-3 py-2 bg-slate-50 dark:bg-slate-700/50 rounded-xl text-xs text-slate-600 dark:text-slate-300">
+                <div className="flex items-center gap-2 px-3 py-2 bg-surface-2 rounded-xl text-xs text-ink-2">
                   <span>📊</span>
                   Highest single day: <strong className="ml-0.5">{maxDay.count} events</strong> on {maxDay.dateStr}
                 </div>
@@ -125,7 +121,7 @@ export function RiskTimeline({ entries, days = 14 }: RiskTimelineProps) {
         )}
 
         {entries.length === 0 && (
-          <p className="mt-4 text-sm text-slate-400">Log habits to see your risk timeline.</p>
+          <p className="mt-4 text-sm text-muted">Log habits to see your risk timeline.</p>
         )}
       </div>
     </Card>

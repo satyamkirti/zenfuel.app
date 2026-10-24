@@ -60,13 +60,13 @@ export function Modal({ open, onClose, title, children, size = 'md' }: ModalProp
         aria-labelledby={title ? titleId : undefined}
         tabIndex={-1}
         className={clsx(
-          'relative w-full max-h-[calc(100dvh-2rem)] overflow-y-auto bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 animate-slide-up outline-none',
+          'relative w-full max-h-[calc(100dvh-2rem)] overflow-y-auto bg-surface rounded-2xl shadow-2xl border border-line animate-slide-up outline-none',
           widths[size]
         )}
       >
         {title && (
-          <div className="sticky top-0 z-10 flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-t-2xl">
-            <h3 id={titleId} className="font-semibold text-slate-900 dark:text-white">{title}</h3>
+          <div className="sticky top-0 z-10 flex items-center justify-between px-6 py-4 border-b border-line bg-surface rounded-t-2xl">
+            <h3 id={titleId} className="font-semibold text-ink">{title}</h3>
             <button onClick={onClose} aria-label="Close" className="btn-ghost p-2 rounded-lg -mr-2">
               <X size={16} aria-hidden="true" />
             </button>

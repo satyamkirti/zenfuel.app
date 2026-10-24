@@ -109,115 +109,96 @@ export function RiskAlert({ assessment }: RiskAlertProps) {
 
   if (!visible) return null;
 
+
   const isCritical = level === 'critical';
-  const isHigh = level === 'high';
 
   return (
     <div
       role="alert"
-      className={clsx(
-        'relative rounded-2xl border-2 p-4 animate-slide-up shadow-lg',
-        palette.bg, palette.border
-      )}
+      className={clsx('relative rounded-2xl border p-4 sm:p-5 animate-fade-in', palette.bg, palette.border)}
     >
-      {/* Level pill */}
       <div className="flex items-start gap-3">
         <div className={clsx('w-9 h-9 rounded-xl flex items-center justify-center shrink-0', palette.accent)}>
           {level === 'critical' || level === 'high'
-            ? <AlertTriangle size={18} className="text-white" />
-            : <Brain size={18} className="text-white" />
+            ? <AlertTriangle size={18} className="text-white" aria-hidden="true" />
+            : <Brain size={18} className="text-white" aria-hidden="true" />
           }
         </div>
 
         <div className="flex-1 min-w-0">
-          {/* Header row */}
-          <div className="flex items-center gap-2 mb-1 flex-wrap">
-            <h3 className={clsx('font-bold text-sm leading-tight', palette.text)}>{title}</h3>
-            <span className={clsx('text-[10px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-full', palette.accent, 'text-white')}>
-              {LEVEL_LABELS[level]}
+          <div className="flex items-center gap-2 flex-wrap pr-8">
+            <h3 className={clsx('font-semibold text-sm leading-tight', palette.text)}>{title}</h3>
+            <span className={clsx('text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-md', palette.accent, 'text-white')}>
+              {LEVEL_LABELS[level]} risk
             </span>
           </div>
 
-          {/* Message */}
-          <p className={clsx('text-sm leading-snug mb-2', palette.muted)}>{message}</p>
+          <p className={clsx('text-sm leading-relaxed mt-1', palette.muted)}>{message}</p>
+          <p className={clsx('text-sm leading-relaxed mt-1.5 font-medium', palette.text)}>{suggestion}</p>
 
-          {/* Suggestion */}
-          <div className={clsx('flex items-start gap-2 p-2.5 rounded-xl border', palette.border, 'bg-white/50 dark:bg-black/10')}>
-            <span className="text-base leading-none mt-0.5">💡</span>
-            <p className={clsx('text-xs leading-snug', palette.muted)}>{suggestion}</p>
-          </div>
-
-          {/* Triggers (expandable) */}
           {triggers.length > 0 && (
             <button
               onClick={() => setExpanded(v => !v)}
-              className={clsx('mt-2 text-xs underline underline-offset-2 opacity-70 hover:opacity-100 transition-opacity', palette.muted)}
+              aria-expanded={expanded}
+              className={clsx('mt-2 text-xs font-medium underline underline-offset-2 decoration-current/40 hover:decoration-current transition-colors py-1', palette.muted)}
             >
-              {expanded ? 'Hide' : `${triggers.length} risk factor${triggers.length > 1 ? 's' : ''} detected`}
+              {expanded ? 'Hide risk factors' : `${triggers.length} risk factor${triggers.length > 1 ? 's' : ''}`}
             </button>
           )}
           {expanded && (
-            <ul className="mt-1.5 space-y-0.5">
+            <ul className="mt-1 space-y-0.5">
               {triggers.map((t, i) => (
                 <li key={i} className={clsx('text-xs flex items-center gap-1.5', palette.muted)}>
-                  <span className="w-1 h-1 rounded-full shrink-0 inline-block" style={{ background: 'currentColor' }} />
+                  <span className="w-1 h-1 rounded-full shrink-0 inline-block bg-current" aria-hidden="true" />
                   {t}
                 </li>
               ))}
             </ul>
           )}
 
-          {/* Timer section */}
           <div className="mt-3 flex items-center gap-2 flex-wrap">
             {timerDone ? (
-              <div className={clsx('flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold', 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300')}>
-                <CheckCircle2 size={13} />
-                Time's up — well done. Ready to continue.
+              <div role="status" className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-emerald-100 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-300">
+                <CheckCircle2 size={13} aria-hidden="true" />
+                Time&apos;s up — well done.
               </div>
             ) : timerRunning ? (
-              <div className="flex items-center gap-2">
-                <div className={clsx('flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-black tabular-nums', palette.accent, 'text-white')}>
-                  <Clock size={13} />
+              <>
+                <div role="timer" aria-live="off" className={clsx('flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-bold tabular-nums', palette.accent, 'text-white')}>
+                  <Clock size={13} aria-hidden="true" />
                   {formatTime(timerSecs)}
                 </div>
                 <button
                   onClick={handleStopTimer}
-                  className={clsx('px-3 py-1.5 rounded-xl text-xs font-medium border transition-colors', palette.border, palette.muted, 'hover:bg-white/30 dark:hover:bg-black/20')}
+                  className={clsx('min-h-[36px] px-3 rounded-xl text-xs font-medium border bg-surface/60 transition-colors hover:bg-surface', palette.border, palette.text)}
                 >
-                  Cancel
+                  Cancel timer
                 </button>
-              </div>
+              </>
             ) : (
               <button
                 onClick={handleStartTimer}
                 className={clsx(
-                  'flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all hover:scale-[1.02] active:scale-95',
-                  isCritical ? 'bg-red-600 hover:bg-red-700 text-white shadow-md shadow-red-500/20'
-                    : isHigh ? 'bg-orange-500 hover:bg-orange-600 text-white shadow-md shadow-orange-500/20'
-                    : 'bg-amber-500 hover:bg-amber-600 text-white shadow-md shadow-amber-500/20'
+                  'flex items-center gap-1.5 min-h-[36px] px-3.5 rounded-xl text-xs font-semibold transition-colors',
+                  isCritical
+                    ? 'bg-red-600 hover:bg-red-700 text-white'
+                    : clsx('border bg-surface/70 hover:bg-surface', palette.border, palette.text)
                 )}
               >
-                <Clock size={12} />
-                Start {timerMinutes} min break timer
+                <Clock size={13} aria-hidden="true" />
+                Start a {timerMinutes}-minute break
               </button>
             )}
-
-            <button
-              onClick={handleDismiss}
-              className={clsx('px-3 py-2 rounded-xl text-xs font-medium border transition-colors ml-auto', palette.border, palette.muted, 'hover:bg-white/40 dark:hover:bg-black/20')}
-            >
-              Dismiss
-            </button>
           </div>
         </div>
 
-        {/* Close button */}
         <button
           onClick={handleDismiss}
-          className={clsx('p-1 rounded-lg transition-colors shrink-0', palette.muted, 'hover:bg-white/40 dark:hover:bg-black/20')}
+          className={clsx('absolute top-3 right-3 p-2 rounded-lg transition-colors hover:bg-black/5 dark:hover:bg-white/10', palette.muted)}
           aria-label="Dismiss alert"
+          title="Dismiss"
         >
-          <X size={15} />
+          <X size={16} aria-hidden="true" />
         </button>
       </div>
     </div>

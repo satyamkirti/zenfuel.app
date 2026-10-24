@@ -37,7 +37,7 @@ export function PricingCards({ currentPlan, isPremium }: PricingCardsProps) {
               'relative flex flex-col rounded-2xl border-2 overflow-hidden transition-all',
               isYearly
                 ? 'border-amber-400 dark:border-amber-500 shadow-xl shadow-amber-500/10 scale-105'
-                : 'border-slate-200 dark:border-slate-700 hover:border-violet-400 dark:hover:border-violet-500'
+                : 'border-line hover:border-violet-400 dark:hover:border-violet-500'
             )}
           >
             {/* Popular/Best Value badge */}
@@ -75,25 +75,25 @@ export function PricingCards({ currentPlan, isPremium }: PricingCardsProps) {
               )}
             </div>
 
-            <div className="flex-1 bg-white dark:bg-slate-800 p-6">
+            <div className="flex-1 bg-surface p-6">
               <ul className="space-y-2.5 mb-6">
                 {plan.features.map((f, i) => (
                   <li key={i} className="flex items-start gap-2 text-sm">
                     <Check size={14} className="text-emerald-500 mt-0.5 shrink-0" />
-                    <span className="text-slate-700 dark:text-slate-300">{f}</span>
+                    <span className="text-ink-2">{f}</span>
                   </li>
                 ))}
               </ul>
 
               {isCurrent ? (
-                <div className="w-full py-3 text-center text-sm font-semibold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-700 rounded-xl">
+                <div className="w-full py-3 text-center text-sm font-semibold text-muted bg-surface-2 rounded-xl">
                   ✓ Current Plan
                 </div>
               ) : (
                 <button
                   type="button"
                   disabled
-                  className="w-full py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2 bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 cursor-not-allowed"
+                  className="w-full py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2 bg-surface-2 text-muted cursor-not-allowed"
                 >
                   <Clock size={14} /> Coming Soon
                 </button>
