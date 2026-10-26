@@ -21,9 +21,8 @@ export const metadata: Metadata = {
     google: 'LX94JUsB9K98en8siDYe4LRrcQDgbg67if0RN7lNPCw',
   },
   keywords: [
-    'dopamine detox', 'brain reset', 'doom scroll', 'digital detox',
-    'habit tracker', 'screen time', 'social media detox', 'focus app',
-    'productivity', 'self improvement', 'addiction tracker',
+    'screen time tracker', 'app usage tracker', 'habit tracker', 'daily habit tracker',
+    'screen time limits', 'digital wellbeing', 'focus tracking', 'habit goals',
   ],
   authors: [{ name: 'ZenFuel' }],
   creator: 'ZenFuel',
@@ -64,7 +63,7 @@ export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   viewportFit: 'cover',
-  themeColor: '#7c3aed',
+  themeColor: '#1769F5',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
