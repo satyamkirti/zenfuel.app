@@ -18,7 +18,7 @@ export function PrivacyRevealButton({ compact }: { compact?: boolean }) {
       title={revealed ? 'Hide private details' : 'Show private details for 2 minutes'}
       className={clsx(
         'inline-flex items-center gap-1.5 rounded-lg text-xs font-medium transition-colors min-h-[36px]',
-        'focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500',
+        'focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500',
         compact ? 'px-2' : 'px-3',
         revealed
           ? 'bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-300'

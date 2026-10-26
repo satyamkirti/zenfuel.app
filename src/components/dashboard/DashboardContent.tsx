@@ -139,7 +139,7 @@ export function DashboardContent() {
             )}
             <InsightsPanel />
             {hasData && (
-              <Link href="/analytics" className="flex items-center justify-between gap-3 rounded-2xl border border-dashed border-line-strong px-5 py-4 text-sm text-ink-2 hover:text-ink hover:border-violet-400 transition-colors">
+              <Link href="/analytics" className="flex items-center justify-between gap-3 rounded-2xl border border-dashed border-line-strong px-5 py-4 text-sm text-ink-2 hover:text-ink hover:border-blue-400 transition-colors">
                 <span className="flex items-center gap-2"><Activity size={16} aria-hidden="true" /> Hourly, weekday and yearly patterns are in Analytics</span>
                 <ArrowRight size={16} aria-hidden="true" />
               </Link>

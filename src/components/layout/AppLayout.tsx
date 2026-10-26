@@ -16,7 +16,7 @@ function LoadingScreen({ label = 'Loading…' }: { label?: string }) {
   return (
     <div className="min-h-[50vh] flex items-center justify-center" role="status" aria-live="polite">
       <div className="flex flex-col items-center gap-3">
-        <div className="w-10 h-10 rounded-full border-2 border-violet-600 border-t-transparent animate-spin" aria-hidden="true" />
+        <div className="w-10 h-10 rounded-full border-2 border-blue-600 border-t-transparent animate-spin" aria-hidden="true" />
         <p className="text-muted text-sm">{label}</p>
       </div>
     </div>
@@ -49,7 +49,7 @@ export function AppLayout({ children, title }: { children: ReactNode; title?: st
 
   return (
     <div className="flex min-h-screen">
-      <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:px-3 focus:py-2 focus:rounded-lg focus:bg-violet-600 focus:text-white">
+      <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:px-3 focus:py-2 focus:rounded-lg focus:bg-blue-600 focus:text-white">
         Skip to content
       </a>
       <Sidebar />

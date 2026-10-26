@@ -21,7 +21,7 @@ const REVEAL_MS = 2 * 60_000;
 // Neutral tab icon used while Hidden Mode is on (grey rounded square).
 const NEUTRAL_ICON =
   "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2364748b'/%3E%3C/svg%3E";
-const DEFAULT_TITLE = 'ZenFuel — Brain Reset';
+const DEFAULT_TITLE = 'ZenFuel — Screen Time & Habit Tracker';
 
 type HabitRef = Pick<Habit, 'id' | 'name' | 'icon'> | undefined | null;
 

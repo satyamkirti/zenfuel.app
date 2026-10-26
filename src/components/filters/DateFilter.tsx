@@ -27,7 +27,7 @@ export function DateFilter({ value, onChange }: DateFilterProps) {
           onClick={() => onChange(p.value)}
           aria-pressed={value === p.value}
           className={clsx(
-            'min-h-[32px] px-2.5 rounded-lg text-xs font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500',
+            'min-h-[32px] px-2.5 rounded-lg text-xs font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500',
             value === p.value
               ? 'bg-surface text-ink shadow-sm'
               : 'text-muted hover:text-ink'

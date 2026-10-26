@@ -67,7 +67,7 @@ export function EntryModal({ entry, habits, onClose, onSave, onDelete }: EntryMo
             // The real note stays in state and is saved unchanged; it is only not displayed.
             <div className="flex items-center justify-between gap-3 px-3 py-2 rounded-lg bg-surface-2 text-sm text-muted">
               <span>Note hidden</span>
-              <button type="button" onClick={reveal} className="text-xs font-medium text-violet-600 dark:text-violet-400 hover:underline">Show to edit</button>
+              <button type="button" onClick={reveal} className="text-xs font-medium text-blue-600 dark:text-blue-400 hover:underline">Show to edit</button>
             </div>
           ) : (
             <textarea id="entry-notes" value={notes} onChange={e => setNotes(e.target.value)} rows={2} placeholder="Optional notes..." className="input resize-none" />

@@ -2,152 +2,77 @@
 @tailwind components;
 @tailwind utilities;
 
-/*
-  ZenFuel design tokens. Light and dark are tuned separately (not inverted):
-  calm, slightly violet-tinted neutrals, one violet brand colour, and muted text that
-  stays at or above 4.5:1 contrast on its surface.
-*/
+/* ZenFuel design system: cobalt blue, teal highlights, calm neutral surfaces. */
 @layer base {
   :root {
-    --bg: 246 246 251;          /* page background  #f6f6fb */
-    --surface: 255 255 255;     /* cards            #ffffff */
-    --surface-2: 241 240 248;   /* tiles, tracks    #f1f0f8 */
-    --line: 229 228 239;        /* hairlines        #e5e4ef */
-    --line-strong: 208 206 224; /* inputs           #d0cee0 */
-    --ink: 21 19 38;            /* primary text     #151326 */
-    --ink-2: 66 63 92;          /* secondary text   #423f5c */
-    --muted: 104 101 130;       /* supporting text  #686582 (5.6:1 on white) */
-    --brand: 124 58 237;        /* violet-600, solid buttons */
-    --brand-strong: 109 40 217; /* violet-700, hover */
-    --brand-text: 109 40 217;   /* brand-coloured text */
-    --shadow-card: 0 1px 2px rgb(21 19 38 / 0.04), 0 8px 24px -16px rgb(21 19 38 / 0.12);
-    --shadow-pop: 0 12px 40px -12px rgb(21 19 38 / 0.28);
+    --bg: 245 249 255;
+    --surface: 255 255 255;
+    --surface-2: 239 247 252;
+    --line: 222 232 243;
+    --line-strong: 192 209 228;
+    --ink: 19 34 56;
+    --ink-2: 61 82 106;
+    --muted: 88 110 136;
+    --brand: 23 105 245;
+    --brand-strong: 20 82 217;
+    --brand-text: 6 121 135;
+    --shadow-card: 0 1px 2px rgb(19 34 56 / 0.04), 0 8px 28px -16px rgb(23 105 245 / 0.16);
+    --shadow-pop: 0 14px 42px -14px rgb(19 34 56 / 0.25);
     color-scheme: light;
   }
   .dark {
-    --bg: 9 9 16;               /* #090910 */
-    --surface: 18 18 29;        /* #12121d */
-    --surface-2: 27 27 42;      /* #1b1b2a */
-    --line: 38 38 56;           /* #262638 */
-    --line-strong: 58 58 82;    /* #3a3a52 */
-    --ink: 240 239 250;         /* #f0effa */
-    --ink-2: 200 198 220;       /* #c8c6dc */
-    --muted: 152 150 178;       /* #9896b2 (6.3:1 on surface) */
-    --brand: 124 58 237;
-    --brand-strong: 139 92 246;
-    --brand-text: 196 181 253;  /* violet-300 */
+    --bg: 9 18 32;
+    --surface: 16 30 48;
+    --surface-2: 25 43 65;
+    --line: 37 59 82;
+    --line-strong: 55 79 106;
+    --ink: 240 247 255;
+    --ink-2: 190 209 229;
+    --muted: 148 170 192;
+    --brand: 56 135 250;
+    --brand-strong: 37 116 230;
+    --brand-text: 80 218 204;
     --shadow-card: 0 0 0 0 transparent;
-    --shadow-pop: 0 16px 48px -12px rgb(0 0 0 / 0.6);
+    --shadow-pop: 0 16px 48px -12px rgb(0 0 0 / 0.48);
     color-scheme: dark;
   }
-
-  * {
-    @apply border-line;
-  }
-
+  * { @apply border-line; }
+  html { scroll-behavior: smooth; }
   body {
-    @apply bg-bg text-ink;
+    @apply bg-bg text-ink font-sans antialiased;
     font-feature-settings: 'cv11', 'ss01';
     font-variation-settings: 'opsz' 32;
     -webkit-tap-highlight-color: transparent;
+    text-rendering: optimizeLegibility;
   }
-
-  h1, h2, h3 {
-    letter-spacing: -0.01em;
-  }
-
-  /* Visible keyboard focus for links and controls that do not draw their own ring. */
-  :focus-visible {
-    outline: 2px solid rgb(139 92 246);
-    outline-offset: 2px;
-  }
-
-  /* Readability safety net for any remaining light greys (always-dark panels excluded). */
-  html:not(.dark) .text-slate-400:not(:hover):not(.surface-dark *) {
-    color: rgb(var(--muted));
-  }
-  html.dark .dark\:text-slate-500:not(:hover) {
-    color: rgb(var(--muted));
-  }
-
-  /* Hidden Mode saved: keep the ZenFuel brand off screen until React renders the neutral title. */
-  html[data-discreet] [data-brand] {
-    visibility: hidden;
-  }
-  /* The screen-reader-only description on the home page names the app and its habits. */
-  html[data-discreet] [data-seo] {
-    display: none;
-  }
-
-  ::-webkit-scrollbar {
-    @apply w-1.5 h-1.5;
-  }
-  ::-webkit-scrollbar-track {
-    @apply bg-transparent;
-  }
-  ::-webkit-scrollbar-thumb {
-    @apply bg-line-strong rounded-full;
-  }
-
+  h1, h2, h3 { letter-spacing: -0.025em; text-wrap: balance; }
+  h1 { font-weight: 750; }
+  h2, h3 { font-weight: 650; }
+  :focus-visible { outline: 2px solid rgb(23 105 245); outline-offset: 2px; }
+  html:not(.dark) .text-slate-400:not(:hover):not(.surface-dark *) { color: rgb(var(--muted)); }
+  html[data-discreet] [data-brand] { visibility: hidden; }
+  html[data-discreet] [data-seo] { display: none; }
+  ::-webkit-scrollbar { @apply w-1.5 h-1.5; }
+  ::-webkit-scrollbar-track { @apply bg-transparent; }
+  ::-webkit-scrollbar-thumb { @apply bg-line-strong rounded-full; }
   @media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after {
-      animation-duration: 0.01ms !important;
-      transition-duration: 0.01ms !important;
-    }
+    *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
   }
 }
-
 @layer components {
-  .card {
-    @apply bg-surface border border-line rounded-2xl shadow-card;
-  }
-  .card-hover {
-    @apply card hover:border-violet-300 dark:hover:border-violet-500/50 transition-colors;
-  }
-  .stat-value {
-    @apply text-2xl font-semibold tracking-tight text-ink tabular-nums;
-  }
-  .stat-label {
-    @apply text-xs font-medium text-muted;
-  }
-  .eyebrow {
-    @apply text-[11px] font-semibold uppercase tracking-[0.08em] text-muted;
-  }
-  .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 bg-brand hover:bg-brand-strong active:bg-brand-strong text-white font-semibold rounded-xl transition-colors;
-  }
-  .btn-ghost {
-    @apply hover:bg-surface-2 text-ink-2 rounded-lg transition-colors;
-  }
-  .input {
-    @apply w-full min-h-[40px] px-3 py-2 bg-surface border border-line-strong
-           rounded-xl text-ink placeholder:text-muted
-           focus:outline-none focus:ring-4 focus:ring-violet-500/15 focus:border-violet-500
-           text-sm transition-shadow;
-  }
-  select.input {
-    @apply pr-8;
-  }
-  .nav-link {
-    @apply flex items-center gap-3 px-3 py-2 rounded-xl text-ink-2
-           hover:bg-surface-2 hover:text-ink
-           transition-colors text-sm font-medium;
-  }
-  .nav-link-active {
-    @apply flex items-center gap-3 px-3 py-2 rounded-xl
-           bg-violet-600/10 text-brand-text
-           text-sm font-semibold;
-  }
-  .chip {
-    @apply inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-colors;
-  }
-  .chip-off {
-    @apply chip bg-surface-2 text-ink-2 hover:text-ink;
-  }
-  .chip-on {
-    @apply chip bg-ink text-surface;
-  }
-  .track {
-    @apply h-2 rounded-full bg-surface-2 overflow-hidden;
-  }
+  .card { @apply bg-surface border border-line rounded-2xl shadow-card; }
+  .card-hover { @apply card hover:border-blue-300 dark:hover:border-blue-500/50 transition-all duration-200; }
+  .stat-value { @apply text-2xl font-semibold tracking-tight text-ink tabular-nums; }
+  .stat-label { @apply text-xs font-medium text-muted; }
+  .eyebrow { @apply text-[11px] font-semibold uppercase tracking-[0.08em] text-muted; }
+  .btn-primary { @apply inline-flex items-center justify-center gap-2 bg-brand hover:bg-brand-strong active:bg-brand-strong text-white font-semibold rounded-xl transition-all duration-150 shadow-sm hover:shadow-md active:scale-[0.99]; }
+  .btn-ghost { @apply hover:bg-surface-2 text-ink-2 rounded-xl transition-colors; }
+  .input { @apply w-full min-h-[42px] px-3.5 py-2.5 bg-surface border border-line-strong rounded-xl text-ink placeholder:text-muted focus:outline-none focus:ring-4 focus:ring-blue-500/15 focus:border-blue-500 text-sm transition-shadow; }
+  select.input { @apply pr-8; }
+  .nav-link { @apply flex items-center gap-3 px-3 py-2.5 rounded-xl text-ink-2 hover:bg-surface-2 hover:text-ink transition-all duration-150 text-sm font-medium; }
+  .nav-link-active { @apply flex items-center gap-3 px-3 py-2.5 rounded-xl bg-blue-600/10 text-brand-text dark:bg-blue-400/10 text-sm font-semibold; }
+  .chip { @apply inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-colors; }
+  .chip-off { @apply chip bg-surface-2 text-ink-2 hover:text-ink; }
+  .chip-on { @apply chip bg-ink text-surface; }
+  .track { @apply h-2 rounded-full bg-surface-2 overflow-hidden; }
 }

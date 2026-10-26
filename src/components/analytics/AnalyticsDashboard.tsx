@@ -138,7 +138,7 @@ export function AnalyticsDashboard({ entries, habits, isPremium = true }: Analyt
               return (
                 <div key={d.day} className="flex flex-col items-center justify-end gap-1 h-[118px]">
                   <span className="text-xs font-semibold tabular-nums text-ink">{d.count}</span>
-                  <div className={`w-full max-w-[40px] rounded-t-md ${d.count === 0 ? 'bg-line' : 'bg-violet-500 dark:bg-violet-400'}`} style={{ height: d.count === 0 ? 3 : height }} title={`${d.day}: ${d.count}`} />
+                  <div className={`w-full max-w-[40px] rounded-t-md ${d.count === 0 ? 'bg-line' : 'bg-blue-500 dark:bg-blue-400'}`} style={{ height: d.count === 0 ? 3 : height }} title={`${d.day}: ${d.count}`} />
                   <span className="text-[11px] text-muted">{d.shortDay}</span>
                 </div>
               );

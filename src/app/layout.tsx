@@ -12,11 +12,11 @@ const OG_IMAGE = `${APP_URL}/images/zenfuel-logo.png`;
 export const metadata: Metadata = {
   metadataBase: new URL(APP_URL),
   title: {
-    default: 'ZenFuel — Brain Reset',
+    default: 'ZenFuel — Screen Time & Habit Tracker',
     template: '%s | ZenFuel',
   },
   description:
-    'Free brain reset app. Break the doom-scroll habit and rebuild real focus in 30 days. No downloads needed — just open and start.',
+    'Track your screen time, understand app usage, and build better habits with ZenFuel. Private, local-first tracking for everyday digital wellbeing.',
   verification: {
     google: 'LX94JUsB9K98en8siDYe4LRrcQDgbg67if0RN7lNPCw',
   },
@@ -32,23 +32,23 @@ export const metadata: Metadata = {
     locale: 'en_IN',
     url: APP_URL,
     siteName: 'ZenFuel',
-    title: 'ZenFuel — Brain Reset',
+    title: 'ZenFuel — Screen Time & Habit Tracker',
     description:
-      'Free brain reset app. Break the doom-scroll habit and rebuild real focus in 30 days. No downloads needed — just open and start.',
-    images: [{ url: OG_IMAGE, width: 2000, height: 2000, alt: 'ZenFuel — Brain Reset', type: 'image/png' }],
+      'Track your screen time, understand app usage, and build better habits with ZenFuel. Private, local-first tracking for everyday digital wellbeing.',
+    images: [{ url: OG_IMAGE, width: 2000, height: 2000, alt: 'ZenFuel — Screen Time & Habit Tracker', type: 'image/png' }],
   },
   twitter: {
     card: 'summary_large_image',
     site: '@zenfuelapp',
     creator: '@zenfuelapp',
-    title: 'ZenFuel — Brain Reset',
-    description: 'Free brain reset app. Break the doom-scroll habit and rebuild real focus in 30 days.',
+    title: 'ZenFuel — Screen Time & Habit Tracker',
+    description: 'Track your screen time and build better habits with ZenFuel.',
     images: [OG_IMAGE],
   },
   icons: {
-    icon: '/images/zenfuel-icon-192.png',
+    icon: '/images/zenfuel-app-icon.svg',
     apple: '/images/zenfuel-icon-192.png',
-    shortcut: '/images/zenfuel-icon-192.png',
+    shortcut: '/images/zenfuel-app-icon.svg',
   },
   manifest: '/manifest.json',
   robots: {

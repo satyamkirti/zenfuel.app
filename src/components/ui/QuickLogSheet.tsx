@@ -127,10 +127,10 @@ function QuickLogBottomSheet({ open, onClose, onLogged }: SheetProps) {
               aria-label={`Log ${habitName(habit)}`}
               className={clsx(
                 'flex flex-col items-center justify-center gap-1.5 min-h-[76px] p-2 rounded-2xl border transition-colors active:scale-[0.97]',
-                'focus:outline-none focus-visible:ring-4 focus-visible:ring-violet-500/30',
+                'focus:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/30',
                 logging === habit.id
                   ? 'border-emerald-400 bg-emerald-50 dark:bg-emerald-500/10'
-                  : 'border-transparent bg-surface-2 hover:border-violet-400/60'
+                  : 'border-transparent bg-surface-2 hover:border-blue-400/60'
               )}
             >
               <span className="text-2xl leading-none" aria-hidden="true">{habitIcon(habit)}</span>
@@ -209,7 +209,7 @@ export function FloatingActionButton() {
           'w-14 h-14 rounded-2xl shadow-pop',
           'bg-brand hover:bg-brand-strong',
           'flex items-center justify-center',
-          'transition-[transform,background-color,opacity] active:scale-95 focus:outline-none focus-visible:ring-4 focus-visible:ring-violet-400/50',
+          'transition-[transform,background-color,opacity] active:scale-95 focus:outline-none focus-visible:ring-4 focus-visible:ring-blue-400/50',
           open ? 'rotate-45' : '',
           inlineLogVisible && !open ? 'opacity-0 pointer-events-none translate-y-2' : 'opacity-100'
         )}
