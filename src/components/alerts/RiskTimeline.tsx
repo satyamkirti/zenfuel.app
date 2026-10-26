@@ -64,7 +64,7 @@ export function RiskTimeline({ entries, days = 14 }: RiskTimelineProps) {
                     day.level === 'low'
                       ? 'bg-surface-2 text-muted'
                       : `${palette.bg} ${palette.border} border ${palette.text}`
-                  } ${day.isToday ? 'ring-2 ring-violet-500 ring-offset-2 ring-offset-surface' : ''}`}
+                  } ${day.isToday ? 'ring-2 ring-blue-500 ring-offset-2 ring-offset-surface' : ''}`}
                 >
                   {day.count > 0 ? day.count : '·'}
                 </div>

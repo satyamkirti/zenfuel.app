@@ -63,9 +63,9 @@ export function Sidebar() {
 
       {/* Trial banner — future paid plans only */}
       {MONETIZATION_UI_ENABLED && subscription.status === 'trial' && trialDaysLeft !== null && (
-        <div className="mx-3 mt-3 px-3 py-2 bg-violet-50 dark:bg-violet-500/10 border border-violet-200 dark:border-violet-500/20 rounded-xl">
-          <p className="text-xs font-semibold text-violet-700 dark:text-violet-400">⚡ Trial — {trialDaysLeft}d left</p>
-          <Link href="/upgrade" className="text-[10px] text-violet-500 hover:underline">Upgrade now →</Link>
+        <div className="mx-3 mt-3 px-3 py-2 bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20 rounded-xl">
+          <p className="text-xs font-semibold text-blue-700 dark:text-blue-400">⚡ Trial — {trialDaysLeft}d left</p>
+          <Link href="/upgrade" className="text-[10px] text-blue-500 hover:underline">Upgrade now →</Link>
         </div>
       )}
 
@@ -112,7 +112,7 @@ export function Sidebar() {
         <div className="flex items-center justify-between px-1">
           <ThemeToggle />
           {pinEnabled && (
-            <button onClick={lock} className="btn-ghost p-2 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500" title="Lock now" aria-label="Lock now">
+            <button onClick={lock} className="btn-ghost p-2 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500" title="Lock now" aria-label="Lock now">
               <Lock size={15} aria-hidden="true" />
             </button>
           )}

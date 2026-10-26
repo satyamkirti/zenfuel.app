@@ -24,26 +24,18 @@ export default function HomePage() {
         data-seo
         className="sr-only"
       >
-        <h1>ZenFuel — Free Brain Reset App</h1>
-        <p>
-          Free brain reset app. Break the doom-scroll habit and rebuild
-          real focus in 30 days. No downloads needed — just open and start.
-        </p>
+        <h1>ZenFuel — Screen Time & Habit Tracker</h1>
+        <p>Track your screen time, understand your app usage, and build better habits. ZenFuel brings your daily habits, goals, and progress together in one private place.</p>
 
         <h2>What is ZenFuel?</h2>
         <p>
-          ZenFuel is a local-first dopamine detox tracker that
-          helps you monitor and reduce compulsive habits like social media
-          scrolling, gaming, junk food, and other dopamine-seeking
-          behaviours. Your habit logs are stored locally in your browser,
-          not on a ZenFuel server. The website uses Google Analytics to
-          measure visits.
+          ZenFuel is a personal screen time and habit tracker. It helps you understand how long you use selected apps, set daily limits, log habits manually, and follow progress over time. Habit logs are stored locally on your device rather than on a ZenFuel user-data server. Screen time tracking requires Android Usage Access and measures app usage duration; it does not inspect the content viewed inside an app.
         </p>
 
         <h2>Key Features</h2>
         <ul>
-          <li>Detox Score: a daily brain-health score from 0 to 100</li>
-          <li>Focus Score, Discipline Score, and Productivity Score</li>
+          <li>Screen time summaries for selected apps and daily limits</li>
+          <li>Habit history, streaks, goals, and progress insights</li>
           <li>Track 8+ habit types: social media, gaming, porn, alcohol, junk food, smoking, and custom habits</li>
           <li>Streak tracker — build consecutive clean days</li>
           <li>Relapse prediction — know your risk window before it hits</li>

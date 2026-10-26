@@ -20,11 +20,11 @@ export const axisTick = { fill: 'currentColor', fontSize: 11 };
 export const AXIS_CLASS = 'text-muted';
 export const GRID_CLASS = 'text-line';
 
-// Single-series sequential violet: regular, peak, and empty (zero) bars.
-export const BAR_CLASS = 'fill-violet-500 dark:fill-violet-400';
-export const BAR_PEAK_CLASS = 'fill-violet-700 dark:fill-violet-200';
+// Single-series sequential blue: regular, peak, and empty (zero) bars.
+export const BAR_CLASS = 'fill-blue-500 dark:fill-blue-400';
+export const BAR_PEAK_CLASS = 'fill-blue-700 dark:fill-blue-200';
 export const BAR_EMPTY_CLASS = 'fill-line';
-export const BRAND_HEX = '#8b5cf6';
+export const BRAND_HEX = '#087FF5';
 export const AVERAGE_HEX = '#d97706';
 
 export const chartTitleClass = 'text-sm font-semibold text-ink mb-3';

@@ -51,7 +51,7 @@ function Section({ title, icon, children }: { title: string; icon: React.ReactNo
   return (
     <Card padding="none">
       <div className="px-5 pt-5 pb-1 flex items-center gap-2.5">
-        <span className="w-8 h-8 rounded-lg bg-violet-600/10 text-brand-text flex items-center justify-center" aria-hidden="true">{icon}</span>
+        <span className="w-8 h-8 rounded-lg bg-blue-600/10 text-brand-text flex items-center justify-center" aria-hidden="true">{icon}</span>
         <h2 className="text-base font-semibold text-ink">{title}</h2>
       </div>
       <div className="p-5 space-y-4">{children}</div>
@@ -199,7 +199,7 @@ export default function SettingsPage() {
           <Section title="Subscription" icon={<Crown size={16} />}>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-teal-500 flex items-center justify-center">
                   {isPremium ? <Zap size={18} className="text-white" /> : <Crown size={18} className="text-white" />}
                 </div>
                 <div>
@@ -208,7 +208,7 @@ export default function SettingsPage() {
                     <PlanBadge plan={subscription.plan} size="xs" />
                   </div>
                   {subscription.status === 'trial' && trialDaysLeft !== null && (
-                    <p className="text-xs text-violet-500">Trial ends in {trialDaysLeft} day{trialDaysLeft !== 1 ? 's' : ''}</p>
+                    <p className="text-xs text-blue-500">Trial ends in {trialDaysLeft} day{trialDaysLeft !== 1 ? 's' : ''}</p>
                   )}
                   {isPremium && daysLeft !== null && (
                     <p className="text-xs text-muted">Premium access ends in {daysLeft} day{daysLeft !== 1 ? 's' : ''}</p>
@@ -299,7 +299,7 @@ export default function SettingsPage() {
           <Row label="Theme" sub="Choose light or dark mode">
             <div className="flex gap-1">
               {(['light', 'dark'] as const).map(t => (
-                <button key={t} onClick={() => setTheme(t)} aria-pressed={theme === t} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium capitalize transition-all ${theme === t ? 'bg-violet-600 text-white' : 'bg-surface-2 text-ink-2 hover:bg-line'}`}>
+                <button key={t} onClick={() => setTheme(t)} aria-pressed={theme === t} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium capitalize transition-all ${theme === t ? 'bg-blue-600 text-white' : 'bg-surface-2 text-ink-2 hover:bg-line'}`}>
                   {t === 'light' ? <Sun size={12} /> : <Moon size={12} />}{t}
                 </button>
               ))}

@@ -99,7 +99,7 @@ export default function GoalsPage() {
           </div>
           <div className="track">
             <div
-              className={`h-full rounded-full transition-all ${progress.isAchieved ? 'bg-emerald-500' : 'bg-violet-500'}`}
+              className={`h-full rounded-full transition-all ${progress.isAchieved ? 'bg-emerald-500' : 'bg-blue-500'}`}
               style={{ width: `${Math.min(100, progress.percentage)}%` }}
             />
           </div>

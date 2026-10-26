@@ -13,7 +13,7 @@ export function Card({ children, className, hover, padding = 'md' }: CardProps) 
   return (
     <div className={clsx(
       'bg-surface border border-line rounded-2xl shadow-card',
-      hover && 'hover:border-violet-300 dark:hover:border-violet-500/50 transition-colors cursor-pointer',
+      hover && 'hover:border-blue-300 dark:hover:border-blue-500/50 transition-colors cursor-pointer',
       paddings[padding],
       className
     )}>

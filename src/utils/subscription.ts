@@ -24,8 +24,8 @@ export const PLANS: Record<SubscriptionPlan, PlanDefinition> = {
     name: 'Premium',
     tagline: 'Full power, month by month',
     pricing: { inr: 99, usd: 1.19, interval: 'month' },
-    color: '#8b5cf6',
-    gradient: 'from-violet-600 to-purple-700',
+    color: '#087FF5',
+    gradient: 'from-blue-600 to-teal-600',
     features: [
       'Unlimited habits',
       'Full unlimited history',

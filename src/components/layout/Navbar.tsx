@@ -96,7 +96,7 @@ function MoreSheet({ open, onClose }: { open: boolean; onClose: () => void }) {
               aria-current={pathname === href ? 'page' : undefined}
               className={clsx(
                 'flex items-center gap-3 px-3 py-3 rounded-xl transition-colors',
-                pathname === href ? 'bg-violet-600/10 text-brand-text' : 'hover:bg-surface-2 text-ink'
+                pathname === href ? 'bg-blue-600/10 text-brand-text' : 'hover:bg-surface-2 text-ink'
               )}
             >
               <span className="w-10 h-10 rounded-xl bg-surface-2 flex items-center justify-center shrink-0"><Icon size={18} aria-hidden="true" /></span>
@@ -153,7 +153,7 @@ export function BottomNav() {
   const item = 'group flex-1 min-w-0 flex flex-col items-center justify-center gap-1 min-h-[60px] text-[11px] font-medium transition-colors focus:outline-none';
   const pill = (active: boolean) => clsx(
     'flex items-center justify-center w-12 h-7 rounded-full transition-colors',
-    active ? 'bg-violet-600/10 dark:bg-violet-400/15' : 'group-hover:bg-surface-2 group-focus-visible:bg-surface-2 group-focus-visible:ring-2 group-focus-visible:ring-violet-500'
+    active ? 'bg-blue-600/10 dark:bg-blue-400/15' : 'group-hover:bg-surface-2 group-focus-visible:bg-surface-2 group-focus-visible:ring-2 group-focus-visible:ring-blue-500'
   );
 
   return (

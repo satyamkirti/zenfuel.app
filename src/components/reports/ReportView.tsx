@@ -227,7 +227,7 @@ export function ReportView({ entries, habits, isPremium = true }: { entries: Log
             [discreet('Dopamine Detox Score', 'Daily score'), <span key="score" className={scoreColor}>{detoxScore.score}/100 — {detoxScore.label}</span>],
             ['Current streak', `${streaks.currentStreak} days`],
             ['Longest streak ever', `${streaks.longestStreak} days`],
-            ['Lifetime total (all time)', <span key="lt" className="text-violet-600 dark:text-violet-400 font-bold">{allAnalytics.lifetimeCount}</span>],
+            ['Lifetime total (all time)', <span key="lt" className="text-blue-600 dark:text-blue-400 font-bold">{allAnalytics.lifetimeCount}</span>],
           ].map(([label, value], i) => (
             <div key={i} className="flex justify-between py-2 border-b border-line last:border-0">
               <span className="text-muted">{label}</span>

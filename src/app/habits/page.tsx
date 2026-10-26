@@ -129,7 +129,7 @@ export default function HabitsPage() {
 
           {/* Add habit placeholder card */}
           {!atFreeLimit && (
-            <button onClick={handleAddClick} className="flex flex-col items-center justify-center gap-3 p-6 border-2 border-dashed border-line rounded-xl hover:border-violet-400 dark:hover:border-violet-500 hover:bg-violet-50/50 dark:hover:bg-violet-500/5 transition-all text-muted hover:text-violet-600 dark:hover:text-violet-400">
+            <button onClick={handleAddClick} className="flex flex-col items-center justify-center gap-3 p-6 border-2 border-dashed border-line rounded-xl hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50/50 dark:hover:bg-blue-500/5 transition-all text-muted hover:text-blue-600 dark:hover:text-blue-400">
               <Plus size={24} />
               <span className="text-sm font-medium">Add Custom Habit</span>
             </button>

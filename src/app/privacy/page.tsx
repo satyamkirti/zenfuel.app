@@ -51,8 +51,8 @@ export default function PrivacyPage() {
         <li>Approximate location derived from your IP address</li>
         <li>Referring website and date and time of your visit</li>
       </UL>
-      <P>Google Analytics uses cookies or similar technologies to recognise returning visitors. ZenFuel does not deliberately send the contents of your habit logs, notes, goals or challenges to Google Analytics. Information collected by Google Analytics is processed by Google under its own privacy terms; see <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer" className="text-violet-600 dark:text-violet-400 hover:underline">Google&apos;s Privacy Policy</a>.</P>
-      <P>You can limit Google Analytics by blocking cookies in your browser settings, using a content blocker, or installing the <a href="https://tools.google.com/dlpage/gaoptout" target="_blank" rel="noopener noreferrer" className="text-violet-600 dark:text-violet-400 hover:underline">Google Analytics opt-out browser add-on</a> where it is available for your browser. ZenFuel&apos;s tracker features continue to work if you do this.</P>
+      <P>Google Analytics uses cookies or similar technologies to recognise returning visitors. ZenFuel does not deliberately send the contents of your habit logs, notes, goals or challenges to Google Analytics. Information collected by Google Analytics is processed by Google under its own privacy terms; see <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline">Google&apos;s Privacy Policy</a>.</P>
+      <P>You can limit Google Analytics by blocking cookies in your browser settings, using a content blocker, or installing the <a href="https://tools.google.com/dlpage/gaoptout" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline">Google Analytics opt-out browser add-on</a> where it is available for your browser. ZenFuel&apos;s tracker features continue to work if you do this.</P>
 
       <H2>5. Hosting</H2>
       <P>The website is hosted on Vercel. As with any website, the hosting provider receives standard technical information needed to deliver pages to your browser, such as your IP address and browser type.</P>
@@ -81,7 +81,7 @@ export default function PrivacyPage() {
       <InfoBox>
         <p className="font-semibold text-ink-2">For privacy questions or requests:</p>
         <p>Email: <MailLink /></p>
-        <p>See also our <Link href="/terms" className="text-violet-600 dark:text-violet-400 hover:underline">Terms of Service</Link>.</p>
+        <p>See also our <Link href="/terms" className="text-blue-600 dark:text-blue-400 hover:underline">Terms of Service</Link>.</p>
       </InfoBox>
 
     </LegalLayout>

@@ -31,7 +31,7 @@ function FreeBetaInfo() {
     <AppLayout title="Free Beta">
       <div className="space-y-4 max-w-2xl">
         <div className="rounded-2xl border border-line bg-surface shadow-card p-6 sm:p-8">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-violet-600/10 text-brand-text px-2.5 py-1 text-xs font-semibold">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-600/10 text-brand-text px-2.5 py-1 text-xs font-semibold">
             <Sparkles size={13} aria-hidden="true" /> Free beta
           </span>
           <h1 className="mt-3 text-2xl sm:text-3xl font-semibold tracking-tight text-ink">ZenFuel is free during beta</h1>
@@ -60,9 +60,9 @@ function FreeBetaInfo() {
         <Card>
           <p className="text-sm text-ink-2 leading-relaxed">
             Your tracker data is stored locally in this browser. See our{' '}
-            <Link href="/privacy" className="text-violet-600 dark:text-violet-400 hover:underline">Privacy Policy</Link>{' '}
+            <Link href="/privacy" className="text-blue-600 dark:text-blue-400 hover:underline">Privacy Policy</Link>{' '}
             for details. If this ever changes, we will update our{' '}
-            <Link href="/terms" className="text-violet-600 dark:text-violet-400 hover:underline">Terms of Service</Link>{' '}
+            <Link href="/terms" className="text-blue-600 dark:text-blue-400 hover:underline">Terms of Service</Link>{' '}
             and Privacy Policy before any payment is introduced.
           </p>
         </Card>

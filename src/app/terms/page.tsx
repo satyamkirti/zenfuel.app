@@ -4,7 +4,7 @@ import { LegalLayout, H2, P, UL, InfoBox, MailLink } from '@/components/legal/Le
 
 export const metadata: Metadata = {
   title: 'Terms of Service — ZenFuel',
-  description: 'ZenFuel Terms of Service — rules for using the ZenFuel brain reset app.',
+  description: 'ZenFuel Terms of Service — rules for using the ZenFuel Screen Time & Habit Tracker.',
 };
 
 export default function TermsPage() {
@@ -29,7 +29,7 @@ export default function TermsPage() {
       <H2>3. No Accounts — Your Data Stays on Your Device</H2>
       <UL>
         <li>ZenFuel does not currently offer user accounts. You do not need to sign up to use it.</li>
-        <li>Your tracker data is stored locally in your browser on your device, not on a ZenFuel server. See our <Link href="/privacy" className="text-violet-600 dark:text-violet-400 hover:underline">Privacy Policy</Link> for details, including our use of Google Analytics.</li>
+        <li>Your tracker data is stored locally in your browser on your device, not on a ZenFuel server. See our <Link href="/privacy" className="text-blue-600 dark:text-blue-400 hover:underline">Privacy Policy</Link> for details, including our use of Google Analytics.</li>
         <li>Because we do not hold a copy of your data, we cannot restore it if it is lost — for example, if you clear your browser data, change device or browser, or forget your PIN. You are responsible for exporting any data you want to keep.</li>
         <li>You are responsible for the security of the device and browser you use ZenFuel on.</li>
       </UL>
