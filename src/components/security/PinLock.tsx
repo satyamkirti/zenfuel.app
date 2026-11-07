@@ -132,7 +132,7 @@ export function PinLock({ onUnlock, pinLength, appName, onReset }: PinLockProps)
               </button>
               <button
                 onClick={() => { setForgot(false); setEraseText(''); }}
-                className="w-full py-3 rounded-xl bg-slate-800 text-white font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400"
+                className="w-full py-3 rounded-xl bg-slate-800 text-white font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
               >
                 Back to PIN entry
               </button>
@@ -147,8 +147,8 @@ export function PinLock({ onUnlock, pinLength, appName, onReset }: PinLockProps)
     <div className="surface-dark fixed inset-0 z-[200] bg-slate-950 overflow-y-auto">
       <div role="dialog" aria-modal="true" aria-labelledby="lock-title" className="min-h-full flex flex-col items-center justify-center gap-7 px-6 py-10">
         <div className="flex flex-col items-center gap-3 text-center">
-          <div className="w-16 h-16 rounded-2xl bg-violet-600/20 flex items-center justify-center">
-            <Shield size={32} className="text-violet-400" aria-hidden="true" />
+          <div className="w-16 h-16 rounded-2xl bg-blue-600/20 flex items-center justify-center">
+            <Shield size={32} className="text-blue-400" aria-hidden="true" />
           </div>
           <h1 id="lock-title" className="text-white text-2xl font-bold">Locked</h1>
           <p className="text-slate-400 text-sm">
@@ -160,7 +160,7 @@ export function PinLock({ onUnlock, pinLength, appName, onReset }: PinLockProps)
           {Array.from({ length: dotCount }, (_, i) => (
             <div key={i} className={`w-4 h-4 rounded-full border-2 transition-colors ${
               i < pin.length
-                ? error ? 'bg-red-500 border-red-500' : 'bg-violet-400 border-violet-400'
+                ? error ? 'bg-red-500 border-red-500' : 'bg-blue-400 border-blue-400'
                 : 'border-slate-500'
             }`} />
           ))}
@@ -182,7 +182,7 @@ export function PinLock({ onUnlock, pinLength, appName, onReset }: PinLockProps)
                 key={i}
                 onClick={removeDigit}
                 aria-label="Delete last digit"
-                className="h-16 rounded-2xl bg-slate-800 hover:bg-slate-700 text-white flex items-center justify-center transition-colors active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400"
+                className="h-16 rounded-2xl bg-slate-800 hover:bg-slate-700 text-white flex items-center justify-center transition-colors active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
               >
                 <Delete size={20} aria-hidden="true" />
               </button>
@@ -193,7 +193,7 @@ export function PinLock({ onUnlock, pinLength, appName, onReset }: PinLockProps)
                   onClick={() => submit(pin)}
                   disabled={pin.length < MIN || throttled}
                   aria-label="Unlock"
-                  className="h-16 rounded-2xl bg-violet-600 hover:bg-violet-500 text-white flex items-center justify-center transition-colors active:scale-95 disabled:opacity-30 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-300"
+                  className="h-16 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white flex items-center justify-center transition-colors active:scale-95 disabled:opacity-30 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-300"
                 >
                   <ArrowRight size={22} aria-hidden="true" />
                 </button>
@@ -203,7 +203,7 @@ export function PinLock({ onUnlock, pinLength, appName, onReset }: PinLockProps)
                 key={i}
                 onClick={() => addDigit(d)}
                 disabled={throttled}
-                className="h-16 rounded-2xl bg-slate-800 hover:bg-slate-700 active:bg-violet-700 text-white text-2xl font-light transition-all active:scale-95 disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400"
+                className="h-16 rounded-2xl bg-slate-800 hover:bg-slate-700 active:bg-blue-700 text-white text-2xl font-light transition-all active:scale-95 disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
               >
                 {d}
               </button>
@@ -211,7 +211,7 @@ export function PinLock({ onUnlock, pinLength, appName, onReset }: PinLockProps)
           ))}
         </div>
 
-        <button onClick={() => setForgot(true)} className="text-sm text-slate-400 hover:text-white underline-offset-4 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 rounded px-2 py-1">
+        <button onClick={() => setForgot(true)} className="text-sm text-slate-400 hover:text-white underline-offset-4 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 rounded px-2 py-1">
           Forgot PIN?
         </button>
         <p className="text-[11px] text-slate-500 text-center max-w-xs">

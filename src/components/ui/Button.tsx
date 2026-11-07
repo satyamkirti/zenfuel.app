@@ -35,7 +35,7 @@ export function Button({ variant = 'primary', size = 'md', icon, loading, childr
       aria-busy={loading || undefined}
       className={clsx(
         'inline-flex items-center justify-center font-medium transition-colors',
-        'focus:outline-none focus-visible:ring-4 focus-visible:ring-violet-500/30',
+        'focus:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/30',
         'disabled:opacity-50 disabled:cursor-not-allowed',
         variants[variant],
         sizes[size],

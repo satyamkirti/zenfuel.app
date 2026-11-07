@@ -25,7 +25,7 @@ const PREMIUM_FEATURES = [
   { icon: <TrendingDown size={18} className="text-red-400" />, label: 'Relapse Prediction', desc: 'Know your risk before it happens' },
   { icon: <BarChart3 size={18} className="text-blue-400" />, label: 'Advanced Analytics Suite', desc: 'Hourly, weekday, comparison charts' },
   { icon: <Target size={18} className="text-emerald-400" />, label: 'Habit Comparison Dashboard', desc: 'Side-by-side habit performance' },
-  { icon: <FileText size={18} className="text-indigo-400" />, label: 'Print / PDF Reports', desc: 'Printable reports you can save as PDF' },
+  { icon: <FileText size={18} className="text-teal-400" />, label: 'Print / PDF Reports', desc: 'Printable reports you can save as PDF' },
   { icon: <Crown size={18} className="text-amber-400" />, label: 'Unlimited Habits & History', desc: 'Track everything, forever' },
 ];
 
@@ -82,7 +82,7 @@ export function PremiumUpgradeView() {
           </div>
           <h1 className="text-4xl sm:text-5xl font-black text-ink leading-tight">
             Unlock Your<br />
-            <span className="bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">Full Potential</span>
+            <span className="bg-gradient-to-r from-blue-600 to-teal-500 bg-clip-text text-transparent">Full Potential</span>
           </h1>
           <p className="text-lg text-muted max-w-xl mx-auto">
             Get Focus, Discipline and Productivity scores, relapse prediction, unlimited tracking and printable reports — everything you need to take control.
@@ -147,7 +147,7 @@ export function PremiumUpgradeView() {
           <div className="text-center">
             <button
               onClick={() => { startTrial(); router.push('/'); }}
-              className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-2xl font-bold text-sm shadow-lg shadow-violet-500/30 hover:shadow-violet-500/50 transition-all hover:scale-105"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-teal-500 text-white rounded-2xl font-bold text-sm shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 transition-all hover:scale-105"
             >
               <Gift size={16} /> Start 7-Day Free Trial — No Card Required
             </button>
@@ -171,7 +171,7 @@ export function PremiumUpgradeView() {
           <h2 className="text-2xl font-black text-center text-ink mb-8">Everything Premium Includes</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {PREMIUM_FEATURES.map((f, i) => (
-              <div key={i} className="flex flex-col gap-3 p-4 bg-surface border border-line rounded-xl hover:border-violet-400 dark:hover:border-violet-500 transition-colors">
+              <div key={i} className="flex flex-col gap-3 p-4 bg-surface border border-line rounded-xl hover:border-blue-400 dark:hover:border-blue-500 transition-colors">
                 <div className="w-10 h-10 rounded-xl bg-surface-2 flex items-center justify-center">{f.icon}</div>
                 <div>
                   <p className="font-semibold text-ink text-sm">{f.label}</p>
@@ -189,7 +189,7 @@ export function PremiumUpgradeView() {
             <div className="grid grid-cols-3 bg-surface-2 text-xs font-bold uppercase tracking-wider text-muted px-6 py-3 border-b border-line">
               <span>Feature</span>
               <span className="text-center">Free</span>
-              <span className="text-center text-violet-600 dark:text-violet-400">Premium</span>
+              <span className="text-center text-blue-600 dark:text-blue-400">Premium</span>
             </div>
             {COMPARISON_ROWS.map((row, i) => (
               <div key={i} className={`grid grid-cols-3 px-6 py-3 text-sm ${i % 2 === 0 ? '' : 'bg-slate-50/50 dark:bg-slate-700/20'} border-b border-line/50 last:border-0`}>
@@ -202,7 +202,7 @@ export function PremiumUpgradeView() {
                 <span className="text-center">
                   {typeof row.premium === 'boolean'
                     ? <CheckCircle2 size={16} className="text-emerald-500 mx-auto" />
-                    : <span className="text-violet-600 dark:text-violet-400 font-semibold text-xs">{row.premium}</span>}
+                    : <span className="text-blue-600 dark:text-blue-400 font-semibold text-xs">{row.premium}</span>}
                 </span>
               </div>
             ))}
@@ -223,13 +223,13 @@ export function PremiumUpgradeView() {
         </div>
 
         {/* Bottom CTA */}
-        <div className="bg-gradient-to-br from-violet-600 via-purple-600 to-indigo-700 rounded-3xl p-10 text-center text-white">
+        <div className="bg-gradient-to-br from-blue-600 via-teal-500 to-blue-700 rounded-3xl p-10 text-center text-white">
           <h2 className="text-3xl font-black mb-3">Start Your Transformation Today</h2>
           <div className="flex flex-col sm:flex-row gap-3 justify-center mt-8">
             {!isPremium && (
               <button
                 onClick={() => { startTrial(); router.push('/'); }}
-                className="px-8 py-3 bg-white text-violet-700 rounded-xl font-bold hover:bg-violet-50 transition-colors"
+                className="px-8 py-3 bg-white text-blue-700 rounded-xl font-bold hover:bg-blue-50 transition-colors"
               >
                 Start Free Trial
               </button>
@@ -242,11 +242,11 @@ export function PremiumUpgradeView() {
               Paid plans — Coming Soon
             </button>
           </div>
-          <p className="text-violet-300/60 text-xs mt-4">
+          <p className="text-blue-300/60 text-xs mt-4">
             See our{' '}
-            <Link href="/terms" className="underline hover:text-violet-200 transition-colors">Terms of Service</Link>
+            <Link href="/terms" className="underline hover:text-blue-200 transition-colors">Terms of Service</Link>
             {' '}and{' '}
-            <Link href="/privacy" className="underline hover:text-violet-200 transition-colors">Privacy Policy</Link>
+            <Link href="/privacy" className="underline hover:text-blue-200 transition-colors">Privacy Policy</Link>
           </p>
         </div>
 

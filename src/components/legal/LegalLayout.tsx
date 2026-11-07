@@ -105,7 +105,7 @@ export function InfoBox({ children }: { children: ReactNode }) {
 
 export function MailLink() {
   return (
-    <a href="mailto:zenfuel.support@gmail.com" className="text-brand-text underline underline-offset-2 decoration-violet-400/50 hover:decoration-current font-medium">
+    <a href="mailto:zenfuel.support@gmail.com" className="text-brand-text underline underline-offset-2 decoration-blue-400/50 hover:decoration-current font-medium">
       zenfuel.support@gmail.com
     </a>
   );
@@ -131,7 +131,7 @@ export function PricingTable() {
           {rows.map(([plan, price, billing]) => (
             <tr key={plan} className="border-t border-line">
               <td className="px-4 py-2.5 text-ink-2 font-medium">{plan}</td>
-              <td className="px-4 py-2.5 text-violet-600 dark:text-violet-400 font-bold">{price}</td>
+              <td className="px-4 py-2.5 text-blue-600 dark:text-blue-400 font-bold">{price}</td>
               <td className="px-4 py-2.5 text-muted">{billing}</td>
             </tr>
           ))}

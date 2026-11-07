@@ -8,7 +8,7 @@ import { Save, EyeOff } from 'lucide-react';
 import { usePrivacy } from '@/context/PrivacyContext';
 
 const ICONS = ['📱','🔞','✋','🎮','📹','🍔','🚬','🍺','🎰','💊','☕','🎬','🛒','💻','📺','🎧','🍕','🍫','💪','⭐','🔥','❌','🚫','🎯'];
-const COLORS = ['#3b82f6','#ef4444','#8b5cf6','#10b981','#f59e0b','#f97316','#94a3b8','#84cc16','#ec4899','#06b6d4','#a855f7','#14b8a6'];
+const COLORS = ['#3b82f6','#ef4444','#087FF5','#10b981','#f59e0b','#f97316','#94a3b8','#84cc16','#ec4899','#06b6d4','#a855f7','#14b8a6'];
 const CATEGORIES: { value: HabitCategory; label: string }[] = [
   { value: 'digital', label: 'Digital' },
   { value: 'adult', label: 'Adult' },
@@ -26,7 +26,7 @@ interface HabitModalProps {
 export function HabitModal({ habit, onClose, onSave }: HabitModalProps) {
   const [name, setName] = useState('');
   const [icon, setIcon] = useState('⭐');
-  const [color, setColor] = useState('#8b5cf6');
+  const [color, setColor] = useState('#087FF5');
   const [category, setCategory] = useState<HabitCategory>('other');
   const { masked, reveal } = usePrivacy();
 
@@ -37,7 +37,7 @@ export function HabitModal({ habit, onClose, onSave }: HabitModalProps) {
       setColor(habit.color);
       setCategory(habit.category);
     } else {
-      setName(''); setIcon('⭐'); setColor('#8b5cf6'); setCategory('other');
+      setName(''); setIcon('⭐'); setColor('#087FF5'); setCategory('other');
     }
   }, [habit]);
 
@@ -75,7 +75,7 @@ export function HabitModal({ habit, onClose, onSave }: HabitModalProps) {
           <label className="block text-xs font-medium text-muted mb-1">Icon</label>
           <div className="flex flex-wrap gap-2">
             {ICONS.map(ic => (
-              <button key={ic} onClick={() => setIcon(ic)} aria-label={`Icon ${ic}`} aria-pressed={icon === ic} className={`w-9 h-9 rounded-lg text-lg flex items-center justify-center transition-all ${icon === ic ? 'bg-violet-100 dark:bg-violet-500/20 ring-2 ring-violet-500' : 'bg-surface-2 hover:bg-line'}`}>
+              <button key={ic} onClick={() => setIcon(ic)} aria-label={`Icon ${ic}`} aria-pressed={icon === ic} className={`w-9 h-9 rounded-lg text-lg flex items-center justify-center transition-all ${icon === ic ? 'bg-blue-100 dark:bg-blue-500/20 ring-2 ring-blue-500' : 'bg-surface-2 hover:bg-line'}`}>
                 {ic}
               </button>
             ))}
@@ -86,7 +86,7 @@ export function HabitModal({ habit, onClose, onSave }: HabitModalProps) {
           <label className="block text-xs font-medium text-muted mb-1">Color</label>
           <div className="flex flex-wrap gap-2">
             {COLORS.map(c => (
-              <button key={c} onClick={() => setColor(c)} aria-label={`Colour ${c}`} aria-pressed={color === c} className={`w-7 h-7 rounded-full transition-all ${color === c ? 'ring-2 ring-offset-2 ring-violet-500 dark:ring-offset-slate-800 scale-110' : 'hover:scale-105'}`} style={{ backgroundColor: c }} />
+              <button key={c} onClick={() => setColor(c)} aria-label={`Colour ${c}`} aria-pressed={color === c} className={`w-7 h-7 rounded-full transition-all ${color === c ? 'ring-2 ring-offset-2 ring-blue-500 dark:ring-offset-slate-800 scale-110' : 'hover:scale-105'}`} style={{ backgroundColor: c }} />
             ))}
           </div>
         </div>

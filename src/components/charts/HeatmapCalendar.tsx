@@ -18,13 +18,13 @@ function getLevel(count: number, max: number): number {
   return 4;
 }
 
-// Sequential single-hue ramp: empty days in the neutral tile colour, then light → dark violet.
+// Sequential single-hue ramp: empty days in the neutral tile colour, then light → dark blue.
 const LEVEL_CLASSES = [
   'bg-surface-2 ring-1 ring-inset ring-line/60',
-  'bg-violet-200 dark:bg-violet-900',
-  'bg-violet-400 dark:bg-violet-700',
-  'bg-violet-600 dark:bg-violet-500',
-  'bg-violet-800 dark:bg-violet-300',
+  'bg-blue-200 dark:bg-blue-900',
+  'bg-blue-400 dark:bg-blue-700',
+  'bg-blue-600 dark:bg-blue-500',
+  'bg-blue-800 dark:bg-blue-300',
 ];
 
 export function HeatmapCalendar({ dailyCounts, year }: HeatmapCalendarProps) {

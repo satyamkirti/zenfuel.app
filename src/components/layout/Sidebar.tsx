@@ -53,37 +53,37 @@ export function Sidebar() {
     detoxScore.score >= 40 ? 'bg-amber-500' : 'bg-red-500';
 
   return (
-    <aside className="hidden lg:flex flex-col w-64 shrink-0 h-screen sticky top-0 bg-surface border-r border-line">
-      <div className="px-5 h-16 flex items-center">
+    <aside className="hidden lg:flex flex-col w-[268px] shrink-0 h-screen sticky top-0 bg-surface/95 backdrop-blur-xl border-r border-line">
+      <div className="px-5 h-[82px] flex items-center border-b border-line/70">
         <div className="flex items-center justify-between gap-2 w-full">
-          <Logo size="md" />
+          <Logo size="lg" />
           {MONETIZATION_UI_ENABLED && <PlanBadge plan={subscription.plan} size="xs" />}
         </div>
       </div>
 
       {/* Trial banner — future paid plans only */}
       {MONETIZATION_UI_ENABLED && subscription.status === 'trial' && trialDaysLeft !== null && (
-        <div className="mx-3 mt-3 px-3 py-2 bg-violet-50 dark:bg-violet-500/10 border border-violet-200 dark:border-violet-500/20 rounded-xl">
-          <p className="text-xs font-semibold text-violet-700 dark:text-violet-400">⚡ Trial — {trialDaysLeft}d left</p>
-          <Link href="/upgrade" className="text-[10px] text-violet-500 hover:underline">Upgrade now →</Link>
+        <div className="mx-3 mt-3 px-3 py-2 bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20 rounded-xl">
+          <p className="text-xs font-semibold text-blue-700 dark:text-blue-400">⚡ Trial — {trialDaysLeft}d left</p>
+          <Link href="/upgrade" className="text-[10px] text-blue-500 hover:underline">Upgrade now →</Link>
         </div>
       )}
 
-      <div className="px-3 pt-3 empty:hidden"><PrivacyRevealButton /></div>
+      <div className="px-3 pt-4 empty:hidden"><PrivacyRevealButton /></div>
 
-      <nav aria-label="Main" className="flex-1 px-3 py-3 overflow-y-auto">
-        <div className="space-y-0.5">
+      <nav aria-label="Main" className="flex-1 px-3 py-5 overflow-y-auto">
+        <div className="space-y-1">
           {NAV_PRIMARY.map(n => <NavLink key={n.href} {...n} />)}
         </div>
-        <p className="eyebrow px-3 mb-1.5 mt-6">Tools</p>
+        <p className="eyebrow px-3 mb-2 mt-7">Tools</p>
         <div className="space-y-0.5">
           {NAV_SECONDARY.map(n => <NavLink key={n.href} {...n} />)}
         </div>
       </nav>
 
-      <div className="px-3 py-4 border-t border-line space-y-3">
+      <div className="px-3 py-4 border-t border-line/80 space-y-3">
         {/* Score summary */}
-        <div className="px-3 py-3 rounded-xl bg-surface-2 flex items-center justify-between">
+        <div className="px-4 py-3.5 rounded-2xl border border-blue-100 dark:border-blue-900/50 bg-gradient-to-br from-blue-50 to-teal-50 dark:from-blue-950/20 dark:to-teal-950/20 flex items-center justify-between">
           <div>
             <p className="text-[11px] text-muted">{discreet('Detox score', 'Score')}</p>
             <p className="text-xl font-semibold tabular-nums text-ink flex items-center gap-1.5">
@@ -99,7 +99,7 @@ export function Sidebar() {
 
         {/* Upgrade to Premium entry point — future paid plans only */}
         {MONETIZATION_UI_ENABLED && !isPremium && (
-          <Link href="/upgrade" className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:shadow-lg hover:shadow-amber-500/20 transition-all">
+          <Link href="/upgrade" className="flex items-center gap-2 px-3 py-3 rounded-2xl bg-gradient-to-r from-blue-600 to-teal-500 text-white shadow-sm hover:shadow-lg hover:shadow-blue-500/20 transition-all">
             <Crown size={14} />
             <div className="flex-1 min-w-0">
               <p className="text-xs font-bold leading-none">Upgrade to Premium</p>
@@ -112,7 +112,7 @@ export function Sidebar() {
         <div className="flex items-center justify-between px-1">
           <ThemeToggle />
           {pinEnabled && (
-            <button onClick={lock} className="btn-ghost p-2 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500" title="Lock now" aria-label="Lock now">
+            <button onClick={lock} className="btn-ghost p-2 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500" title="Lock now" aria-label="Lock now">
               <Lock size={15} aria-hidden="true" />
             </button>
           )}

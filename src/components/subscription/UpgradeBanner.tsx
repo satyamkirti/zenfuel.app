@@ -30,14 +30,14 @@ export function UpgradeBanner({ message, cta = 'Upgrade to Premium', variant = '
   if (variant === 'prominent') {
     return (
       <div className={clsx('relative rounded-xl overflow-hidden', className)}>
-        <div className="bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 px-5 py-4 flex items-center gap-4">
+        <div className="bg-gradient-to-r from-blue-600 via-blue-500 to-teal-500 px-5 py-4 flex items-center gap-4">
           <div className="w-9 h-9 rounded-lg bg-white/20 flex items-center justify-center shrink-0">
             <Sparkles size={18} className="text-white" />
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-white font-semibold text-sm leading-snug">{message}</p>
           </div>
-          <Link href="/upgrade" className="shrink-0 px-4 py-1.5 bg-white text-violet-700 rounded-lg text-xs font-bold hover:bg-violet-50 transition-colors whitespace-nowrap">
+          <Link href="/upgrade" className="shrink-0 px-4 py-1.5 bg-white text-blue-700 rounded-lg text-xs font-bold hover:bg-blue-50 transition-colors whitespace-nowrap">
             {cta} →
           </Link>
           <button onClick={handleDismiss} className="shrink-0 text-white/60 hover:text-white transition-colors">

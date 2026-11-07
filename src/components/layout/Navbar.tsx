@@ -96,7 +96,7 @@ function MoreSheet({ open, onClose }: { open: boolean; onClose: () => void }) {
               aria-current={pathname === href ? 'page' : undefined}
               className={clsx(
                 'flex items-center gap-3 px-3 py-3 rounded-xl transition-colors',
-                pathname === href ? 'bg-violet-600/10 text-brand-text' : 'hover:bg-surface-2 text-ink'
+                pathname === href ? 'bg-blue-600/10 text-brand-text' : 'hover:bg-surface-2 text-ink'
               )}
             >
               <span className="w-10 h-10 rounded-xl bg-surface-2 flex items-center justify-center shrink-0"><Icon size={18} aria-hidden="true" /></span>
@@ -150,16 +150,16 @@ export function BottomNav() {
   const closeMore = useRef(() => setMoreOpen(false)).current;
   const moreActive = MORE_LINKS.some(l => l.href === pathname);
 
-  const item = 'group flex-1 min-w-0 flex flex-col items-center justify-center gap-1 min-h-[60px] text-[11px] font-medium transition-colors focus:outline-none';
+  const item = 'group flex-1 min-w-0 flex flex-col items-center justify-center gap-1 min-h-[62px] text-[10px] sm:text-[11px] font-semibold tracking-tight transition-colors focus:outline-none';
   const pill = (active: boolean) => clsx(
-    'flex items-center justify-center w-12 h-7 rounded-full transition-colors',
-    active ? 'bg-violet-600/10 dark:bg-violet-400/15' : 'group-hover:bg-surface-2 group-focus-visible:bg-surface-2 group-focus-visible:ring-2 group-focus-visible:ring-violet-500'
+    'flex items-center justify-center w-11 h-8 rounded-xl transition-all duration-150',
+    active ? 'bg-blue-600/10 dark:bg-blue-400/15 shadow-sm' : 'group-hover:bg-surface-2 group-focus-visible:bg-surface-2 group-focus-visible:ring-2 group-focus-visible:ring-blue-500'
   );
 
   return (
     <>
-      <nav aria-label="Main" className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-surface/95 backdrop-blur-md border-t border-line pb-[env(safe-area-inset-bottom)]">
-        <div className="flex px-1">
+      <nav aria-label="Main" className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-surface/95 backdrop-blur-xl border-t border-line shadow-[0_-10px_35px_rgba(19,34,56,0.06)] pb-[env(safe-area-inset-bottom)]">
+        <div className="flex px-2">
           {NAV.map(({ href, label, icon: Icon }) => {
             const active = pathname === href;
             return (
@@ -194,7 +194,7 @@ export function BottomNav() {
 export function TopBar({ title }: { title?: string }) {
   return (
     <header className="lg:hidden sticky top-0 z-30 bg-bg/85 backdrop-blur-md border-b border-line pt-[env(safe-area-inset-top)]">
-      <div className="flex items-center justify-between gap-3 px-4 h-[52px]">
+      <div className="flex items-center justify-between gap-3 px-4 h-[58px]">
         <Logo size="sm" />
         <div className="flex items-center gap-2 min-w-0">
           {title && title !== 'Dashboard' && (

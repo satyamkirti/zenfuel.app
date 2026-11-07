@@ -15,7 +15,7 @@ export default function RefundPage() {
       <P>ZenFuel is currently free during its beta. There are no subscriptions, paid tiers or trials, and ZenFuel does not take any payment. Because no payments are collected, there is nothing to refund.</P>
 
       <H2>If Paid Plans Are Introduced</H2>
-      <P>If paid plans become available, this Refund Policy and our <Link href="/terms" className="text-violet-600 dark:text-violet-400 hover:underline">Terms of Service</Link> will be updated with the applicable refund terms before any payment is taken.</P>
+      <P>If paid plans become available, this Refund Policy and our <Link href="/terms" className="text-blue-600 dark:text-blue-400 hover:underline">Terms of Service</Link> will be updated with the applicable refund terms before any payment is taken.</P>
 
       <H2>Contact</H2>
       <InfoBox>

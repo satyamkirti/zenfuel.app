@@ -44,7 +44,7 @@ export function GoalsPanel() {
               </div>
               <div className="track h-1.5 mt-2">
                 <div
-                  className={clsx('h-full rounded-full transition-all duration-500', progress.isAchieved ? 'bg-emerald-500' : 'bg-violet-500')}
+                  className={clsx('h-full rounded-full transition-all duration-500', progress.isAchieved ? 'bg-emerald-500' : 'bg-blue-500')}
                   style={{ width: `${Math.min(100, progress.percentage)}%` }}
                 />
               </div>

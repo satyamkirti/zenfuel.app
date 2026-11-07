@@ -17,7 +17,7 @@ const PLAN_ORDER: SubscriptionPlan[] = ['monthly', 'yearly', 'lifetime'];
 
 const planIcons: Record<SubscriptionPlan, React.ReactNode> = {
   free: null,
-  monthly: <Sparkles size={20} className="text-violet-400" />,
+  monthly: <Sparkles size={20} className="text-blue-400" />,
   yearly: <Crown size={20} className="text-amber-400" />,
   lifetime: <Zap size={20} className="text-emerald-400" />,
 };
@@ -37,7 +37,7 @@ export function PricingCards({ currentPlan, isPremium }: PricingCardsProps) {
               'relative flex flex-col rounded-2xl border-2 overflow-hidden transition-all',
               isYearly
                 ? 'border-amber-400 dark:border-amber-500 shadow-xl shadow-amber-500/10 scale-105'
-                : 'border-line hover:border-violet-400 dark:hover:border-violet-500'
+                : 'border-line hover:border-blue-400 dark:hover:border-blue-500'
             )}
           >
             {/* Popular/Best Value badge */}

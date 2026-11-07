@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-labelledby="title">
+<title id="title">ZenFuel — Screen Time &amp; Habit Tracker</title>
+<defs>
+<linearGradient id="tile" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1769F5"/><stop offset=".55" stop-color="#087FF5"/><stop offset="1" stop-color="#04C7C6"/></linearGradient>
+<linearGradient id="ringAccent" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#76F0D3"/><stop offset="1" stop-color="#09D0C1"/></linearGradient>
+</defs>
+<rect width="512" height="512" rx="116" fill="url(#tile)"/>
+<path d="M311 92 A167 167 0 1 0 370 402" fill="none" stroke="#FFFFFF" stroke-width="27" stroke-linecap="round"/>
+<path d="M350 92 A167 167 0 0 1 440 225" fill="none" stroke="url(#ringAccent)" stroke-width="27" stroke-linecap="round"/>
+<path d="M254 174 L254 263 L314 301" fill="none" stroke="#FFFFFF" stroke-width="27" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M338 451 C339 388 374 328 451 311 C444 381 409 436 338 451 Z" fill="#FFFFFF"/>
+<path d="M342 445 C370 398 400 366 433 337" fill="none" stroke="#12BFC0" stroke-width="10" stroke-linecap="round"/>
+</svg>
