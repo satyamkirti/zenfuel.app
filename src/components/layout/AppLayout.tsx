@@ -48,7 +48,7 @@ export function AppLayout({ children, title }: { children: ReactNode; title?: st
   }
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen bg-bg">
       <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:px-3 focus:py-2 focus:rounded-lg focus:bg-blue-600 focus:text-white">
         Skip to content
       </a>
@@ -56,7 +56,7 @@ export function AppLayout({ children, title }: { children: ReactNode; title?: st
       <div className="flex-1 flex flex-col min-w-0">
         <TopBar title={title} />
         {/* Bottom padding keeps the last controls clear of the bottom nav, the quick-log button and the home indicator. */}
-        <main id="main" className="flex-1 p-4 lg:p-6 pb-[calc(9rem+env(safe-area-inset-bottom))] lg:pb-24 max-w-7xl w-full mx-auto">
+        <main id="main" className="relative flex-1 w-full max-w-[1500px] mx-auto px-4 py-5 sm:px-5 sm:py-6 lg:px-8 lg:py-8 2xl:px-10 pb-[calc(9rem+env(safe-area-inset-bottom))] lg:pb-24">
           {isLoaded ? children : <LoadingScreen />}
         </main>
         <BottomNav />

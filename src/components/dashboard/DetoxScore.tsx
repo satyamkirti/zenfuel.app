@@ -11,7 +11,7 @@ interface DetoxScoreProps {
   todayCount: number;
 }
 
-const SIZE = 128;
+const SIZE = 138;
 const STROKE = 10;
 const R = (SIZE - STROKE) / 2;
 const CIRC = 2 * Math.PI * R;
@@ -38,8 +38,8 @@ export function DetoxScoreCard({ score, currentStreak, todayCount }: DetoxScoreP
         : 'bg-surface-2 text-ink-2';
 
   return (
-    <section aria-labelledby="score-title" className="h-full bg-surface border border-line rounded-2xl shadow-card p-5 flex flex-col">
-      <div className="flex items-center justify-between gap-3">
+    <section aria-labelledby="score-title" className="relative isolate h-full overflow-hidden rounded-[26px] border border-blue-100 dark:border-blue-900/60 bg-gradient-to-br from-white via-blue-50/70 to-teal-50/60 dark:from-surface dark:via-blue-950/20 dark:to-teal-950/20 shadow-card p-5 sm:p-6 flex flex-col">
+      <div className="relative flex items-center justify-between gap-3">
         <h2 id="score-title" className="eyebrow">{discreet('Dopamine detox score', 'Daily score')}</h2>
         <span className={clsx('inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium', trendClass)}>
           <TrendIcon size={13} aria-hidden="true" />
@@ -47,7 +47,7 @@ export function DetoxScoreCard({ score, currentStreak, todayCount }: DetoxScoreP
         </span>
       </div>
 
-      <div className="flex-1 flex items-center gap-5 py-4">
+      <div className="relative flex-1 flex items-center gap-5 py-5">
         <div className="relative shrink-0" role="img" aria-label={hasData ? `Score ${score.score} out of 100, ${score.label}` : "Not enough data yet. Log a habit to calculate your score."}>
           <svg width={SIZE} height={SIZE} className="-rotate-90" aria-hidden="true">
             <circle cx={SIZE / 2} cy={SIZE / 2} r={R} fill="none" stroke="currentColor" strokeWidth={STROKE} className="text-surface-2" />
@@ -86,7 +86,7 @@ export function DetoxScoreCard({ score, currentStreak, todayCount }: DetoxScoreP
         </dl>
       </div>
 
-      <div className="pt-1">
+      <div className="relative pt-1">
         <div className="grid grid-cols-4 gap-1.5" aria-hidden="true">
           {TIERS.map(t => {
             const active = hasData && score.score >= t.min && score.score <= t.max;

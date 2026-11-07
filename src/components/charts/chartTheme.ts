@@ -13,7 +13,7 @@ export const tooltipProps = {
   },
   labelStyle: { color: 'rgb(var(--ink))', fontWeight: 600, marginBottom: 2 },
   itemStyle: { color: 'rgb(var(--ink-2))', padding: 0 },
-  cursor: { fill: 'rgba(139, 92, 246, 0.08)' },
+  cursor: { fill: 'rgba(23, 105, 245, 0.08)' },
 };
 
 export const axisTick = { fill: 'currentColor', fontSize: 11 };
@@ -24,8 +24,8 @@ export const GRID_CLASS = 'text-line';
 export const BAR_CLASS = 'fill-blue-500 dark:fill-blue-400';
 export const BAR_PEAK_CLASS = 'fill-blue-700 dark:fill-blue-200';
 export const BAR_EMPTY_CLASS = 'fill-line';
-export const BRAND_HEX = '#087FF5';
-export const AVERAGE_HEX = '#d97706';
+export const BRAND_HEX = '#1769F5';
+export const AVERAGE_HEX = '#0FAFA4';
 
 export const chartTitleClass = 'text-sm font-semibold text-ink mb-3';
 

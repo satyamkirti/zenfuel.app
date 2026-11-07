@@ -42,10 +42,10 @@ export function QuickLog() {
   };
 
   return (
-    <section aria-labelledby="quicklog-title" data-fab-hide className="h-full bg-surface border border-line rounded-2xl shadow-card p-5 flex flex-col">
+    <section aria-labelledby="quicklog-title" data-fab-hide className="h-full rounded-[26px] border border-line bg-surface shadow-card p-5 sm:p-6 flex flex-col">
       <div className="flex items-baseline justify-between gap-3">
-        <h2 id="quicklog-title" className="eyebrow">Quick log</h2>
-        <p className="text-xs text-muted">Choose a habit, then log it</p>
+        <div><p className="text-[10px] font-bold uppercase tracking-[0.16em] text-brand-text">Make it count</p><h2 id="quicklog-title" className="text-lg font-bold tracking-tight text-ink mt-1">Quick log</h2></div>
+        <p className="text-xs text-muted">Choose a habit to record an event.</p>
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-4" role="group" aria-label="Habit">
@@ -57,11 +57,11 @@ export function QuickLog() {
               onClick={() => setSelectedHabitId(h.id)}
               aria-pressed={selected}
               className={clsx(
-                'flex items-center gap-2 min-h-[44px] px-3 rounded-xl text-sm font-medium text-left transition-colors border',
+                'flex items-center gap-2.5 min-h-[48px] px-3 rounded-2xl text-sm font-semibold text-left transition-all duration-150 border',
                 'focus:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/30',
                 selected
-                  ? 'bg-blue-600/10 border-blue-500/60 text-brand-text'
-                  : 'bg-surface-2 border-transparent text-ink-2 hover:text-ink hover:border-line-strong'
+                  ? 'bg-blue-50 border-blue-300 text-blue-800 shadow-sm dark:bg-blue-500/10 dark:border-blue-500/50 dark:text-teal-200'
+                  : 'bg-surface-2/70 border-transparent text-ink-2 hover:text-ink hover:bg-blue-50/70 hover:border-blue-100 dark:hover:bg-blue-500/5 dark:hover:border-blue-900/50'
               )}
             >
               <span className="text-base leading-none" aria-hidden="true">{habitIcon(h)}</span>
@@ -125,9 +125,9 @@ export function QuickLog() {
           onClick={handleLog}
           disabled={!selectedHabit}
           className={clsx(
-            'w-full flex items-center justify-center gap-2 min-h-[48px] rounded-xl text-sm font-semibold text-white transition-colors',
+            'w-full flex items-center justify-center gap-2 min-h-[50px] rounded-2xl text-sm font-bold text-white shadow-sm transition-all duration-150',
             'focus:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/30 disabled:opacity-50',
-            success ? 'bg-emerald-600' : 'bg-brand hover:bg-brand-strong'
+            success ? 'bg-emerald-600' : 'bg-gradient-to-r from-blue-600 to-teal-500 hover:from-blue-700 hover:to-teal-600 hover:shadow-md'
           )}
         >
           {success
