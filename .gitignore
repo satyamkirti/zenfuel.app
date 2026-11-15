@@ -43,3 +43,6 @@ next-env.d.ts
 
 # Vercel
 .vercel
+
+# Compiled unit tests (npm test)
+.test-build/

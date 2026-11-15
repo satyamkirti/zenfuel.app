@@ -3,7 +3,12 @@
 import { useMemo } from 'react';
 import { LogEntry, Habit } from '@/types';
 import { Card, CardHeader } from '@/components/ui/Card';
-import { WEEKDAYS, getStartOfDay, formatHour } from '@/utils/dateUtils';
+import { getStartOfDay, formatHour } from '@/utils/dateUtils';
+import { t } from '@/i18n/translate';
+import { weekdayName } from '@/i18n/format';
+import { useI18n } from '@/i18n/I18nProvider';
+import { localizedHabitName } from '@/i18n/habitNames';
+import type { Locale } from '@/i18n/locales';
 import { Brain } from 'lucide-react';
 import { usePrivacy } from '@/context/PrivacyContext';
 
@@ -15,8 +20,9 @@ interface Pattern {
   type: 'warning' | 'positive' | 'info';
 }
 
-function computePatterns(entries: LogEntry[], habits: Habit[]): Pattern[] {
+function computePatterns(entries: LogEntry[], habits: Habit[], locale: Locale): Pattern[] {
   if (entries.length < 5) return [];
+  const nameOf = (h: Habit) => localizedHabitName(h, locale);
 
   const habitMap = new Map(habits.map(h => [h.id, h]));
   const patterns: Pattern[] = [];
@@ -33,9 +39,9 @@ function computePatterns(entries: LogEntry[], habits: Habit[]): Pattern[] {
     if (habit && pct > 25) {
       patterns.push({
         icon: habit.icon,
-        title: 'Top trigger',
-        insight: `${habit.name} accounts for ${pct}% of all your logged events (${topCount} total).`,
-        suggestion: `Set a specific goal to reduce ${habit.name} by 30% this week.`,
+        title: t('patterns.topTitle'),
+        insight: t('patterns.topInsight', { name: nameOf(habit), pct, count: topCount }),
+        suggestion: t('patterns.topSuggestion', { name: nameOf(habit) }),
         type: 'warning',
       });
     }
@@ -51,9 +57,9 @@ function computePatterns(entries: LogEntry[], habits: Habit[]): Pattern[] {
     const ratio = Math.round((maxDowCount / avgPerDay) * 10) / 10;
     patterns.push({
       icon: '📅',
-      title: 'High-risk day',
-      insight: `${WEEKDAYS[maxDow]} is your highest-risk day — ${ratio}× more triggers than average.`,
-      suggestion: `Schedule a distraction activity for ${WEEKDAYS[maxDow]}s. A walk, call, or gym session.`,
+      title: t('patterns.dayTitle'),
+      insight: t('patterns.dayInsight', { day: weekdayName(maxDow), ratio }),
+      suggestion: t('patterns.daySuggestion', { day: weekdayName(maxDow) }),
       type: 'warning',
     });
   }
@@ -66,9 +72,9 @@ function computePatterns(entries: LogEntry[], habits: Habit[]): Pattern[] {
   if (hourCounts[peakHour] > entries.length * 0.15) {
     patterns.push({
       icon: '🕐',
-      title: 'Peak trigger time',
-      insight: `You log ${Math.round((hourCounts[peakHour] / entries.length) * 100)}% of all triggers around ${formatHour(peakHour)}–${formatHour(peakHour2)}.`,
-      suggestion: `Plan something engaging for ${formatHour(peakHour)}. This window is your highest vulnerability.`,
+      title: t('patterns.hourTitle'),
+      insight: t('patterns.hourInsight', { pct: Math.round((hourCounts[peakHour] / entries.length) * 100), from: formatHour(peakHour), to: formatHour(peakHour2) }),
+      suggestion: t('patterns.hourSuggestion', { from: formatHour(peakHour) }),
       type: 'warning',
     });
   }
@@ -102,9 +108,9 @@ function computePatterns(entries: LogEntry[], habits: Habit[]): Pattern[] {
     if (hA && hB) {
       patterns.push({
         icon: '🔗',
-        title: 'Trigger chain',
-        insight: `After ${hA.name}, you almost always log ${hB.name} within 2 hours (happened ${bestChainCount} times).`,
-        suggestion: `When you log ${hA.name}, immediately do a 5-minute physical reset before the ${hB.name} urge kicks in.`,
+        title: t('patterns.chainTitle'),
+        insight: t('patterns.chainInsight', { a: nameOf(hA), b: nameOf(hB), count: bestChainCount }),
+        suggestion: t('patterns.chainSuggestion', { a: nameOf(hA), b: nameOf(hB) }),
         type: 'info',
       });
     }
@@ -120,17 +126,17 @@ function computePatterns(entries: LogEntry[], habits: Habit[]): Pattern[] {
     if (thisWeek < lastWeek && pct >= 15) {
       patterns.push({
         icon: '📉',
-        title: 'Improving trend',
-        insight: `You reduced trigger events by ${pct}% this week vs last week (${lastWeek} → ${thisWeek}).`,
-        suggestion: 'Keep this momentum. Consistency over the next 7 days compounds the progress.',
+        title: t('patterns.improvingTitle'),
+        insight: t('patterns.improvingInsight', { pct, before: lastWeek, now: thisWeek }),
+        suggestion: t('patterns.improvingSuggestion'),
         type: 'positive',
       });
     } else if (thisWeek > lastWeek && pct >= 20) {
       patterns.push({
         icon: '📈',
-        title: 'Regression detected',
-        insight: `Your trigger count is up ${pct}% this week vs last (${lastWeek} → ${thisWeek}).`,
-        suggestion: 'Identify what changed this week — stress, routine, or sleep? Address that root cause.',
+        title: t('patterns.regressTitle'),
+        insight: t('patterns.regressInsight', { pct, before: lastWeek, now: thisWeek }),
+        suggestion: t('patterns.regressSuggestion'),
         type: 'warning',
       });
     }
@@ -145,9 +151,9 @@ function computePatterns(entries: LogEntry[], habits: Habit[]): Pattern[] {
   if (lateNightPct >= 20) {
     patterns.push({
       icon: '🌙',
-      title: 'Late-night pattern',
-      insight: `${lateNightPct}% of your triggers happen between 10pm and 4am.`,
-      suggestion: 'Put your phone in another room at 9:30pm. Late-night triggers dig the deepest grooves.',
+      title: t('patterns.lateTitle'),
+      insight: t('patterns.lateInsight', { pct: lateNightPct }),
+      suggestion: t('patterns.lateSuggestion'),
       type: 'warning',
     });
   }
@@ -161,13 +167,14 @@ interface PatternInsightsProps {
 }
 
 const TONE = {
-  warning: { label: 'Watch', cls: 'bg-amber-50 text-amber-800 dark:bg-amber-500/10 dark:text-amber-300' },
-  positive: { label: 'Good sign', cls: 'bg-emerald-50 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-300' },
-  info: { label: 'Pattern', cls: 'bg-sky-50 text-sky-800 dark:bg-sky-500/10 dark:text-sky-300' },
+  warning: { label: 'patterns.watch' as const, cls: 'bg-amber-50 text-amber-800 dark:bg-amber-500/10 dark:text-amber-300' },
+  positive: { label: 'patterns.goodSign' as const, cls: 'bg-emerald-50 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-300' },
+  info: { label: 'patterns.pattern' as const, cls: 'bg-sky-50 text-sky-800 dark:bg-sky-500/10 dark:text-sky-300' },
 };
 
 export function PatternInsights({ entries, habits }: PatternInsightsProps) {
-  const patterns = useMemo(() => computePatterns(entries, habits), [entries, habits]);
+  const { locale, t: tr } = useI18n();
+  const patterns = useMemo(() => computePatterns(entries, habits, locale), [entries, habits, locale]);
   const { maskText } = usePrivacy();
 
   if (patterns.length === 0) {
@@ -176,7 +183,7 @@ export function PatternInsights({ entries, habits }: PatternInsightsProps) {
 
   return (
     <Card padding="none">
-      <CardHeader icon={<Brain size={16} />} title="Trigger patterns" subtitle="Detected automatically from your logs" />
+      <CardHeader icon={<Brain size={16} />} title={tr('patterns.title')} subtitle={tr('patterns.sub')} />
       <ul className="px-5 pb-5 space-y-3">
         {patterns.map((p, i) => (
           <li key={i} className="flex items-start gap-3 rounded-xl bg-surface-2 p-3.5">
@@ -184,10 +191,10 @@ export function PatternInsights({ entries, habits }: PatternInsightsProps) {
             <div className="flex-1 min-w-0">
               <p className="flex items-center gap-2 flex-wrap">
                 <span className="text-sm font-semibold text-ink">{p.title}</span>
-                <span className={`text-[11px] font-medium px-1.5 py-0.5 rounded-md ${TONE[p.type].cls}`}>{TONE[p.type].label}</span>
+                <span className={`text-[11px] font-medium px-1.5 py-0.5 rounded-md ${TONE[p.type].cls}`}>{tr(TONE[p.type].label)}</span>
               </p>
               <p className="text-sm text-ink-2 leading-relaxed mt-1">{maskText(p.insight)}</p>
-              <p className="text-xs text-muted leading-relaxed mt-1.5"><span className="font-medium text-ink-2">Try: </span>{maskText(p.suggestion)}</p>
+              <p className="text-xs text-muted leading-relaxed mt-1.5"><span className="font-medium text-ink-2">{tr('patterns.try')} </span>{maskText(p.suggestion)}</p>
             </div>
           </li>
         ))}

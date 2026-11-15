@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 export default function TermsPage() {
   return (
-    <LegalLayout title="Terms of Service" lastUpdated="October 17, 2026">
+    <LegalLayout titleKey="legal.terms" lastUpdated="October 17, 2026" englishText>
 
       <H2>1. Acceptance of Terms</H2>
       <P>By accessing or using ZenFuel at zenfuel.app, you agree to these Terms of Service. If you do not agree, please do not use the app.</P>
@@ -22,14 +22,14 @@ export default function TermsPage() {
         <li>Review your progress through scores, streaks and charts</li>
       </UL>
       <InfoBox>
-        <p className="font-medium text-ink-2">⚠️ Important</p>
+        <p className="font-semibold text-ink">Important</p>
         <p>ZenFuel is a self-help tool. It is not a medical device, therapy service, or clinical treatment, and its scores and risk alerts are estimates based on the data you enter. It should not replace professional medical or psychological advice.</p>
       </InfoBox>
 
       <H2>3. No Accounts — Your Data Stays on Your Device</H2>
       <UL>
         <li>ZenFuel does not currently offer user accounts. You do not need to sign up to use it.</li>
-        <li>Your tracker data is stored locally in your browser on your device, not on a ZenFuel server. See our <Link href="/privacy" className="text-violet-600 dark:text-violet-400 hover:underline">Privacy Policy</Link> for details, including our use of Google Analytics.</li>
+        <li>Your tracker data is stored locally in your browser on your device, not on a ZenFuel server. See our <Link href="/privacy" className="text-brand-text hover:underline">Privacy Policy</Link> for details, including our use of Google Analytics.</li>
         <li>Because we do not hold a copy of your data, we cannot restore it if it is lost — for example, if you clear your browser data, change device or browser, or forget your PIN. You are responsible for exporting any data you want to keep.</li>
         <li>You are responsible for the security of the device and browser you use ZenFuel on.</li>
       </UL>

@@ -1,43 +1,50 @@
 'use client';
 
+import { CalendarCheck, CalendarDays, CalendarRange, Infinity as InfinityIcon, Sigma, Activity, BarChart3, Trophy } from 'lucide-react';
 import { useApp } from '@/context/AppContext';
 import { formatDisplayDate } from '@/utils/dateUtils';
+import { Card, CardHeader, IconTile, MetricCard, Tone } from '@/components/ui/Card';
+import { useT } from '@/i18n/I18nProvider';
+import { formatNumber } from '@/i18n/format';
 
-// One card instead of eight: headline counts on top, averages and peak underneath.
+// Four colourful headline counts (Today blue, week teal, month orange, all time purple), then
+// the supporting averages in an "at a glance" panel.
 export function StatsGrid() {
   const { analytics } = useApp();
-  const primary = [
-    { label: 'Today', value: analytics.todayCount },
-    { label: 'This week', value: analytics.weekCount },
-    { label: 'This month', value: analytics.monthCount },
-    { label: 'All time', value: analytics.lifetimeCount },
+  const t = useT();
+  const primary: { label: string; value: number; sub: string; icon: JSX.Element; tone: Tone }[] = [
+    { label: t('stats.today'), value: analytics.todayCount, sub: t('stats.todaySub'), icon: <CalendarCheck size={16} />, tone: 'blue' },
+    { label: t('stats.week'), value: analytics.weekCount, sub: t('stats.weekSub'), icon: <CalendarDays size={16} />, tone: 'teal' },
+    { label: t('stats.month'), value: analytics.monthCount, sub: t('stats.monthSub'), icon: <CalendarRange size={16} />, tone: 'orange' },
+    { label: t('stats.allTime'), value: analytics.lifetimeCount, sub: t('stats.allTimeSub'), icon: <InfinityIcon size={16} />, tone: 'purple' },
   ];
-  const secondary = [
-    { label: 'This year', value: String(analytics.yearCount) },
-    { label: 'Daily average', value: analytics.averagePerDay > 0 ? analytics.averagePerDay.toFixed(2) : '—', sub: `${analytics.averagePerWeek.toFixed(1)} per week` },
-    { label: 'Monthly average', value: analytics.averagePerMonth > 0 ? analytics.averagePerMonth.toFixed(1) : '—', sub: `${analytics.averagePerYear.toFixed(0)} per year` },
-    { label: 'Busiest day', value: analytics.highestActivityDay ? String(analytics.highestActivityDay.count) : '—', sub: analytics.highestActivityDay ? formatDisplayDate(analytics.highestActivityDay.date) : 'No data yet' },
+  const secondary: { label: string; value: string; sub?: string; icon: JSX.Element; tone: Tone }[] = [
+    { label: t('stats.year'), value: formatNumber(analytics.yearCount), sub: t('stats.yearSub'), icon: <Sigma size={16} />, tone: 'cyan' },
+    { label: t('explore.dailyAvg'), value: analytics.averagePerDay > 0 ? formatNumber(Number(analytics.averagePerDay.toFixed(2))) : '—', sub: t('stats.perWeek', { value: Number(analytics.averagePerWeek.toFixed(1)) }), icon: <Activity size={16} />, tone: 'teal' },
+    { label: t('explore.monthlyAvg'), value: analytics.averagePerMonth > 0 ? formatNumber(Number(analytics.averagePerMonth.toFixed(1))) : '—', sub: t('stats.perYear', { value: Math.round(analytics.averagePerYear) }), icon: <BarChart3 size={16} />, tone: 'orange' },
+    { label: t('explore.busiestDay'), value: analytics.highestActivityDay ? formatNumber(analytics.highestActivityDay.count) : '—', sub: analytics.highestActivityDay ? formatDisplayDate(analytics.highestActivityDay.date) : t('stats.noData'), icon: <Trophy size={16} />, tone: 'pink' },
   ];
 
   return (
-    <section aria-label="Activity totals" className="bg-surface border border-line rounded-2xl shadow-card">
-      <dl className="grid grid-cols-2 sm:grid-cols-4">
-        {primary.map((s, i) => (
-          <div key={s.label} className={`p-4 sm:p-5 ${i % 2 === 1 ? 'border-l border-line' : ''} ${i >= 2 ? 'border-t sm:border-t-0 border-line' : ''} ${i === 2 ? 'sm:border-l' : ''}`}>
-            <dt className="text-xs font-medium text-muted">{s.label}</dt>
-            <dd className="mt-1 text-3xl font-semibold tracking-tight tabular-nums text-ink">{s.value}</dd>
-          </div>
-        ))}
+    <section aria-label={t('stats.label')} className="space-y-4 lg:space-y-5">
+      <dl className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        {primary.map(s => <MetricCard key={s.label} gradient label={s.label} value={s.value} sub={s.sub} icon={s.icon} tone={s.tone} />)}
       </dl>
-      <dl className="grid grid-cols-2 sm:grid-cols-4 gap-x-4 gap-y-3 px-4 sm:px-5 py-4 border-t border-line bg-surface-2/50 rounded-b-2xl">
-        {secondary.map(s => (
-          <div key={s.label} className="min-w-0">
-            <dt className="text-[11px] font-medium text-muted">{s.label}</dt>
-            <dd className="text-sm font-semibold tabular-nums text-ink">{s.value}</dd>
-            {s.sub && <dd className="text-[11px] text-muted truncate">{s.sub}</dd>}
-          </div>
-        ))}
-      </dl>
+      <Card padding="none">
+        <CardHeader icon={<Activity size={17} />} tone="indigo" title={t('stats.glanceTitle')} subtitle={t('stats.glanceSub')} />
+        <dl className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 px-5 pb-5">
+          {secondary.map(s => (
+            <div key={s.label} className="tile flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:gap-3 p-3 min-w-0">
+              <IconTile tone={s.tone}>{s.icon}</IconTile>
+              <div className="min-w-0">
+                <dt className="text-[11px] font-medium text-muted truncate">{s.label}</dt>
+                <dd className="text-lg font-bold leading-tight tabular-nums text-ink">{s.value}</dd>
+                {s.sub && <dd className="text-[11px] text-muted truncate">{s.sub}</dd>}
+              </div>
+            </div>
+          ))}
+        </dl>
+      </Card>
     </section>
   );
 }

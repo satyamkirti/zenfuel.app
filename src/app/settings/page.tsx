@@ -2,10 +2,12 @@
 
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
-import { Settings, Shield, Moon, Sun, Lock, Unlock, Download, Upload, Trash2, Check, AlertTriangle, Brain, Bell, Crown, Zap, EyeOff } from 'lucide-react';
+import { Settings, Shield, Moon, Sun, Lock, Unlock, Download, Upload, Trash2, Check, AlertTriangle, Brain, Bell, Crown, Zap, EyeOff, FileSpreadsheet } from 'lucide-react';
 import { useApp } from '@/context/AppContext';
 import { AppLayout } from '@/components/layout/AppLayout';
-import { Card } from '@/components/ui/Card';
+import { Card, IconTile, Tone, TONE } from '@/components/ui/Card';
+import { Segmented } from '@/components/ui/Segmented';
+import { Disclosure } from '@/components/ui/Disclosure';
 import { Button } from '@/components/ui/Button';
 import { Switch } from '@/components/ui/Switch';
 import { usePrivacy, DEFAULT_HIDDEN_TITLE } from '@/context/PrivacyContext';
@@ -17,10 +19,17 @@ import { storage } from '@/utils/storage';
 import { exportToCSV, exportFullBackup } from '@/utils/export';
 import { parseBackupText, applyBackup, ParsedBackup, BackupSummary, RestoreMode, MAX_BACKUP_BYTES } from '@/utils/backup';
 import { formatDisplayDate } from '@/utils/dateUtils';
+import { useUsagePlatform } from '@/hooks/useScreenTime';
 import {
   getNotificationPrefs, saveNotificationPrefs, requestPermission, getPermissionStatus, getNotificationSupport,
   getDefaultNotificationPrefs, registerNotificationWorker, showNotification, NotificationPrefs, NotificationSupport,
 } from '@/lib/notifications';
+import { useT } from '@/i18n/I18nProvider';
+import type { MessageKey } from '@/i18n/translate';
+import { formatDateTime } from '@/i18n/format';
+import { LanguageRegionSettings } from '@/components/settings/LanguageRegionSettings';
+import { Globe2 } from 'lucide-react';
+import { t as tr } from '@/i18n/translate';
 
 // Restore and Clear All reload the page so every part of the app re-reads storage
 // (theme, PIN lock, reminders). The outcome is shown once after the reload.
@@ -32,11 +41,11 @@ function reloadWithMessage(message: string) {
 }
 
 function describeBackup(s: BackupSummary): string {
-  const parts = [`${s.entryCount} entr${s.entryCount === 1 ? 'y' : 'ies'}`];
-  if (s.customHabitCount !== null) parts.push(`${s.customHabitCount} custom habit${s.customHabitCount === 1 ? '' : 's'}`);
-  if (s.goalCount !== null) parts.push(`${s.goalCount} goal${s.goalCount === 1 ? '' : 's'}`);
-  if (s.customChallengeCount !== null) parts.push(`${s.customChallengeCount} custom challenge${s.customChallengeCount === 1 ? '' : 's'}`);
-  if (s.includesSettings) parts.push('settings');
+  const parts = [tr('backup.entries', { count: s.entryCount })];
+  if (s.customHabitCount !== null) parts.push(tr('backup.customHabits', { count: s.customHabitCount }));
+  if (s.goalCount !== null) parts.push(tr('backup.goals', { count: s.goalCount }));
+  if (s.customChallengeCount !== null) parts.push(tr('backup.customChallenges', { count: s.customChallengeCount }));
+  if (s.includesSettings) parts.push(tr('backup.settings'));
   return parts.join(', ');
 }
 
@@ -47,24 +56,28 @@ function dateRange(s: BackupSummary): string {
     : ` (${formatDisplayDate(s.firstEntryDate)} – ${formatDisplayDate(s.lastEntryDate)})`;
 }
 
-function Section({ title, icon, children }: { title: string; icon: React.ReactNode; children: React.ReactNode }) {
+// A settings group: a small label above one card, the same pattern as the More menu.
+function Section({ title, icon, tone = 'blue', children }: { title: string; icon: React.ReactNode; tone?: Tone; children: React.ReactNode }) {
   return (
-    <Card padding="none">
-      <div className="px-5 pt-5 pb-1 flex items-center gap-2.5">
-        <span className="w-8 h-8 rounded-lg bg-violet-600/10 text-brand-text flex items-center justify-center" aria-hidden="true">{icon}</span>
-        <h2 className="text-base font-semibold text-ink">{title}</h2>
-      </div>
-      <div className="p-5 space-y-4">{children}</div>
-    </Card>
+    <section aria-label={title}>
+      <h2 className="flex items-center gap-2 px-1 mb-2 text-[13px] font-semibold uppercase tracking-[0.08em] text-muted">
+        <span className={TONE[tone].text} aria-hidden="true">{icon}</span>{title}
+      </h2>
+      <Card padding="none">
+        <div className="p-4 sm:p-5 space-y-4">{children}</div>
+      </Card>
+    </section>
   );
 }
 
-function Row({ label, sub, children }: { label: string; sub?: string; children: React.ReactNode }) {
+// One setting: optional icon tile, name and explanation, and its control on the right.
+function Row({ label, sub, icon, tone = 'teal', children }: { label: string; sub?: string; icon?: React.ReactNode; tone?: Tone; children: React.ReactNode }) {
   return (
-    <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
-      <div className="flex-1 min-w-[10rem]">
-        <p className="text-sm font-medium text-ink">{label}</p>
-        {sub && <p className="text-xs text-muted mt-0.5">{sub}</p>}
+    <div className="flex flex-wrap items-center justify-between gap-x-3.5 gap-y-2">
+      {icon && <IconTile tone={tone} size="lg">{icon}</IconTile>}
+      <div className="flex-1 min-w-[9rem]">
+        <p className="text-[15px] font-semibold text-ink">{label}</p>
+        {sub && <p className="text-[13px] text-muted mt-0.5 leading-snug">{sub}</p>}
       </div>
       <div className="shrink-0">{children}</div>
     </div>
@@ -74,11 +87,13 @@ function Row({ label, sub, children }: { label: string; sub?: string; children: 
 export default function SettingsPage() {
   const { theme, setTheme, entries, habits, goals, challenges, clearAll, pinEnabled, enablePin, disablePin, autoLockMinutes, updateAutoLock, subscription, isPremium, daysLeft, trialDaysLeft, cancelSubscription } = useApp();
   const fileRef = useRef<HTMLInputElement>(null);
+  const t = useT();
   const [pinStep, setPinStep] = useState<'idle' | 'enter' | 'confirm'>('idle');
   const [pin1, setPin1] = useState('');
   const [pin2, setPin2] = useState('');
   const [pinError, setPinError] = useState('');
   const { hiddenMode, storedHiddenTitle, setHiddenMode, setHiddenTitle, appName } = usePrivacy();
+  const usagePlatform = useUsagePlatform();
   const [confirmClear, setConfirmClear] = useState(false);
   const [pendingRestore, setPendingRestore] = useState<ParsedBackup | null>(null);
   const [importError, setImportError] = useState('');
@@ -130,8 +145,8 @@ export default function SettingsPage() {
 
   const handleTestNotification = async () => {
     setTestResult('');
-    const ok = await showNotification(hiddenMode ? appName : 'ZenFuel test reminder', hiddenMode ? 'You have a reminder.' : 'Reminders are working on this device.', 'zenfuel-test');
-    setTestResult(ok ? 'Test sent. If nothing appeared, check your device\'s notification settings for this browser.' : 'This browser could not show a notification.');
+    const ok = await showNotification(hiddenMode ? appName : t('settings.testTitle'), hiddenMode ? t('notify.discreetBody') : t('settings.testBody'), 'zenfuel-test');
+    setTestResult(ok ? t('settings.testSent') : t('settings.testFailed'));
   };
 
   // Saving fires an event; the app-wide scheduler reschedules with the current score.
@@ -144,10 +159,10 @@ export default function SettingsPage() {
   const handleSetPin = () => {
     if (pinStep === 'idle') { setPinStep('enter'); setPin1(''); setPin2(''); setPinError(''); }
     else if (pinStep === 'enter') {
-      if (pin1.length < 4) { setPinError('PIN must be at least 4 digits'); return; }
+      if (pin1.length < 4) { setPinError(t('settings.pinTooShort')); return; }
       setPinStep('confirm');
     } else {
-      if (pin1 !== pin2) { setPinError('PINs do not match'); setPinStep('enter'); setPin2(''); return; }
+      if (pin1 !== pin2) { setPinError(t('settings.pinMismatch')); setPinStep('enter'); setPin2(''); return; }
       enablePin(pin1);
       setPinStep('idle'); setPin1(''); setPin2('');
     }
@@ -159,14 +174,14 @@ export default function SettingsPage() {
     if (fileRef.current) fileRef.current.value = '';
     setImportError(''); setPendingRestore(null); setFlash(''); setConfirmClear(false);
     if (!file) return;
-    if (file.size > MAX_BACKUP_BYTES) { setImportError('This file is too large to be a backup.'); return; }
+    if (file.size > MAX_BACKUP_BYTES) { setImportError(t('settings.tooLarge')); return; }
     const reader = new FileReader();
     reader.onload = ev => {
       const parsed = parseBackupText(String(ev.target?.result ?? ''));
       if (parsed.ok) setPendingRestore(parsed.backup);
       else setImportError(parsed.error);
     };
-    reader.onerror = () => setImportError('The file could not be read.');
+    reader.onerror = () => setImportError(t('settings.unreadable'));
     reader.readAsText(file);
   };
 
@@ -176,56 +191,60 @@ export default function SettingsPage() {
     const before = storage.getEntries().length;
     const result = applyBackup(pendingRestore, mode);
     if (!result.ok) { setPendingRestore(null); setImportError(result.error); return; }
-    if (pendingRestore.kind === 'full') reloadWithMessage(`Backup restored: ${result.entryCount} entries plus the habits, goals, challenges and settings it contained.`);
+    if (pendingRestore.kind === 'full') reloadWithMessage(t('settings.restoredFull', { count: result.entryCount }));
     else if (mode === 'merge') {
       const added = storage.getEntries().length - before;
-      reloadWithMessage(`Added ${added} ${added === 1 ? 'entry' : 'entries'} from the file. Entries already on this device were kept.`);
+      reloadWithMessage(t('settings.restoredMerge', { count: added }));
     }
-    else reloadWithMessage(`Entries replaced with ${result.entryCount} entries from the file.`);
+    else reloadWithMessage(t('settings.restoredReplace', { count: result.entryCount }));
   };
 
   const handleClearAll = () => {
     clearAll();
-    reloadWithMessage('All ZenFuel data was deleted from this browser.');
+    reloadWithMessage(t('settings.cleared'));
   };
 
   return (
-    <AppLayout title="Settings">
+    <AppLayout title={t('settings.title')}>
       <div className="space-y-4 max-w-3xl">
-        <PageHeader title="Settings" description="Reminders, appearance, privacy and your data — all stored in this browser." />
+        <PageHeader icon={<Settings size={21} />} tone="slate" title={t('settings.title')} description={usagePlatform === 'android' ? t('settings.descPhone') : t('settings.descBrowser')} />
+
+        <Section title={t('prefs.sectionTitle')} tone="blue" icon={<Globe2 size={16} />}>
+          <LanguageRegionSettings />
+        </Section>
 
         {/* Subscription — future paid plans only, hidden during the Free Beta */}
         {MONETIZATION_UI_ENABLED && (
-          <Section title="Subscription" icon={<Crown size={16} />}>
+          <Section title={t('settings.subscription')} tone="amber" icon={<Crown size={16} />}>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-zen-500 to-zen-700 flex items-center justify-center">
                   {isPremium ? <Zap size={18} className="text-white" /> : <Crown size={18} className="text-white" />}
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <p className="font-semibold text-ink">{isPremium ? PLANS[subscription.plan].name : 'Free Plan'}</p>
+                    <p className="font-semibold text-ink">{isPremium ? PLANS[subscription.plan].name : t('settings.freePlan')}</p>
                     <PlanBadge plan={subscription.plan} size="xs" />
                   </div>
                   {subscription.status === 'trial' && trialDaysLeft !== null && (
-                    <p className="text-xs text-violet-500">Trial ends in {trialDaysLeft} day{trialDaysLeft !== 1 ? 's' : ''}</p>
+                    <p className="text-xs text-zen-500">{t('settings.trialEnds', { count: trialDaysLeft })}</p>
                   )}
                   {isPremium && daysLeft !== null && (
-                    <p className="text-xs text-muted">Premium access ends in {daysLeft} day{daysLeft !== 1 ? 's' : ''}</p>
+                    <p className="text-xs text-muted">{t('settings.premiumEnds', { count: daysLeft })}</p>
                   )}
                   {isPremium && subscription.plan === 'lifetime' && (
-                    <p className="text-xs text-emerald-500">Active forever ✓</p>
+                    <p className="text-xs text-emerald-500">{t('settings.forever')}</p>
                   )}
                   {!isPremium && (
-                    <p className="text-xs text-muted">3 habits · 30-day history · basic features</p>
+                    <p className="text-xs text-muted">{t('settings.freeFeatures')}</p>
                   )}
                 </div>
               </div>
               {isPremium ? (
-                <Button variant="outline" size="sm" onClick={cancelSubscription}>Downgrade</Button>
+                <Button variant="outline" size="sm" onClick={cancelSubscription}>{t('settings.downgrade')}</Button>
               ) : (
-                <Link href="/upgrade" className="px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl text-sm font-bold hover:shadow-lg hover:shadow-amber-500/20 transition-all">
-                  Upgrade →
+                <Link href="/upgrade" className="px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl text-sm font-bold hover:shadow-lg hover:shadow-amber-500/20 transition-[transform,box-shadow,background-color,border-color,color,opacity]">
+                  {t('settings.upgrade')}
                 </Link>
               )}
             </div>
@@ -233,129 +252,135 @@ export default function SettingsPage() {
         )}
 
         {/* Notifications */}
-        <Section title="Notifications" icon={<Bell size={16} />}>
-          {notifSupport !== 'supported' ? (
+        <Section title={t('settings.reminders')} tone="amber" icon={<Bell size={16} />}>
+          {usagePlatform === 'android' || notifSupport !== 'supported' ? (
             <div className="flex items-start gap-3 p-3 bg-surface-2 rounded-xl text-sm text-ink-2">
               <Bell size={16} className="shrink-0 mt-0.5" aria-hidden="true" />
-              {notifSupport === 'install-required'
-                ? 'On iPhone and iPad, reminders are only available after adding this app to your Home Screen (Share → Add to Home Screen), then opening it from there.'
-                : 'This browser does not support notifications.'}
+              {usagePlatform === 'android'
+                ? <span>{t('settings.remindersAndroid')} <Link href="/screen-time" className="text-brand-text hover:underline">{t('nav.screenTime')}</Link>.</span>
+                : notifSupport === 'install-required'
+                ? t('settings.remindersIos')
+                : t('settings.remindersUnsupported')}
             </div>
           ) : notifPerms === 'denied' ? (
             <div className="flex items-start gap-3 p-3 bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 rounded-xl text-sm text-amber-700 dark:text-amber-300">
               <AlertTriangle size={16} className="shrink-0 mt-0.5" />
-              Browser notifications are blocked. Reset them in your browser's site settings, then reload.
+              {t('settings.remindersBlocked')}
             </div>
           ) : notifPerms !== 'granted' ? (
             <div className="space-y-3">
-              <p className="text-sm text-muted">
-                Morning check-ins, evening score summaries and a reminder at a time you choose. Reminders are shown only while this app is open.
-              </p>
+              <p className="text-sm text-muted">{t('settings.remindersIntro')}</p>
               <Button size="sm" icon={<Bell size={14} />} onClick={handleEnableNotifications}>
-                Enable Notifications
+                {t('settings.turnOnReminders')}
               </Button>
             </div>
           ) : (
             <div className="space-y-4">
-              <Row label="Reminders" sub={notifPrefs.enabled ? 'On — scheduled while the app is open' : 'Off'}>
-                <Switch checked={notifPrefs.enabled} onChange={v => updateNotifPref({ enabled: v })} label="Reminders" />
+              <Row label={t('settings.reminders')} sub={notifPrefs.enabled ? t('settings.remindersOn') : t('common.off')}>
+                <Switch checked={notifPrefs.enabled} onChange={v => updateNotifPref({ enabled: v })} label={t('settings.reminders')} />
               </Row>
-              <Row label="Your name (optional)" sub="Used in notification messages">
-                <input type="text" value={notifPrefs.userName} onChange={e => updateNotifPref({ userName: e.target.value })} placeholder="e.g. Sam" aria-label="Your name (optional)" className="input w-32 text-sm" maxLength={20} />
+              <Row label={t('settings.yourName')} sub={t('settings.yourNameSub')}>
+                <input type="text" value={notifPrefs.userName} onChange={e => updateNotifPref({ userName: e.target.value })} placeholder={t('settings.namePlaceholder')} aria-label={t('settings.yourName')} className="input w-32 text-sm" maxLength={20} />
               </Row>
               <div className="h-px bg-line" />
-              <Row label="Morning check-in" sub="Daily reminder to start the day intentionally">
+              <Row label={t('settings.morning')} sub={t('settings.morningSub')}>
                 <div className="flex items-center gap-2">
-                  <input type="time" value={notifPrefs.morningTime} onChange={e => updateNotifPref({ morningTime: e.target.value })} disabled={!notifPrefs.morningEnabled} aria-label="Morning check-in time" className="input w-auto text-sm py-1 disabled:opacity-50" />
-                  <Switch checked={notifPrefs.morningEnabled} onChange={v => updateNotifPref({ morningEnabled: v })} label="Morning check-in" />
+                  <input type="time" value={notifPrefs.morningTime} onChange={e => updateNotifPref({ morningTime: e.target.value })} disabled={!notifPrefs.morningEnabled} aria-label={t('settings.morningTime')} className="input w-auto text-sm py-1 disabled:opacity-50" />
+                  <Switch checked={notifPrefs.morningEnabled} onChange={v => updateNotifPref({ morningEnabled: v })} label={t('settings.morning')} />
                 </div>
               </Row>
-              <Row label="Evening summary" sub="Daily score recap at day end">
+              <Row label={t('settings.evening')} sub={t('settings.eveningSub')}>
                 <div className="flex items-center gap-2">
-                  <input type="time" value={notifPrefs.eveningTime} onChange={e => updateNotifPref({ eveningTime: e.target.value })} disabled={!notifPrefs.eveningEnabled} aria-label="Evening summary time" className="input w-auto text-sm py-1 disabled:opacity-50" />
-                  <Switch checked={notifPrefs.eveningEnabled} onChange={v => updateNotifPref({ eveningEnabled: v })} label="Evening summary" />
+                  <input type="time" value={notifPrefs.eveningTime} onChange={e => updateNotifPref({ eveningTime: e.target.value })} disabled={!notifPrefs.eveningEnabled} aria-label={t('settings.eveningTime')} className="input w-auto text-sm py-1 disabled:opacity-50" />
+                  <Switch checked={notifPrefs.eveningEnabled} onChange={v => updateNotifPref({ eveningEnabled: v })} label={t('settings.evening')} />
                 </div>
               </Row>
-              <Row label="High-risk time reminder" sub="A reminder at a time you choose">
+              <Row label={t('settings.risk')} sub={t('settings.riskSub')}>
                 <div className="flex items-center gap-2">
-                  <input type="time" value={notifPrefs.vulnerableTime} onChange={e => updateNotifPref({ vulnerableTime: e.target.value })} disabled={!notifPrefs.vulnerableEnabled} aria-label="High-risk reminder time" className="input w-auto text-sm py-1 disabled:opacity-50" />
-                  <Switch checked={notifPrefs.vulnerableEnabled} onChange={v => updateNotifPref({ vulnerableEnabled: v })} label="High-risk time reminder" />
+                  <input type="time" value={notifPrefs.vulnerableTime} onChange={e => updateNotifPref({ vulnerableTime: e.target.value })} disabled={!notifPrefs.vulnerableEnabled} aria-label={t('settings.riskTime')} className="input w-auto text-sm py-1 disabled:opacity-50" />
+                  <Switch checked={notifPrefs.vulnerableEnabled} onChange={v => updateNotifPref({ vulnerableEnabled: v })} label={t('settings.risk')} />
                 </div>
               </Row>
               <div className="flex flex-wrap items-center gap-3">
-                <Button variant="outline" size="sm" icon={<Bell size={14} />} onClick={handleTestNotification}>Send test notification</Button>
+                <Button variant="outline" size="sm" icon={<Bell size={14} />} onClick={handleTestNotification}>{t('settings.sendTest')}</Button>
                 {testResult && <p role="status" className="text-xs text-muted flex-1 min-w-[12rem]">{testResult}</p>}
               </div>
               <p className="text-xs text-muted bg-surface-2 rounded-xl px-3 py-2 leading-relaxed">
-                Reminders are shown only while {appName} is open in a browser tab or app window. They are not delivered when it is
-                closed, and your browser or phone may delay or silence them (for example in battery-saver mode).
-                {hiddenMode && ' Hidden Mode is on, so reminders use neutral wording.'}
+                {t('settings.remindersNote', { app: appName })}
+                {hiddenMode && ` ${t('settings.remindersHidden')}`}
               </p>
             </div>
           )}
         </Section>
 
-        <Section title="Appearance" icon={<Sun size={16} />}>
-          <Row label="Theme" sub="Choose light or dark mode">
-            <div className="flex gap-1">
-              {(['light', 'dark'] as const).map(t => (
-                <button key={t} onClick={() => setTheme(t)} aria-pressed={theme === t} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium capitalize transition-all ${theme === t ? 'bg-violet-600 text-white' : 'bg-surface-2 text-ink-2 hover:bg-line'}`}>
-                  {t === 'light' ? <Sun size={12} /> : <Moon size={12} />}{t}
-                </button>
-              ))}
+        <Section title={t('settings.appearance')} tone="yellow" icon={<Sun size={16} />}>
+          <div>
+            <div className="flex items-center gap-3.5">
+              <IconTile tone="yellow" size="lg">{theme === 'dark' ? <Moon size={19} /> : <Sun size={19} />}</IconTile>
+              <div className="min-w-0">
+                <p className="text-[15px] font-semibold text-ink">{t('common.theme')}</p>
+                <p className="text-[13px] text-muted mt-0.5 leading-snug">{t('settings.themeSub')}</p>
+              </div>
             </div>
-          </Row>
+            <Segmented
+              label={t('common.theme')}
+              className="mt-3 w-full sm:max-w-xs"
+              value={theme === 'light' ? 'light' : 'dark'}
+              onChange={setTheme}
+              options={[{ value: 'light', label: t('common.light'), icon: <Sun size={15} aria-hidden="true" /> }, { value: 'dark', label: t('common.dark'), icon: <Moon size={15} aria-hidden="true" /> }]}
+            />
+          </div>
         </Section>
 
-        <Section title="Privacy & Security" icon={<Shield size={16} />}>
-          <Row label="PIN Lock" sub="Require a 4–6 digit PIN to open the app on this device">
+        <Section title={t('settings.privacy')} tone="green" icon={<Shield size={16} />}>
+          <Row label={t('settings.pin')} sub={pinEnabled ? t('settings.pinOn') : t('settings.pinOff')} icon={<Lock size={19} />} tone="teal">
             {pinEnabled
-              ? <Button variant="outline" size="sm" icon={<Unlock size={14} />} onClick={disablePin}>Disable PIN</Button>
-              : <Button variant="secondary" size="sm" icon={<Lock size={14} />} onClick={() => setPinStep('enter')}>Set PIN</Button>
+              ? <Button variant="outline" size="sm" icon={<Unlock size={14} />} onClick={disablePin}>{t('settings.disablePin')}</Button>
+              : <Button variant="secondary" size="sm" icon={<Lock size={14} />} onClick={() => setPinStep('enter')}>{t('settings.setPin')}</Button>
             }
           </Row>
           {pinStep !== 'idle' && !pinEnabled && (
             <div className="p-4 bg-surface-2 rounded-xl space-y-3">
-              <label htmlFor="pin-input" className="block text-sm font-medium text-ink-2">{pinStep === 'enter' ? 'Enter new PIN (4–6 digits)' : 'Enter the same PIN again'}</label>
+              <label htmlFor="pin-input" className="block text-sm font-medium text-ink-2">{pinStep === 'enter' ? t('settings.enterNewPin') : t('settings.enterPinAgain')}</label>
               <input id="pin-input" type="password" inputMode="numeric" pattern="[0-9]*" maxLength={6} autoComplete="off"
                 onKeyDown={e => { if (e.key === 'Enter') handleSetPin(); }}
                 value={pinStep === 'enter' ? pin1 : pin2}
                 onChange={e => pinStep === 'enter' ? setPin1(e.target.value.replace(/\D/g, '')) : setPin2(e.target.value.replace(/\D/g, ''))}
                 placeholder="••••" className="input text-center tracking-widest text-lg" />
               {pinError && <p role="alert" className="text-xs text-red-500">{pinError}</p>}
-              <p className="text-xs text-muted">If you forget the PIN, the only way back in is to erase this browser&apos;s {appName} data (you can restore a backup afterwards). The PIN hides the app; it does not encrypt your data.</p>
+              <p className="text-xs text-muted">{t('settings.pinWarning', { app: appName })}</p>
               <div className="flex gap-2">
-                <Button variant="ghost" size="sm" onClick={() => { setPinStep('idle'); setPin1(''); setPin2(''); setPinError(''); }}>Cancel</Button>
-                <Button size="sm" onClick={handleSetPin}>{pinStep === 'enter' ? 'Next' : 'Save PIN'}</Button>
+                <Button variant="ghost" size="sm" onClick={() => { setPinStep('idle'); setPin1(''); setPin2(''); setPinError(''); }}>{t('common.cancel')}</Button>
+                <Button size="sm" onClick={handleSetPin}>{pinStep === 'enter' ? t('settings.next') : t('settings.savePin')}</Button>
               </div>
             </div>
           )}
           {pinEnabled && (
-            <Row label="Auto-lock timeout" sub="Lock after inactivity">
-              <select value={autoLockMinutes} onChange={e => updateAutoLock(Number(e.target.value))} className="input w-auto text-sm py-1.5">
-                {[1, 2, 5, 10, 15, 30, 60].map(m => <option key={m} value={m}>{m} min</option>)}
+            <Row label={t('settings.autoLock')} sub={t('settings.autoLockSub')}>
+              <select value={autoLockMinutes} onChange={e => updateAutoLock(Number(e.target.value))} aria-label={t('settings.autoLock')} className="input w-auto text-sm py-1.5">
+                {[1, 2, 5, 10, 15, 30, 60].map(m => <option key={m} value={m}>{t('settings.minutesOption', { count: m })}</option>)}
               </select>
             </Row>
           )}
           <div className="h-px bg-line" />
-          <Row label="Hidden Mode" sub="Keep the app discreet and hide private details on screen">
-            <Switch checked={hiddenMode} onChange={setHiddenMode} label="Hidden Mode" />
+          <Row label={t('privacy.hiddenMode')} sub={t('settings.hiddenSub')} icon={<EyeOff size={19} />} tone="purple">
+            <Switch checked={hiddenMode} onChange={setHiddenMode} label={t('privacy.hiddenMode')} />
           </Row>
           {hiddenMode && (
-            <Row label="Neutral title" sub="Shown instead of the app name in the app and the browser tab">
-              <input type="text" value={storedHiddenTitle} onChange={e => setHiddenTitle(e.target.value)} aria-label="Neutral title" className="input w-44 text-sm" placeholder={DEFAULT_HIDDEN_TITLE} maxLength={40} />
+            <Row label={t('settings.neutralTitle')} sub={t('settings.neutralTitleSub')}>
+              <input type="text" value={storedHiddenTitle === DEFAULT_HIDDEN_TITLE ? '' : storedHiddenTitle} onChange={e => setHiddenTitle(e.target.value)} aria-label={t('settings.neutralTitle')} className="input w-44 text-sm" placeholder={t('privacy.defaultTitle')} maxLength={40} />
             </Row>
           )}
-          <div className="text-xs text-muted bg-surface-2 rounded-xl px-3 py-2.5 leading-relaxed space-y-1.5">
-            <p className="flex items-start gap-1.5"><EyeOff size={13} className="shrink-0 mt-0.5" aria-hidden="true" />
-              <span>Hidden Mode replaces the app name and logo with a neutral title, and shows habit names, notes, goals and challenges as placeholders such as &ldquo;Private habit 1&rdquo;. Use <strong>Show</strong> in the header to see details for two minutes.</span>
-            </p>
-            <p>It only changes what is shown on screen. Your data is not changed or encrypted, and backups and exports contain the real data.</p>
-            <p>A website cannot change its web address, your browser history, or the name and icon of an installed app, so those still show the real app name. Pages viewed before the app finishes loading may briefly show the normal title.</p>
-          </div>
+          <Disclosure variant="plain" title={t('settings.hiddenHow')}>
+            <div className="text-sm text-muted leading-relaxed space-y-2">
+              <p>{t('settings.hiddenHow1')}</p>
+              <p>{t('settings.hiddenHow2')}</p>
+              <p>{t('settings.hiddenHow3')}</p>
+            </div>
+          </Disclosure>
         </Section>
 
-        <Section title="Data Management" icon={<Download size={16} />}>
+        <Section title={t('settings.data')} tone="cyan" icon={<Download size={16} />}>
           {flash && (
             <div role="status" className="flex items-start gap-2 px-3 py-2 rounded-lg text-sm bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400">
               <Check size={14} className="shrink-0 mt-0.5" />
@@ -364,40 +389,35 @@ export default function SettingsPage() {
           )}
           {hiddenMode && (
             <p className="text-xs text-ink-2 bg-surface-2 rounded-xl px-3 py-2">
-              Hidden Mode is on. Backups and CSV exports still contain your real habit names and notes.
+              {t('settings.hiddenBackups')}
             </p>
           )}
-          <Row label="Full backup (JSON)" sub="Everything needed to restore your data on this or another device">
-            <Button variant="outline" size="sm" icon={<Download size={14} />} onClick={exportFullBackup}>Export backup</Button>
+          <Row label={t('settings.backup')} sub={t('settings.backupSub')} icon={<Download size={19} />} tone="cyan">
+            <Button variant="outline" size="sm" icon={<Download size={14} />} onClick={exportFullBackup}>{t('settings.exportBackup')}</Button>
           </Row>
           <div className="flex items-start gap-2 px-3 py-2 rounded-xl text-xs leading-relaxed bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 text-amber-800 dark:text-amber-300">
             <AlertTriangle size={14} className="shrink-0 mt-0.5" aria-hidden="true" />
             <span>
-              <strong>Backup files are not encrypted.</strong> Anyone who opens the file can read your habit logs,
-              notes and settings. It also contains a hash of your PIN, which does not reliably protect the PIN.
-              Keep backups somewhere private and delete copies you no longer need.
+              <strong>{t('settings.notEncryptedTitle')}</strong> {t('settings.notEncryptedBody')}
             </span>
           </div>
-          <Row label="Entries (CSV)" sub="For spreadsheets. CSV files cannot be imported back.">
-            <Button variant="outline" size="sm" icon={<Download size={14} />} onClick={() => exportToCSV(entries, habits)}>Export CSV</Button>
+          <Row label={t('settings.csv')} sub={t('settings.csvSub')} icon={<FileSpreadsheet size={19} />} tone="emerald">
+            <Button variant="outline" size="sm" icon={<Download size={14} />} onClick={() => exportToCSV(entries, habits)}>{t('settings.exportCsv')}</Button>
           </Row>
-          <Row label="Restore from backup" sub="Choose a JSON file made with Export backup. You will be asked to confirm before anything changes.">
+          <Row label={t('settings.restore')} sub={t('settings.restoreSub')} icon={<Upload size={19} />} tone="purple">
             <div>
               <input type="file" accept=".json,application/json" ref={fileRef} onChange={handleImport} className="hidden" />
-              <Button variant="secondary" size="sm" icon={<Upload size={14} />} onClick={() => fileRef.current?.click()}>Import</Button>
+              <Button variant="secondary" size="sm" icon={<Upload size={14} />} onClick={() => fileRef.current?.click()}>{t('settings.import')}</Button>
             </div>
           </Row>
-          <p className="text-xs text-muted bg-surface-2 rounded-xl px-3 py-2 leading-relaxed">
-            Backups include entries, habits, goals, challenges, settings (including your PIN lock), notification
-            preferences and any saved plan status. Not included: dismissed alerts and the auto-lock activity timer.
-            Browser notification permission is controlled by your browser. Plan status does not change any features
-            during the free beta.
-          </p>
+          <Disclosure variant="plain" title={t('settings.backupContains')}>
+            <p className="text-sm text-muted leading-relaxed">{t('settings.backupContainsBody')}</p>
+          </Disclosure>
 
           {importError && (
             <div ref={importErrorRef} tabIndex={-1} role="alert" className="flex items-start gap-2 px-3 py-2 rounded-lg text-sm bg-red-50 dark:bg-red-500/10 text-red-700 dark:text-red-400 outline-none">
               <AlertTriangle size={14} className="shrink-0 mt-0.5" />
-              <span>{importError} Nothing on this device was changed.</span>
+              <span>{importError} {t('settings.nothingChanged')}</span>
             </div>
           )}
 
@@ -405,33 +425,33 @@ export default function SettingsPage() {
             <div ref={restoreRef} tabIndex={-1} role="alertdialog" aria-labelledby="restore-title" className="p-4 rounded-xl border-2 border-amber-300 dark:border-amber-500/40 bg-amber-50 dark:bg-amber-500/10 space-y-3 text-amber-900 dark:text-amber-200 outline-none scroll-mt-32">
               {pendingRestore.kind === 'full' ? (
                 <>
-                  <p id="restore-title" className="font-semibold text-sm flex items-center gap-2"><AlertTriangle size={15} className="shrink-0" /> Replace all data with this backup?</p>
+                  <p id="restore-title" className="font-semibold text-sm flex items-center gap-2"><AlertTriangle size={15} className="shrink-0" /> {t('settings.replaceTitle')}</p>
                   <ul className="text-xs space-y-1 list-disc ml-5 opacity-90">
-                    {pendingRestore.exportedAt && <li>Backup created {new Date(pendingRestore.exportedAt).toLocaleString()}</li>}
-                    <li>Backup contains: {describeBackup(pendingRestore.summary)}{dateRange(pendingRestore.summary)}</li>
-                    <li>This device now has: {entries.length} entries, {customHabitCount} custom habits, {goals.length} goals, {customChallengeCount} custom challenges</li>
-                    {pendingRestore.summary.pinEnabled && <li>This backup has a PIN lock. You will need that PIN to open the app after restoring.</li>}
+                    {pendingRestore.exportedAt && <li>{t('settings.backupCreated', { date: formatDateTime(new Date(pendingRestore.exportedAt)) })}</li>}
+                    <li>{t('settings.backupHas', { summary: describeBackup(pendingRestore.summary) + dateRange(pendingRestore.summary) })}</li>
+                    <li>{t('settings.deviceHas', { entries: t('backup.entries', { count: entries.length }), habits: t('backup.customHabits', { count: customHabitCount }), goals: t('backup.goals', { count: goals.length }), challenges: t('backup.customChallenges', { count: customChallengeCount }) })}</li>
+                    {pendingRestore.summary.pinEnabled && <li>{t('settings.backupPin')}</li>}
                   </ul>
-                  <p className="text-xs font-semibold">Everything currently stored on this device will be replaced. This cannot be undone.</p>
+                  <p className="text-xs font-semibold">{t('settings.replaceWarning')}</p>
                   <div className="flex flex-wrap gap-2">
-                    <Button variant="ghost" size="sm" onClick={() => setPendingRestore(null)}>Cancel</Button>
-                    <Button variant="outline" size="sm" icon={<Download size={14} />} onClick={exportFullBackup}>Back up current data first</Button>
-                    <Button variant="danger" size="sm" onClick={() => handleRestore('replace')}>Replace all data</Button>
+                    <Button variant="ghost" size="sm" onClick={() => setPendingRestore(null)}>{t('common.cancel')}</Button>
+                    <Button variant="outline" size="sm" icon={<Download size={14} />} onClick={exportFullBackup}>{t('settings.backupFirst')}</Button>
+                    <Button variant="danger" size="sm" onClick={() => handleRestore('replace')}>{t('settings.replaceAll')}</Button>
                   </div>
                 </>
               ) : (
                 <>
-                  <p id="restore-title" className="font-semibold text-sm flex items-center gap-2"><AlertTriangle size={15} className="shrink-0" /> Older export — entries only</p>
+                  <p id="restore-title" className="font-semibold text-sm flex items-center gap-2"><AlertTriangle size={15} className="shrink-0" /> {t('settings.olderTitle')}</p>
                   <ul className="text-xs space-y-1 list-disc ml-5 opacity-90">
-                    <li>File contains {pendingRestore.summary.entryCount} entries{dateRange(pendingRestore.summary)}</li>
-                    <li>This device now has {entries.length} entries</li>
-                    <li>Habits, goals, challenges and settings on this device will not change.</li>
+                    <li>{t('settings.fileHas', { entries: t('backup.entries', { count: pendingRestore.summary.entryCount }) + dateRange(pendingRestore.summary) })}</li>
+                    <li>{t('settings.deviceEntries', { entries: t('backup.entries', { count: entries.length }) })}</li>
+                    <li>{t('settings.olderUnchanged')}</li>
                   </ul>
-                  <p className="text-xs"><strong>Add</strong> keeps your current entries and adds the ones from the file that are not already here. <strong>Replace</strong> deletes your current entries and keeps only the file&apos;s entries.</p>
+                  <p className="text-xs">{t('settings.addOrReplace')}</p>
                   <div className="flex flex-wrap gap-2">
-                    <Button variant="ghost" size="sm" onClick={() => setPendingRestore(null)}>Cancel</Button>
-                    <Button variant="secondary" size="sm" onClick={() => handleRestore('merge')}>Add to current entries</Button>
-                    <Button variant="danger" size="sm" onClick={() => handleRestore('replace')}>Replace current entries</Button>
+                    <Button variant="ghost" size="sm" onClick={() => setPendingRestore(null)}>{t('common.cancel')}</Button>
+                    <Button variant="secondary" size="sm" onClick={() => handleRestore('merge')}>{t('settings.addEntries')}</Button>
+                    <Button variant="danger" size="sm" onClick={() => handleRestore('replace')}>{t('settings.replaceEntries')}</Button>
                   </div>
                 </>
               )}
@@ -439,48 +459,49 @@ export default function SettingsPage() {
           )}
 
           <div className="pt-2 border-t border-line">
-            <Row label="Clear All Data" sub="Delete all of this app's data stored in this browser.">
-              <Button variant="outline" size="sm" icon={<Trash2 size={14} />} onClick={() => { setConfirmClear(true); setPendingRestore(null); }} disabled={confirmClear}>Clear All</Button>
+            <Row label={t('settings.clearAll')} sub={t('settings.clearAllSub')} icon={<Trash2 size={19} />} tone="red">
+              <Button variant="outline" size="sm" icon={<Trash2 size={14} />} onClick={() => { setConfirmClear(true); setPendingRestore(null); }} disabled={confirmClear}>{t('settings.clearButton')}</Button>
             </Row>
             {confirmClear && (
               <div role="alertdialog" aria-labelledby="clear-title" className="mt-3 p-4 rounded-xl border-2 border-red-300 dark:border-red-500/40 bg-red-50 dark:bg-red-500/10 space-y-3 text-red-800 dark:text-red-300">
-                <p id="clear-title" className="font-semibold text-sm flex items-center gap-2"><AlertTriangle size={15} className="shrink-0" aria-hidden="true" /> Delete all {appName} data from this browser?</p>
+                <p id="clear-title" className="font-semibold text-sm flex items-center gap-2"><AlertTriangle size={15} className="shrink-0" aria-hidden="true" /> {t('settings.clearTitle', { app: appName })}</p>
                 <ul className="text-xs space-y-1 list-disc ml-5 opacity-90">
                   <li>
                     {entries.length === 0
-                      ? 'Entries and their notes (none are stored right now)'
-                      : `All ${entries.length} ${entries.length === 1 ? 'entry' : 'entries'} and their notes`}
+                      ? t('settings.clearEntriesNone')
+                      : t('settings.clearEntries', { count: entries.length })}
                   </li>
-                  <li>Goals, challenges and custom habits</li>
-                  <li>Settings, including your PIN lock, Hidden Mode and theme</li>
-                  <li>Notification preferences and your optional name</li>
-                  <li>Any saved plan status, dismissed alerts and failed-PIN counter</li>
+                  <li>{t('settings.clearGoals')}</li>
+                  <li>{t('settings.clearSettings')}</li>
+                  <li>{t('settings.clearNotifications')}</li>
+                  <li>{t('settings.clearMisc')}</li>
+                  {usagePlatform === 'android' && <li>{t('settings.clearUsage')}</li>}
                 </ul>
-                <p className="text-xs">Default habits and built-in challenges will be set up again. Browser notification permission and Google Analytics cookies are not affected. <strong>This cannot be undone.</strong></p>
+                <p className="text-xs">{t('settings.clearKept')} <strong>{t('settings.cannotUndo')}</strong></p>
                 <div className="flex flex-wrap gap-2">
-                  <Button variant="ghost" size="sm" onClick={() => setConfirmClear(false)}>Cancel</Button>
-                  <Button variant="outline" size="sm" icon={<Download size={14} />} onClick={exportFullBackup}>Back up first</Button>
-                  <Button variant="danger" size="sm" icon={<Trash2 size={14} />} onClick={handleClearAll}>Delete everything</Button>
+                  <Button variant="ghost" size="sm" onClick={() => setConfirmClear(false)}>{t('common.cancel')}</Button>
+                  <Button variant="outline" size="sm" icon={<Download size={14} />} onClick={exportFullBackup}>{t('settings.backUpFirstShort')}</Button>
+                  <Button variant="danger" size="sm" icon={<Trash2 size={14} />} onClick={handleClearAll}>{t('settings.deleteEverything')}</Button>
                 </div>
               </div>
             )}
           </div>
         </Section>
 
-        <Section title="About" icon={<Brain size={16} />}>
+        <Section title={t('settings.about')} tone="blue" icon={<Brain size={16} />}>
           <div className="space-y-2 text-sm text-muted">
-            {[
-              ['App', appName],
-              ['Version', `${APP_VERSION} (beta)`],
-              ['Plan', 'Free during beta'],
-              ['Habits tracked', habits.length],
-              ['Total events', entries.length],
-              ['Tracker data', 'Stored in this browser only'],
-              ['Website analytics', 'Google Analytics (usage data)'],
-            ].map(([label, value]) => (
-              <div key={label as string} className="flex justify-between gap-4">
-                <span>{label}</span>
-                <span className={`font-medium text-right ${String(value).includes('browser only') ? 'text-emerald-600 dark:text-emerald-400' : 'text-ink'}`}>{value}</span>
+            {([
+              ['settings.aboutApp', appName],
+              ['settings.aboutVersion', t('settings.aboutVersionValue', { version: APP_VERSION })],
+              ['settings.aboutPlan', t('settings.aboutPlanValue')],
+              ['settings.aboutHabits', habits.length],
+              ['settings.aboutTotal', entries.length],
+              ['settings.aboutData', t('settings.aboutDataValue'), true],
+              ['settings.aboutAnalytics', t('settings.aboutAnalyticsValue')],
+            ] as [MessageKey, string | number, boolean?][]).map(([label, value, good]) => (
+              <div key={label} className="flex justify-between gap-4">
+                <span>{t(label)}</span>
+                <span className={`font-medium text-right ${good ? 'text-emerald-600 dark:text-emerald-400' : 'text-ink'}`}>{value}</span>
               </div>
             ))}
           </div>

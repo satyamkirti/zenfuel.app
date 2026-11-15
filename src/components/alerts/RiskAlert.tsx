@@ -7,6 +7,7 @@ import {
 } from '@/lib/risk-calculator';
 import { clsx } from 'clsx';
 import { usePrivacy } from '@/context/PrivacyContext';
+import { useT } from '@/i18n/I18nProvider';
 
 // ── Dismiss helpers ────────────────────────────────────────────────────────────
 
@@ -39,17 +40,19 @@ interface RiskAlertProps {
   assessment: RiskAssessment;
 }
 
-const LEVEL_LABELS: Record<RiskLevel, string> = {
-  low: 'Low',
-  moderate: 'Moderate',
-  high: 'High',
-  critical: 'Critical',
-};
+const LEVEL_LABELS = {
+  low: 'risk.level.low',
+  moderate: 'risk.level.moderate',
+  high: 'risk.level.high',
+  critical: 'risk.level.critical',
+} as const satisfies Record<RiskLevel, string>;
 
 export function RiskAlert({ assessment }: RiskAlertProps) {
   const { maskText } = usePrivacy();
+  const t = useT();
   const { level, timerMinutes } = assessment;
-  const title = maskText(assessment.title);
+  // Titles carry an emoji in the data; the card shows its own icon instead.
+  const title = maskText(assessment.title).replace(/\s*\p{Extended_Pictographic}\uFE0F?/gu, '').trim();
   const message = maskText(assessment.message);
   const suggestion = maskText(assessment.suggestion);
   const triggers = assessment.triggers.map(maskText);
@@ -115,21 +118,21 @@ export function RiskAlert({ assessment }: RiskAlertProps) {
   return (
     <div
       role="alert"
-      className={clsx('relative rounded-2xl border p-4 sm:p-5 animate-fade-in', palette.bg, palette.border)}
+      className={clsx('relative rounded-card border p-4 sm:p-5 shadow-card animate-fade-in', palette.bg, palette.border)}
     >
       <div className="flex items-start gap-3">
-        <div className={clsx('w-9 h-9 rounded-xl flex items-center justify-center shrink-0', palette.accent)}>
+        <div className={clsx('w-10 h-10 rounded-xl flex items-center justify-center shrink-0 shadow-sm', palette.accent)}>
           {level === 'critical' || level === 'high'
-            ? <AlertTriangle size={18} className="text-white" aria-hidden="true" />
-            : <Brain size={18} className="text-white" aria-hidden="true" />
+            ? <AlertTriangle size={18} className="text-charcoal-950" aria-hidden="true" />
+            : <Brain size={18} className="text-charcoal-950" aria-hidden="true" />
           }
         </div>
 
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap pr-8">
-            <h3 className={clsx('font-semibold text-sm leading-tight', palette.text)}>{title}</h3>
-            <span className={clsx('text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-md', palette.accent, 'text-white')}>
-              {LEVEL_LABELS[level]} risk
+            <h3 className={clsx('font-display font-semibold text-[15px] leading-tight', palette.text)}>{title}</h3>
+            <span className={clsx('text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-md', palette.accent, 'text-charcoal-950')}>
+              {t(LEVEL_LABELS[level])}
             </span>
           </div>
 
@@ -142,7 +145,7 @@ export function RiskAlert({ assessment }: RiskAlertProps) {
               aria-expanded={expanded}
               className={clsx('mt-2 text-xs font-medium underline underline-offset-2 decoration-current/40 hover:decoration-current transition-colors py-1', palette.muted)}
             >
-              {expanded ? 'Hide risk factors' : `${triggers.length} risk factor${triggers.length > 1 ? 's' : ''}`}
+              {expanded ? t('risk.hideFactors') : t('risk.factors', { count: triggers.length })}
             </button>
           )}
           {expanded && (
@@ -160,11 +163,11 @@ export function RiskAlert({ assessment }: RiskAlertProps) {
             {timerDone ? (
               <div role="status" className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-emerald-100 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-300">
                 <CheckCircle2 size={13} aria-hidden="true" />
-                Time&apos;s up — well done.
+                {t('risk.timesUp')}
               </div>
             ) : timerRunning ? (
               <>
-                <div role="timer" aria-live="off" className={clsx('flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-bold tabular-nums', palette.accent, 'text-white')}>
+                <div role="timer" aria-live="off" className={clsx('flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-bold tabular-nums', palette.accent, 'text-charcoal-950')}>
                   <Clock size={13} aria-hidden="true" />
                   {formatTime(timerSecs)}
                 </div>
@@ -172,7 +175,7 @@ export function RiskAlert({ assessment }: RiskAlertProps) {
                   onClick={handleStopTimer}
                   className={clsx('min-h-[36px] px-3 rounded-xl text-xs font-medium border bg-surface/60 transition-colors hover:bg-surface', palette.border, palette.text)}
                 >
-                  Cancel timer
+                  {t('risk.cancelTimer')}
                 </button>
               </>
             ) : (
@@ -186,7 +189,7 @@ export function RiskAlert({ assessment }: RiskAlertProps) {
                 )}
               >
                 <Clock size={13} aria-hidden="true" />
-                Start a {timerMinutes}-minute break
+                {t('risk.startBreak', { minutes: timerMinutes })}
               </button>
             )}
           </div>
@@ -195,8 +198,8 @@ export function RiskAlert({ assessment }: RiskAlertProps) {
         <button
           onClick={handleDismiss}
           className={clsx('absolute top-3 right-3 p-2 rounded-lg transition-colors hover:bg-black/5 dark:hover:bg-white/10', palette.muted)}
-          aria-label="Dismiss alert"
-          title="Dismiss"
+          aria-label={t('risk.dismiss')}
+          title={t('risk.dismissShort')}
         >
           <X size={16} aria-hidden="true" />
         </button>

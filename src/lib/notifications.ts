@@ -11,6 +11,8 @@
  * Planned, not built: background push through Firebase Cloud Messaging (notes at the end).
  */
 
+import { t } from '../i18n/translate';
+
 export interface NotificationPrefs {
   enabled: boolean;
   morningEnabled: boolean;
@@ -101,7 +103,7 @@ export function registerNotificationWorker(): Promise<ServiceWorkerRegistration 
 /** Shows a notification. Returns false if the browser refused or could not show it. */
 export async function showNotification(title: string, body: string, tag?: string): Promise<boolean> {
   if (getPermissionStatus() !== 'granted') return false;
-  const options: NotificationOptions = { body, icon: '/images/zenfuel-icon-192.png', tag };
+  const options: NotificationOptions = { body, icon: '/icons/icon-192.png', tag };
 
   const reg = await registerNotificationWorker();
   if (reg) {
@@ -154,19 +156,20 @@ export function msUntil(time: string, from = new Date()): number | null {
 }
 
 export function buildReminder(kind: ReminderKind, prefs: NotificationPrefs, ctx: ReminderContext): { title: string; body: string } {
-  if (ctx.discreet) return { title: ctx.discreetTitle, body: 'You have a reminder.' };
+  // Wording is built when the reminder fires, in the interface language at that moment.
+  if (ctx.discreet) return { title: ctx.discreetTitle, body: t('notify.discreetBody') };
   const name = prefs.userName ? ` ${prefs.userName}` : '';
   if (kind === 'morning') {
     return {
-      title: ctx.streakDays > 0 ? `Day ${ctx.streakDays} of your reset 🌅` : 'Good morning 🌅',
-      body: `Quick check-in${name} — how are you starting today?`,
+      title: ctx.streakDays > 0 ? t('notify.morningStreak', { count: ctx.streakDays }) : t('notify.morningTitle'),
+      body: t('notify.morningBody', { name }),
     };
   }
   if (kind === 'evening') {
-    const label = ctx.detoxScore >= 70 ? 'Strong day 💪' : ctx.detoxScore >= 40 ? 'Decent day 🙂' : 'Tough day — tomorrow is fresh ✨';
-    return { title: `Your ZenFuel score today: ${ctx.detoxScore}/100`, body: label };
+    const label = ctx.detoxScore >= 70 ? t('notify.eveningStrong') : ctx.detoxScore >= 40 ? t('notify.eveningDecent') : t('notify.eveningTough');
+    return { title: t('notify.eveningTitle', { score: ctx.detoxScore }), body: label };
   }
-  return { title: 'Your high-risk window 🧠', body: 'This is when triggers usually hit. Stay aware.' };
+  return { title: t('notify.riskTitle'), body: t('notify.riskBody') };
 }
 
 /**

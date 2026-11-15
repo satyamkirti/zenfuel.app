@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!--
+      Backups are off and every data domain is excluded from cloud backup and device transfer
+      (res/xml/data_extraction_rules.xml), so habit logs and measured usage never leave the phone
+      through Android's backup system.
+    -->
+    <application
+        android:allowBackup="false"
+        android:fullBackupContent="false"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme"
+        tools:targetApi="31">
+
+        <activity
+            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|smallestScreenSize|screenLayout|uiMode|navigation|density"
+            android:name=".MainActivity"
+            android:label="@string/title_activity_main"
+            android:theme="@style/AppTheme.NoActionBarLaunch"
+            android:launchMode="singleTask"
+            android:exported="true">
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+        </activity>
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths"></meta-data>
+        </provider>
+
+        <!--
+          WorkManager ships a foreground service for long-running work. ZenFuel never runs work in
+          the foreground (refresh is a short periodic job), so the service and its permission are
+          removed from the merged manifest.
+        -->
+        <service
+            android:name="androidx.work.impl.foreground.SystemForegroundService"
+            tools:node="remove" />
+    </application>
+
+    <!-- Permissions -->
+
+    <!-- Capacitor's WebView default. ZenFuel's app build sends no usage data over the network. -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <!--
+      Usage Access. A special permission the user grants in Android Settings; it cannot be granted
+      from a dialog. Used only to read foreground time of the apps the user selects.
+    -->
+    <uses-permission
+        android:name="android.permission.PACKAGE_USAGE_STATS"
+        tools:ignore="ProtectedPermissions" />
+
+    <!-- Android 13+: optional limit alerts, requested only when the user turns alerts on. -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <!-- Added by WorkManager; unused because no work runs as a foreground service. -->
+    <uses-permission
+        android:name="android.permission.FOREGROUND_SERVICE"
+        tools:node="remove" />
+
+    <!--
+      Package visibility (Android 11+). Only the supported apps in src/lib/usage/catalog.ts are
+      declared, so ZenFuel can show which of them are installed without QUERY_ALL_PACKAGES.
+      Keep this list in sync with the catalog (checked by `npm test`).
+    -->
+    <queries>
+        <package android:name="com.instagram.android" />
+        <package android:name="com.instagram.lite" />
+        <package android:name="com.google.android.youtube" />
+        <package android:name="com.facebook.katana" />
+        <package android:name="com.facebook.lite" />
+        <package android:name="com.snapchat.android" />
+        <package android:name="com.reddit.frontpage" />
+        <package android:name="com.twitter.android" />
+        <package android:name="com.zhiliaoapp.musically" />
+        <package android:name="com.ss.android.ugc.trill" />
+        <package android:name="com.instagram.barcelona" />
+        <package android:name="com.pinterest" />
+        <package android:name="com.linkedin.android" />
+        <package android:name="com.netflix.mediaclient" />
+        <package android:name="com.amazon.avod.thirdpartyclient" />
+        <package android:name="tv.twitch.android.app" />
+        <package android:name="in.mohalla.video" />
+        <package android:name="in.mohalla.sharechat" />
+        <package android:name="com.eterno.shortvideos" />
+        <package android:name="com.whatsapp" />
+        <package android:name="org.telegram.messenger" />
+        <package android:name="com.discord" />
+    </queries>
+</manifest>

@@ -1,65 +1,79 @@
+'use client';
+
 import { ReactNode } from 'react';
+import { useI18n } from '@/i18n/I18nProvider';
+import type { MessageKey } from '@/i18n/translate';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { Logo } from '@/components/ui/Logo';
 
-const LEGAL_LINKS = [
-  { href: '/privacy', label: 'Privacy Policy' },
-  { href: '/terms', label: 'Terms of Service' },
-  { href: '/refund', label: 'Refund Policy' },
-  { href: '/contact', label: 'Contact' },
+const LEGAL_LINKS: { href: string; label: MessageKey }[] = [
+  { href: '/privacy', label: 'legal.privacy' },
+  { href: '/terms', label: 'legal.terms' },
+  { href: '/refund', label: 'legal.refund' },
+  { href: '/contact', label: 'legal.contact' },
 ];
 
 interface LegalLayoutProps {
   children: ReactNode;
-  title: string;
+  /** The page title (translated). */
+  titleKey: MessageKey;
   lastUpdated?: string;
+  /**
+   * A legal document whose text is published in English only (the English version applies);
+   * other languages show a short note saying so.
+   */
+  englishText?: boolean;
 }
 
-export function LegalLayout({ children, title, lastUpdated = 'July 7, 2026' }: LegalLayoutProps) {
+export function LegalLayout({ children, titleKey, lastUpdated = 'July 7, 2026', englishText }: LegalLayoutProps) {
+  const { t, locale } = useI18n();
   return (
     <div className="min-h-screen bg-bg">
       {/* Header */}
-      <header className="sticky top-0 z-10 bg-bg/85 backdrop-blur-md border-b border-line pt-[env(safe-area-inset-top)]">
+      <header className="sticky top-0 z-10 bg-bg/[0.96] border-b border-line pt-[var(--sat)]">
         <div className="max-w-3xl mx-auto px-4 h-14 flex items-center justify-between gap-4">
-          <Logo size="sm" />
+          <Logo size="sm" descriptor />
           <Link
             href="/"
             className="inline-flex items-center gap-1.5 min-h-[40px] px-3 rounded-xl text-sm font-medium text-ink-2 hover:text-ink hover:bg-surface-2 transition-colors"
           >
             <ArrowLeft size={15} aria-hidden="true" />
-            Back to the app
+            {t('legal.back')}
           </Link>
         </div>
       </header>
 
       <main className="max-w-3xl mx-auto px-4 py-8 sm:py-12">
         <div className="mb-8">
-          <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight text-ink">{title}</h1>
+          <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight text-ink">{t(titleKey)}</h1>
           <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted">
-            <span>ZenFuel · Operated by Satyam Kumar Kirti</span>
+            <span>{t('legal.operatedBy')}</span>
             <span>zenfuel.support@gmail.com</span>
-            <span>Last updated: {lastUpdated}</span>
+            <span lang="en">{t('legal.lastUpdated', { date: lastUpdated })}</span>
           </div>
+          {englishText && locale !== 'en' && (
+            <p className="mt-4 rounded-xl bg-info-soft px-4 py-3 text-sm text-info">{t('legal.englishOnly')}</p>
+          )}
         </div>
 
         {/* Content: a readable column (about 70 characters per line) on a calm surface. */}
-        <article className="bg-surface border border-line rounded-2xl shadow-card px-5 py-7 sm:px-10 sm:py-10 [&>*:first-child]:mt-0">
+        <article lang={englishText ? 'en' : undefined} className="bg-surface border border-line rounded-2xl shadow-card px-5 py-7 sm:px-10 sm:py-10 [&>*:first-child]:mt-0">
           <div className="max-w-[68ch]">{children}</div>
         </article>
       </main>
 
       <footer className="border-t border-line py-10">
         <div className="max-w-3xl mx-auto px-4 text-center space-y-4">
-          <p className="text-sm text-muted">© 2026 ZenFuel. Operated by Satyam Kumar Kirti.</p>
-          <nav aria-label="Legal" className="flex items-center justify-center flex-wrap gap-x-5 gap-y-2">
+          <p className="text-sm text-muted">{t('legal.copyright')}</p>
+          <nav aria-label={t('legal.nav')} className="flex items-center justify-center flex-wrap gap-x-5 gap-y-2">
             {LEGAL_LINKS.map(l => (
               <Link
                 key={l.href}
                 href={l.href}
                 className="text-sm text-muted hover:text-brand-text transition-colors py-1"
               >
-                {l.label}
+                {t(l.label)}
               </Link>
             ))}
           </nav>
@@ -105,13 +119,14 @@ export function InfoBox({ children }: { children: ReactNode }) {
 
 export function MailLink() {
   return (
-    <a href="mailto:zenfuel.support@gmail.com" className="text-brand-text underline underline-offset-2 decoration-violet-400/50 hover:decoration-current font-medium">
+    <a href="mailto:zenfuel.support@gmail.com" className="text-brand-text underline underline-offset-2 decoration-brand/40 hover:decoration-current font-medium">
       zenfuel.support@gmail.com
     </a>
   );
 }
 
 export function PricingTable() {
+  const { t } = useI18n();
   const rows = [
     ['Premium Monthly', '₹99', 'Every month'],
     ['Premium Yearly', '₹1,100', 'Every year'],
@@ -122,7 +137,7 @@ export function PricingTable() {
       <table className="w-full text-sm border border-line rounded-xl overflow-hidden">
         <thead className="bg-surface-2 text-ink-2">
           <tr>
-            {['Plan', 'Price', 'Billing'].map(h => (
+            {[t('legal.plan'), t('legal.price'), t('legal.billing')].map(h => (
               <th key={h} className="px-4 py-2.5 text-left font-semibold">{h}</th>
             ))}
           </tr>
@@ -131,7 +146,7 @@ export function PricingTable() {
           {rows.map(([plan, price, billing]) => (
             <tr key={plan} className="border-t border-line">
               <td className="px-4 py-2.5 text-ink-2 font-medium">{plan}</td>
-              <td className="px-4 py-2.5 text-violet-600 dark:text-violet-400 font-bold">{price}</td>
+              <td className="px-4 py-2.5 text-brand-text font-bold">{price}</td>
               <td className="px-4 py-2.5 text-muted">{billing}</td>
             </tr>
           ))}

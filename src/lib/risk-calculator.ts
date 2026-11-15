@@ -1,6 +1,9 @@
 import { LogEntry } from '@/types';
 import { getStartOfDay } from '@/utils/dateUtils';
 
+import { t } from '@/i18n/translate';
+import { formatClock } from '@/i18n/format';
+
 export type RiskLevel = 'low' | 'moderate' | 'high' | 'critical';
 
 export const RISK_LEVEL_ORDER: Record<RiskLevel, number> = {
@@ -22,36 +25,36 @@ export const RISK_PALETTE: Record<RiskLevel, {
   bg: string; border: string; text: string; muted: string; accent: string; dot: string;
 }> = {
   low: {
-    bg: 'bg-emerald-50 dark:bg-emerald-500/10',
-    border: 'border-emerald-200 dark:border-emerald-500/30',
-    text: 'text-emerald-900 dark:text-emerald-100',
-    muted: 'text-emerald-700 dark:text-emerald-300',
+    bg: 'bg-emerald-50 dark:bg-emerald-400/[0.07]',
+    border: 'border-emerald-200 dark:border-emerald-400/25',
+    text: 'text-emerald-900 dark:text-emerald-50',
+    muted: 'text-emerald-800 dark:text-emerald-100/75',
     accent: 'bg-emerald-500',
-    dot: '#10b981',
+    dot: '#22c77a',
   },
   moderate: {
-    bg: 'bg-amber-50 dark:bg-amber-500/10',
-    border: 'border-amber-200 dark:border-amber-500/30',
-    text: 'text-amber-900 dark:text-amber-100',
-    muted: 'text-amber-700 dark:text-amber-300',
+    bg: 'bg-amber-50 dark:bg-amber-400/[0.07]',
+    border: 'border-amber-200 dark:border-amber-400/25',
+    text: 'text-amber-900 dark:text-amber-50',
+    muted: 'text-amber-800 dark:text-amber-100/75',
     accent: 'bg-amber-500',
-    dot: '#f59e0b',
+    dot: '#ffc83d',
   },
   high: {
-    bg: 'bg-orange-50 dark:bg-orange-500/10',
-    border: 'border-orange-200 dark:border-orange-500/30',
-    text: 'text-orange-900 dark:text-orange-100',
-    muted: 'text-orange-700 dark:text-orange-300',
+    bg: 'bg-amber-50 dark:bg-amber-400/[0.08]',
+    border: 'border-amber-300 dark:border-amber-400/30',
+    text: 'text-amber-900 dark:text-amber-50',
+    muted: 'text-amber-800 dark:text-amber-100/75',
     accent: 'bg-orange-500',
-    dot: '#f97316',
+    dot: '#ffc83d',
   },
   critical: {
-    bg: 'bg-red-50 dark:bg-red-500/10',
-    border: 'border-red-200 dark:border-red-500/30',
-    text: 'text-red-900 dark:text-red-100',
-    muted: 'text-red-700 dark:text-red-300',
+    bg: 'bg-red-50 dark:bg-red-400/[0.08]',
+    border: 'border-red-200 dark:border-red-400/30',
+    text: 'text-red-900 dark:text-red-50',
+    muted: 'text-red-800 dark:text-red-100/75',
     accent: 'bg-red-500',
-    dot: '#ef4444',
+    dot: '#ef5350',
   },
 };
 
@@ -75,37 +78,36 @@ export function calculateRisk(
   // ── Late night (12am–5am) ──────────────────────────────────────────────────
   const hasLateNightLog = logsToday.some(e => new Date(e.timestamp).getHours() < 5);
   const isLateNight = now.getHours() < 5 && logsTodayCount > 0;
-  if (hasLateNightLog) triggers.push('Late-night trigger logged (12 am – 5 am)');
+  if (hasLateNightLog) triggers.push(t('riskmsg.trigLate'));
 
   // ── Same habit 3+ times in last hour ──────────────────────────────────────
   const habitCountsLastHr = new Map<string, number>();
   logsLastHr.forEach(e => habitCountsLastHr.set(e.habitId, (habitCountsLastHr.get(e.habitId) ?? 0) + 1));
   const maxSameHabitLastHr = habitCountsLastHr.size > 0 ? Math.max(...habitCountsLastHr.values()) : 0;
   if (maxSameHabitLastHr >= 3) {
-    triggers.push(`Same habit triggered ${maxSameHabitLastHr}× in the last hour`);
+    triggers.push(t('riskmsg.trigSameHabit', { count: maxSameHabitLastHr }));
   }
 
   // ── 5+ different habits today ──────────────────────────────────────────────
   const uniqueHabitsToday = new Set(logsToday.map(e => e.habitId)).size;
-  if (uniqueHabitsToday >= 5) triggers.push(`${uniqueHabitsToday} different habit triggers today`);
+  if (uniqueHabitsToday >= 5) triggers.push(t('riskmsg.trigUnique', { count: uniqueHabitsToday }));
 
   // ── Log count thresholds ───────────────────────────────────────────────────
-  if (logsTodayCount >= 8)      triggers.push(`${logsTodayCount} events in one day`);
-  else if (logsTodayCount >= 5) triggers.push(`${logsTodayCount} events logged today`);
-  else if (logsTodayCount >= 3) triggers.push(`${logsTodayCount} events logged today`);
+  if (logsTodayCount >= 8)      triggers.push(t('riskmsg.trigMany', { count: logsTodayCount }));
+  else if (logsTodayCount >= 3) triggers.push(t('riskmsg.trigToday', { count: logsTodayCount }));
 
   // ── Score thresholds ───────────────────────────────────────────────────────
-  if (dopamineScore < 30)      triggers.push(`Detox score critically low (${dopamineScore}/100)`);
-  else if (dopamineScore < 50) triggers.push(`Detox score low (${dopamineScore}/100)`);
+  if (dopamineScore < 30)      triggers.push(t('riskmsg.trigScoreCritical', { score: dopamineScore }));
+  else if (dopamineScore < 50) triggers.push(t('riskmsg.trigScoreLow', { score: dopamineScore }));
 
   // ── Activity spike vs yesterday (proxy for score drop) ────────────────────
   if (logsYest.length > 0 && logsTodayCount >= logsYest.length * 2 && logsTodayCount >= 4) {
-    triggers.push(`Activity doubled vs yesterday (${logsYest.length} → ${logsTodayCount})`);
+    triggers.push(t('riskmsg.trigDoubled', { before: logsYest.length, now: logsTodayCount }));
   }
 
   // ── Zero streak for 3+ days (approximated) ────────────────────────────────
   if (currentStreak === 0 && logsTodayCount >= 2) {
-    triggers.push('No active detox streak');
+    triggers.push(t('riskmsg.trigNoStreak'));
   }
 
   // ── Determine level ────────────────────────────────────────────────────────
@@ -137,29 +139,28 @@ export function calculateRisk(
   let title: string, message: string, suggestion: string, timerMinutes: number;
 
   if (isLateNight || hasLateNightLog) {
-    const t = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
-    title = 'Late night warning 🌙';
-    message = `It's ${t} and your brain is seeking dopamine. Late-night triggers dig the deepest grooves.`;
-    suggestion = 'Put the phone face-down. Sleep is the most powerful dopamine reset available to you.';
+    title = t('riskmsg.lateTitle');
+    message = t('riskmsg.lateMessage', { time: formatClock(now) });
+    suggestion = t('riskmsg.lateSuggestion');
     timerMinutes = 30;
   } else if (level === 'critical') {
-    title = 'High risk detected 🔴';
+    title = t('riskmsg.criticalTitle');
     message = logsTodayCount >= 8
-      ? `Your brain has had ${logsTodayCount} dopamine hits today and your score is critically low. This is the moment ZenFuel was built for.`
-      : `Your dopamine score is critically low (${dopamineScore}/100). This is the moment ZenFuel was built for.`;
-    suggestion = 'Close all apps. Do one physical thing right now — walk, stretch, drink water. Come back in 30 minutes.';
+      ? t('riskmsg.criticalMany', { count: logsTodayCount })
+      : t('riskmsg.criticalScore', { score: dopamineScore });
+    suggestion = t('riskmsg.criticalSuggestion');
     timerMinutes = 30;
   } else if (level === 'high') {
-    title = 'Your brain needs a reset 🟠';
-    message = `You've had ${logsTodayCount} dopamine hits today. This is when the cycle gets hard to break.`;
-    suggestion = "Step away from all screens for 20 minutes. You'll feel clearer after.";
+    title = t('riskmsg.highTitle');
+    message = t('riskmsg.highMessage', { count: logsTodayCount });
+    suggestion = t('riskmsg.highSuggestion');
     timerMinutes = 20;
   } else {
-    title = 'Heads up 🟡';
+    title = t('riskmsg.moderateTitle');
     message = logsTodayCount >= 3
-      ? `You've logged ${logsTodayCount} triggers today. Your brain is working hard — give it a moment.`
-      : `Your score is dipping. Your brain is working overtime today.`;
-    suggestion = 'Try a 5-minute walk or drink a glass of water.';
+      ? t('riskmsg.moderateMany', { count: logsTodayCount })
+      : t('riskmsg.moderateScore');
+    suggestion = t('riskmsg.moderateSuggestion');
     timerMinutes = 10;
   }
 

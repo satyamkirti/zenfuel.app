@@ -2,24 +2,29 @@ import { clsx } from 'clsx';
 
 interface BadgeProps {
   children: React.ReactNode;
-  variant?: 'default' | 'success' | 'warning' | 'danger' | 'info' | 'purple';
+  /** 'purple' is kept as an alias of 'brand' for older call sites. */
+  variant?: 'default' | 'success' | 'warning' | 'danger' | 'info' | 'brand' | 'teal' | 'purple';
   size?: 'sm' | 'md';
 }
 
+const brand = 'bg-brand-soft text-brand-text ring-brand/20';
+
 const variants = {
   default: 'bg-surface-2 text-ink-2 ring-line',
-  success: 'bg-emerald-50 text-emerald-700 ring-emerald-600/20 dark:bg-emerald-500/10 dark:text-emerald-300 dark:ring-emerald-400/20',
-  warning: 'bg-amber-50 text-amber-800 ring-amber-600/20 dark:bg-amber-500/10 dark:text-amber-300 dark:ring-amber-400/20',
-  danger: 'bg-red-50 text-red-700 ring-red-600/20 dark:bg-red-500/10 dark:text-red-300 dark:ring-red-400/20',
-  info: 'bg-sky-50 text-sky-700 ring-sky-600/20 dark:bg-sky-500/10 dark:text-sky-300 dark:ring-sky-400/20',
-  purple: 'bg-violet-50 text-violet-700 ring-violet-600/20 dark:bg-violet-500/10 dark:text-violet-300 dark:ring-violet-400/20',
+  success: 'bg-good-soft text-good ring-good/20',
+  warning: 'bg-warn-soft text-warn ring-warn/25',
+  danger: 'bg-bad-soft text-bad ring-bad/20',
+  info: 'bg-info-soft text-info ring-info/20',
+  teal: brand,
+  brand,
+  purple: 'bg-purple-50 text-purple-700 ring-purple-500/20 dark:bg-purple-500/15 dark:text-purple-300',
 };
 
 export function Badge({ children, variant = 'default', size = 'sm' }: BadgeProps) {
   return (
     <span className={clsx(
-      'inline-flex items-center gap-1 font-medium rounded-md ring-1 ring-inset whitespace-nowrap',
-      size === 'sm' ? 'px-1.5 py-0.5 text-[11px]' : 'px-2.5 py-1 text-xs',
+      'inline-flex items-center gap-1 font-semibold rounded-full ring-1 ring-inset whitespace-nowrap',
+      size === 'sm' ? 'px-2 py-0.5 text-[11px]' : 'px-2.5 py-1 text-xs',
       variants[variant]
     )}>
       {children}

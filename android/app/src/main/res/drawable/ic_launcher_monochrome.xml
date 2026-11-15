@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ZenFuel clock-and-leaf symbol (paths from public/images/zenfuel-app-icon.svg) on the 108dp
+     adaptive-icon canvas, at the same proportion as on the 512 tile. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <group
+        android:scaleX="0.140625"
+        android:scaleY="0.140625"
+        android:translateX="18"
+        android:translateY="18">
+        <path
+            android:pathData="M311,92 A167,167 0 1,0 370,402"
+            android:fillColor="#00000000"
+            android:strokeColor="#FFFFFFFF"
+            android:strokeWidth="27"
+            android:strokeLineCap="round" />
+        <path
+            android:pathData="M350,92 A167,167 0 0,1 440,225"
+            android:fillColor="#00000000"
+            android:strokeColor="#FFFFFFFF"
+            android:strokeWidth="27"
+            android:strokeLineCap="round" />
+        <path
+            android:pathData="M254,174 L254,263 L314,301"
+            android:fillColor="#00000000"
+            android:strokeColor="#FFFFFFFF"
+            android:strokeWidth="27"
+            android:strokeLineCap="round"
+            android:strokeLineJoin="round" />
+        <path
+            android:pathData="M338,451 C339,388 374,328 451,311 C444,381 409,436 338,451 Z"
+            android:fillColor="#FFFFFFFF" />
+    </group>
+</vector>

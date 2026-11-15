@@ -5,7 +5,7 @@ import { computeStreaks } from './streaks';
 
 export function computeFocusScore(entries: LogEntry[]): PremiumScore {
   if (entries.length === 0) {
-    return { score: 100, label: 'Excellent', color: '#10b981', breakdown: [] };
+    return { score: 100, label: 'Excellent', color: '#22c77a', breakdown: [] };
   }
 
   const breakdown: PremiumScore['breakdown'] = [];
@@ -43,7 +43,7 @@ export function computeFocusScore(entries: LogEntry[]): PremiumScore {
 
   score = Math.max(0, Math.min(100, Math.round(score)));
   const label = score >= 80 ? 'Excellent' : score >= 60 ? 'Good' : score >= 40 ? 'Fair' : 'Needs Work';
-  const color = score >= 80 ? '#10b981' : score >= 60 ? '#3b82f6' : score >= 40 ? '#f59e0b' : '#ef4444';
+  const color = score >= 80 ? '#22c77a' : score >= 60 ? '#1877f2' : score >= 40 ? '#ffc83d' : '#ef5350';
   return { score, label, color, breakdown };
 }
 
@@ -80,14 +80,14 @@ export function computeDisciplineScore(entries: LogEntry[], completedChallengesC
 
   score = Math.max(0, Math.min(100, Math.round(score)));
   const label = score >= 80 ? 'Excellent' : score >= 60 ? 'Good' : score >= 40 ? 'Fair' : 'Needs Work';
-  const color = score >= 80 ? '#10b981' : score >= 60 ? '#3b82f6' : score >= 40 ? '#f59e0b' : '#ef4444';
+  const color = score >= 80 ? '#22c77a' : score >= 60 ? '#1877f2' : score >= 40 ? '#ffc83d' : '#ef5350';
   return { score, label, color, breakdown };
 }
 
 export function computeProductivityScore(focusScore: number, disciplineScore: number, detoxScore: number): PremiumScore {
   const score = Math.round(focusScore * 0.35 + disciplineScore * 0.35 + detoxScore * 0.30);
   const label = score >= 80 ? 'Peak Performance' : score >= 60 ? 'On Track' : score >= 40 ? 'Building Up' : 'Needs Attention';
-  const color = score >= 80 ? '#10b981' : score >= 60 ? '#8b5cf6' : score >= 40 ? '#f59e0b' : '#ef4444';
+  const color = score >= 80 ? '#22c77a' : score >= 60 ? '#1877f2' : score >= 40 ? '#ffc83d' : '#ef5350';
   return {
     score,
     label,
@@ -109,7 +109,7 @@ export function computeRelapseRisk(entries: LogEntry[]): RelapseRisk {
   const factors: string[] = [];
 
   if (entries.length < 3) {
-    return { level: 'low', score: 10, color: '#10b981', factors: ['Not enough data yet'], recommendation: 'Keep logging to get personalized risk analysis.' };
+    return { level: 'low', score: 10, color: '#22c77a', factors: ['Not enough data yet'], recommendation: 'Keep logging to get personalized risk analysis.' };
   }
 
   // Most active weekday risk
@@ -161,7 +161,7 @@ export function computeRelapseRisk(entries: LogEntry[]): RelapseRisk {
 
   riskScore = Math.min(100, riskScore);
   const level: RelapseRisk['level'] = riskScore >= 60 ? 'high' : riskScore >= 30 ? 'medium' : 'low';
-  const color = level === 'high' ? '#ef4444' : level === 'medium' ? '#f59e0b' : '#10b981';
+  const color = level === 'high' ? '#ef5350' : level === 'medium' ? '#ffc83d' : '#22c77a';
 
   const recommendations: Record<RelapseRisk['level'], string> = {
     high: 'High risk right now. Try the 5-minute delay technique — urge surf until it passes.',

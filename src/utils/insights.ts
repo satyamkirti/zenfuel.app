@@ -1,6 +1,10 @@
 import { AppAnalytics, StreakData, Insight, HabitAnalytics } from '@/types';
-import { SHORT_MONTHS } from './dateUtils';
+import { t } from '@/i18n/translate';
+import { formatDateStyle, formatHourLabel } from '@/i18n/format';
 
+// Short observations from the person's own tracked activity, in the interface language.
+// Habit names come from HabitAnalytics.habitName (already in the interface language); Hidden
+// Mode masks them on screen with maskText.
 export function generateInsights(
   analytics: AppAnalytics,
   streaks: StreakData,
@@ -9,10 +13,10 @@ export function generateInsights(
   const insights: Insight[] = [];
 
   if (analytics.lifetimeCount === 0) {
-    return [{ id: 'empty', type: 'info', message: 'Start logging habits to see personalized insights.', icon: '📊' }];
+    return [{ id: 'empty', type: 'info', message: t('gen.empty'), icon: '📊' }];
   }
 
-  // Most-triggered habit
+  // Most-tracked habit
   if (habitAnalytics && habitAnalytics.length > 0) {
     const sorted = [...habitAnalytics].filter(h => h.lifetimeCount > 0).sort((a, b) => b.lifetimeCount - a.lifetimeCount);
     if (sorted.length > 0) {
@@ -20,7 +24,7 @@ export function generateInsights(
       insights.push({
         id: 'top-habit',
         type: 'warning',
-        message: `${top.habitIcon} ${top.habitName} accounts for ${top.percentOfTotal}% of all logged events.`,
+        message: t('gen.topHabit', { name: top.habitName, pct: top.percentOfTotal }),
         icon: '⚠️',
       });
     }
@@ -45,7 +49,7 @@ export function generateInsights(
       insights.push({
         id: `improving-${h.habitId}`,
         type: 'positive',
-        message: `You reduced ${h.habitName} by ${pct}% compared to last month. Keep going!`,
+        message: t('gen.improving', { name: h.habitName, pct }),
         icon: h.habitIcon,
       });
     }
@@ -58,7 +62,7 @@ export function generateInsights(
       insights.push({
         id: `habit-streak-${topStreakHabit.habitId}`,
         type: 'positive',
-        message: `You have maintained a ${topStreakHabit.streak.currentStreak}-day ${topStreakHabit.habitName} detox streak!`,
+        message: t('gen.habitStreak', { count: topStreakHabit.streak.currentStreak, name: topStreakHabit.habitName }),
         icon: topStreakHabit.habitIcon,
       });
     }
@@ -71,37 +75,40 @@ export function generateInsights(
     if (prev.count > 0) {
       const pct = Math.round(((prev.count - last.count) / prev.count) * 100);
       if (pct <= -20) {
-        insights.push({ id: 'increasing', type: 'warning', message: `Your activity increased by ${Math.abs(pct)}% compared to last month.`, icon: '📈' });
+        insights.push({ id: 'increasing', type: 'warning', message: t('gen.increasing', { pct: Math.abs(pct) }), icon: '📈' });
       } else if (pct >= 20) {
-        insights.push({ id: 'reducing', type: 'positive', message: `Activity down ${pct}% vs last month. Excellent progress!`, icon: '📉' });
+        insights.push({ id: 'reducing', type: 'positive', message: t('gen.reducing', { pct }), icon: '📉' });
       }
     }
   }
 
   // Global streak
   if (streaks.currentStreak >= 3) {
-    insights.push({ id: 'global-streak', type: 'positive', message: `You're on a ${streaks.currentStreak}-day global detox streak!`, icon: '🔥' });
+    insights.push({ id: 'global-streak', type: 'positive', message: t('gen.globalStreak', { count: streaks.currentStreak }), icon: '🔥' });
   }
   if (streaks.longestStreak > 0) {
-    insights.push({ id: 'longest-streak', type: 'info', message: `Your longest detox streak is ${streaks.longestStreak} days.`, icon: '🏆' });
+    insights.push({ id: 'longest-streak', type: 'info', message: t('gen.longestStreak', { count: streaks.longestStreak }), icon: '🏆' });
   }
 
   // Risk day
   if (analytics.mostActiveWeekday && analytics.mostActiveWeekday.count > 0) {
-    insights.push({ id: 'risk-day', type: 'warning', message: `${analytics.mostActiveWeekday.day} is your highest-risk day — plan accordingly.`, icon: '📅' });
+    insights.push({ id: 'risk-day', type: 'warning', message: t('gen.riskDay', { day: analytics.mostActiveWeekday.day }), icon: '📅' });
   }
 
   // Peak hour
   if (analytics.peakHours.length > 0) {
-    const h = analytics.peakHours[0];
-    const label = h === 0 ? '12am' : h < 12 ? `${h}am` : h === 12 ? '12pm' : `${h - 12}pm`;
-    insights.push({ id: 'peak-hour', type: 'info', message: `Your peak trigger time is around ${label}. Plan distractions for this window.`, icon: '🕐' });
+    insights.push({ id: 'peak-hour', type: 'info', message: t('gen.peakHour', { hour: formatHourLabel(analytics.peakHours[0]) }), icon: '🕐' });
   }
 
   // Peak month
   if (analytics.highestActivityMonth) {
-    const [y, m] = analytics.highestActivityMonth.month.split('-');
-    insights.push({ id: 'peak-month', type: 'info', message: `Your most active month was ${SHORT_MONTHS[parseInt(m) - 1]} ${y} with ${analytics.highestActivityMonth.count} events.`, icon: '📆' });
+    const [y, m] = analytics.highestActivityMonth.month.split('-').map(Number);
+    insights.push({
+      id: 'peak-month',
+      type: 'info',
+      message: t('gen.peakMonth', { month: formatDateStyle(new Date(y, m - 1, 1), 'monthYear'), count: analytics.highestActivityMonth.count }),
+      icon: '📆',
+    });
   }
 
   return insights.slice(0, 8);

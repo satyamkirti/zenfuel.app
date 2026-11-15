@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { Lock, Crown } from 'lucide-react';
 import { ReactNode } from 'react';
 import { clsx } from 'clsx';
+import { useT } from '@/i18n/I18nProvider';
 
 interface LockOverlayProps {
   children: ReactNode;
@@ -15,6 +16,7 @@ interface LockOverlayProps {
 }
 
 export function LockOverlay({ children, feature, description, blur = true, className, compact }: LockOverlayProps) {
+  const t = useT();
   return (
     <div className={clsx('relative rounded-xl overflow-hidden', className)}>
       <div className={blur ? 'blur-sm pointer-events-none select-none' : 'pointer-events-none select-none'}>
@@ -22,8 +24,8 @@ export function LockOverlay({ children, feature, description, blur = true, class
       </div>
       <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/60 dark:bg-slate-900/70 backdrop-blur-[2px] rounded-xl">
         {compact ? (
-          <Link href="/upgrade" className="flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-full text-xs font-bold shadow-lg hover:shadow-amber-500/30 transition-all hover:scale-105">
-            <Lock size={11} /> Premium
+          <Link href="/upgrade" className="flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-full text-xs font-bold shadow-lg hover:shadow-amber-500/30 transition-[transform,box-shadow,background-color,border-color,color,opacity] hover:scale-105">
+            <Lock size={11} /> {t('lock.premium')}
           </Link>
         ) : (
           <div className="flex flex-col items-center gap-3 text-center px-6">
@@ -34,9 +36,9 @@ export function LockOverlay({ children, feature, description, blur = true, class
             {description && <p className="text-xs text-muted max-w-xs">{description}</p>}
             <Link
               href="/upgrade"
-              className="px-5 py-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl text-sm font-bold shadow-lg hover:shadow-amber-500/30 transition-all hover:scale-105 active:scale-95"
+              className="px-5 py-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl text-sm font-bold shadow-lg hover:shadow-amber-500/30 transition-[transform,box-shadow,background-color,border-color,color,opacity] hover:scale-105 active:scale-95"
             >
-              Unlock Premium →
+              {t('lock.unlock')}
             </Link>
           </div>
         )}
@@ -51,10 +53,11 @@ interface LockedButtonProps {
 }
 
 export function LockedButton({ children, className }: LockedButtonProps) {
+  const t = useT();
   return (
     <Link href="/upgrade" className={clsx('inline-flex items-center gap-1.5 opacity-60 cursor-not-allowed pointer-events-auto', className)}>
       {children}
-      <span className="px-1.5 py-0.5 bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400 rounded text-[9px] font-bold">PRO</span>
+      <span className="px-1.5 py-0.5 bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400 rounded text-[9px] font-bold">{t('lock.pro')}</span>
     </Link>
   );
 }

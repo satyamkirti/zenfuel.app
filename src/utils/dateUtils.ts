@@ -1,3 +1,7 @@
+import { formatDateStyle, formatDateTime, formatHourLabel } from '@/i18n/format';
+import { t } from '@/i18n/translate';
+
+// English names, kept for data keys; on screen use weekdayName/monthName from '@/i18n/format'.
 export const WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 export const SHORT_WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 export const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -16,21 +20,20 @@ export function formatTime(date: Date | number): string {
   return d.toTimeString().slice(0, 5);
 }
 
+/** A stored "YYYY-MM-DD" date for display, in the interface language (e.g. "15 Nov 2026"). */
 export function formatDisplayDate(dateStr: string): string {
-  const [y, m, day] = dateStr.split('-').map(Number);
-  return `${SHORT_MONTHS[m - 1]} ${day}, ${y}`;
+  return formatDateStyle(dateStr, 'medium');
 }
 
 export function formatDisplayDateTime(timestamp: number): string {
-  const d = new Date(timestamp);
-  return `${formatDisplayDate(formatDate(d))} at ${formatTime(d)}`;
+  return formatDateTime(timestamp);
 }
 
 export function formatRelativeDate(dateStr: string): string {
   const today = formatDate(new Date());
   const yesterday = formatDate(new Date(Date.now() - 86400000));
-  if (dateStr === today) return 'Today';
-  if (dateStr === yesterday) return 'Yesterday';
+  if (dateStr === today) return t('common.today');
+  if (dateStr === yesterday) return t('common.yesterday');
   return formatDisplayDate(dateStr);
 }
 
@@ -125,9 +128,7 @@ export function filterEntriesByPeriod<T extends { timestamp: number }>(
   return entries.filter(e => e.timestamp >= start.getTime() && e.timestamp <= end.getTime());
 }
 
+/** An hour of the day (0–23) as a short label, in the interface language ("9 am"). */
 export function formatHour(hour: number): string {
-  if (hour === 0) return '12am';
-  if (hour < 12) return `${hour}am`;
-  if (hour === 12) return '12pm';
-  return `${hour - 12}pm`;
+  return formatHourLabel(hour);
 }

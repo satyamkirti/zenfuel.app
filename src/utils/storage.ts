@@ -3,6 +3,9 @@ import { formatDate, formatTime } from './dateUtils';
 import { SUB_KEY } from './subscription';
 import { PREFS_KEY } from '@/lib/notifications';
 import { DISMISS_STORAGE_KEY } from '@/lib/risk-calculator';
+import { USAGE_SETTINGS_KEY } from '@/lib/usage/settings';
+import { buildBatchEntries, BatchMoment } from '@/lib/habits/batch';
+import { parseHabitOrder } from '@/lib/habits/order';
 
 export const KEYS = {
   ENTRIES: 'mt_entries',
@@ -11,10 +14,13 @@ export const KEYS = {
   HABITS: 'ddt_habits',
   CHALLENGES: 'ddt_challenges',
   GOALS: 'ddt_goals',
+  /** The person's own habit order (habit ids). Absent until they reorder. */
+  HABIT_ORDER: 'ddt_habit_order',
 } as const;
 
 const DEFAULT_SETTINGS: AppSettings = {
-  theme: 'dark',
+  // Dark is ZenFuel's primary look; people who chose light keep their saved choice.
+  theme: 'light',
   pinEnabled: false,
   pinHash: '',
   autoLockMinutes: 5,
@@ -51,9 +57,10 @@ function safeRead<T>(key: string, fallback: T): T {
   }
 }
 
-function safeWrite(key: string, value: unknown): void {
-  if (typeof window === 'undefined') return;
-  try { localStorage.setItem(key, JSON.stringify(value)); } catch {}
+/** Writes one key. False when the write failed (for example, storage is full); nothing changes then. */
+function safeWrite(key: string, value: unknown): boolean {
+  if (typeof window === 'undefined') return false;
+  try { localStorage.setItem(key, JSON.stringify(value)); return true; } catch { return false; }
 }
 
 function migrateEntries(entries: LogEntry[]): LogEntry[] {
@@ -88,6 +95,27 @@ export const storage = {
     storage.saveEntries(entries);
     return entry;
   },
+  /**
+   * Logs several habits at once: one entry per habit, all with the same moment and note. Saved in
+   * a single write, so the whole batch is stored or (if the write fails) none of it, and null is
+   * returned. Duplicate habit ids in one batch are logged once.
+   */
+  addEntries(habitIds: readonly string[], moment: BatchMoment, notes?: string): LogEntry[] | null {
+    const batch: LogEntry[] = buildBatchEntries(habitIds, moment, notes, () => crypto.randomUUID());
+    if (batch.length === 0) return null;
+    const entries = storage.getEntries();
+    const ok = safeWrite(KEYS.ENTRIES, [...entries, ...batch].sort((a, b) => b.timestamp - a.timestamp));
+    return ok ? batch : null;
+  },
+  /** Removes several entries in one write (used to undo a batch). Returns how many were removed. */
+  deleteEntries(ids: readonly string[]): number {
+    const remove = new Set(ids);
+    const entries = storage.getEntries();
+    const next = entries.filter(e => !remove.has(e.id));
+    const removed = entries.length - next.length;
+    if (removed > 0) storage.saveEntries(next);
+    return removed;
+  },
   updateEntry(id: string, updates: Partial<Omit<LogEntry, 'id' | 'createdAt'>>): LogEntry | null {
     const entries = storage.getEntries();
     const idx = entries.findIndex(e => e.id === id);
@@ -115,11 +143,26 @@ export const storage = {
   saveHabits(habits: Habit[]): void {
     safeWrite(KEYS.HABITS, habits);
   },
+  /** The saved habit order (ids), or null when the person has never reordered. */
+  getHabitOrder(): string[] | null {
+    return parseHabitOrder(safeRead<unknown>(KEYS.HABIT_ORDER, null));
+  },
+  saveHabitOrder(ids: readonly string[]): boolean {
+    return safeWrite(KEYS.HABIT_ORDER, [...new Set(ids)]);
+  },
   addHabit(data: Omit<Habit, 'id' | 'isDefault' | 'createdAt'>): Habit {
     const habits = storage.getHabits();
     const habit: Habit = { ...data, id: crypto.randomUUID(), isDefault: false, createdAt: Date.now() };
     storage.saveHabits([...habits, habit]);
     return habit;
+  },
+  /** Adds several habits in a single write; nothing is added if the write fails. */
+  addHabits(items: Omit<Habit, 'id' | 'isDefault' | 'createdAt'>[]): Habit[] {
+    if (items.length === 0) return [];
+    const habits = storage.getHabits();
+    const now = Date.now();
+    const added: Habit[] = items.map((data, i) => ({ ...data, id: crypto.randomUUID(), isDefault: false, createdAt: now + i }));
+    return safeWrite(KEYS.HABITS, [...habits, ...added]) ? added : [];
   },
   updateHabit(id: string, updates: Partial<Habit>): Habit | null {
     const habits = storage.getHabits();
@@ -219,6 +262,7 @@ export const APP_LOCAL_STORAGE_KEYS: string[] = [
   PREFS_KEY,
   DISMISS_STORAGE_KEY,
   PIN_ATTEMPTS_KEY,
+  USAGE_SETTINGS_KEY,
   // Written only by the removed legacy-demo notice (never released); still cleared if present.
   'zenfuel_legacy_demo_notice_dismissed',
 ];

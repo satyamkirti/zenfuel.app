@@ -1,6 +1,8 @@
 import { LogEntry, AppAnalytics, Habit } from '@/types';
 import { createBackup, REPORT_EXPORT_FORMAT } from './backup';
 import { formatDate } from './dateUtils';
+import { t, getActiveLocale } from '@/i18n/translate';
+import { formatDateTime, formatNumber } from '@/i18n/format';
 
 // Notes, habit names and icons can come from imported files, so everything placed in
 // the print document is escaped.
@@ -72,6 +74,8 @@ export interface PrintOptions {
   heading: string;
   /** Hidden Mode: print placeholders instead of habit names, icons and notes. */
   privateLabels?: { habitName: (h: Habit | undefined, id: string) => string; icon: string; note: string };
+  /** Habit names as shown in the app (built-in names in the interface language). */
+  habitName?: (h: Habit | undefined, id: string) => string;
 }
 
 export function printReport(entries: LogEntry[], analytics: AppAnalytics, habits: Habit[], options: PrintOptions): void {
@@ -82,7 +86,7 @@ export function printReport(entries: LogEntry[], analytics: AppAnalytics, habits
   const priv = options.privateLabels;
   const label = (h: Habit | undefined, id: string) => priv
     ? `${escapeHtml(priv.icon)} ${escapeHtml(priv.habitName(h, id))}`
-    : h ? `${escapeHtml(h.icon)} ${escapeHtml(h.name)}` : escapeHtml(id);
+    : h ? `${escapeHtml(h.icon)} ${escapeHtml(options.habitName ? options.habitName(h, id) : h.name)}` : escapeHtml(id);
 
   // Count per habit
   const habitCounts = habits.map(h => ({
@@ -100,46 +104,47 @@ export function printReport(entries: LogEntry[], analytics: AppAnalytics, habits
   }).join('');
 
   win.document.write(`<!DOCTYPE html>
-<html>
+<html lang="${getActiveLocale()}">
 <head>
+  <meta charset="utf-8">
   <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'">
   <title>${escapeHtml(options.heading)}</title>
   <style>
-    body { font-family: -apple-system, sans-serif; max-width: 900px; margin: 40px auto; color: #1a1a2e; }
-    h1 { color: #6d28d9; border-bottom: 3px solid #6d28d9; padding-bottom: 8px; }
-    h2 { color: #4c1d95; margin-top: 32px; }
+    body { font-family: -apple-system, 'Segoe UI', 'Noto Sans Devanagari', 'Nirmala UI', sans-serif; max-width: 900px; margin: 40px auto; color: #10254a; }
+    h1 { color: #1265d8; border-bottom: 3px solid #1265d8; padding-bottom: 8px; }
+    h2 { color: #1265d8; margin-top: 32px; }
     .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin: 24px 0; }
-    .stat { background: #f5f3ff; border-radius: 8px; padding: 16px; text-align: center; }
-    .stat-value { font-size: 2rem; font-weight: 700; color: #6d28d9; }
-    .stat-label { font-size: 0.8rem; color: #6b7280; margin-top: 4px; }
+    .stat { background: #f3f8ff; border-radius: 8px; padding: 16px; text-align: center; }
+    .stat-value { font-size: 2rem; font-weight: 700; color: #1265d8; }
+    .stat-label { font-size: 0.8rem; color: #60728c; margin-top: 4px; }
     table { width: 100%; border-collapse: collapse; margin-top: 16px; }
-    th { background: #ede9fe; padding: 10px; text-align: left; color: #4c1d95; }
-    td { border-bottom: 1px solid #e5e7eb; padding: 8px 10px; }
-    .footer { margin-top: 40px; color: #9ca3af; font-size: 0.8rem; text-align: center; }
-    .badge { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; background: #ede9fe; color: #6d28d9; }
+    th { background: #e3efff; padding: 10px; text-align: left; color: #1265d8; }
+    td { border-bottom: 1px solid #d7e6f8; padding: 8px 10px; }
+    .footer { margin-top: 40px; color: #8a9db8; font-size: 0.8rem; text-align: center; }
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; background: #e3efff; color: #1265d8; }
   </style>
 </head>
 <body>
   <h1>${escapeHtml(options.heading)}</h1>
-  <p>Generated: ${new Date().toLocaleString()} &nbsp;|&nbsp; <span class="badge">Generated on this device</span></p>
-  <h2>Summary Statistics</h2>
+  <p>${escapeHtml(t('print.generated', { date: formatDateTime(Date.now()) }))} &nbsp;|&nbsp; <span class="badge">${escapeHtml(t('print.onDevice'))}</span></p>
+  <h2>${escapeHtml(t('print.summary'))}</h2>
   <div class="stats">
-    <div class="stat"><div class="stat-value">${analytics.lifetimeCount}</div><div class="stat-label">Events in period</div></div>
-    <div class="stat"><div class="stat-value">${analytics.averagePerDay.toFixed(2)}</div><div class="stat-label">Daily Average</div></div>
-    <div class="stat"><div class="stat-value">${analytics.averagePerWeek.toFixed(1)}</div><div class="stat-label">Weekly Average</div></div>
-    <div class="stat"><div class="stat-value">${analytics.highestActivityDay?.count ?? 0}</div><div class="stat-label">Peak Day</div></div>
+    <div class="stat"><div class="stat-value">${formatNumber(analytics.lifetimeCount)}</div><div class="stat-label">${escapeHtml(t('print.inPeriod'))}</div></div>
+    <div class="stat"><div class="stat-value">${formatNumber(Number(analytics.averagePerDay.toFixed(2)))}</div><div class="stat-label">${escapeHtml(t('reports.dailyAvg'))}</div></div>
+    <div class="stat"><div class="stat-value">${formatNumber(Number(analytics.averagePerWeek.toFixed(1)))}</div><div class="stat-label">${escapeHtml(t('reports.weeklyAvg'))}</div></div>
+    <div class="stat"><div class="stat-value">${formatNumber(analytics.highestActivityDay?.count ?? 0)}</div><div class="stat-label">${escapeHtml(t('reports.peakDay'))}</div></div>
   </div>
-  <h2>Habit Breakdown</h2>
+  <h2>${escapeHtml(t('breakdown.title'))}</h2>
   <table>
-    <thead><tr><th>Habit</th><th>Count</th><th>% of Total</th></tr></thead>
+    <thead><tr><th>${escapeHtml(t('entry.habit'))}</th><th>${escapeHtml(t('print.count'))}</th><th>${escapeHtml(t('print.share'))}</th></tr></thead>
     <tbody>${habitRows}</tbody>
   </table>
-  <h2>Session Log (Last 200)</h2>
+  <h2>${escapeHtml(t('print.log'))}</h2>
   <table>
-    <thead><tr><th>Date</th><th>Time</th><th>Habit</th><th>Notes</th></tr></thead>
+    <thead><tr><th>${escapeHtml(t('entry.date'))}</th><th>${escapeHtml(t('entry.time'))}</th><th>${escapeHtml(t('entry.habit'))}</th><th>${escapeHtml(t('entry.notes'))}</th></tr></thead>
     <tbody>${entryRows}</tbody>
   </table>
-  <div class="footer">${priv ? 'Generated in your browser from locally stored data' : 'ZenFuel — generated in your browser from locally stored data'}</div>
+  <div class="footer">${escapeHtml(priv ? t('print.footerPrivate') : t('print.footer'))}</div>
 </body>
 </html>`);
   win.document.close();

@@ -21,6 +21,7 @@ export default function HomePage() {
       */}
       <section
         aria-label="ZenFuel app description"
+        lang="en"
         data-seo
         className="sr-only"
       >

@@ -6,7 +6,7 @@ export const PLANS: Record<SubscriptionPlan, PlanDefinition> = {
     name: 'Free',
     tagline: 'Get started with the basics',
     pricing: { inr: 0, usd: 0, interval: 'month' },
-    color: '#64748b',
+    color: '#7b8ba3',
     gradient: 'from-slate-500 to-slate-600',
     features: [
       'Up to 3 habits',
@@ -24,8 +24,8 @@ export const PLANS: Record<SubscriptionPlan, PlanDefinition> = {
     name: 'Premium',
     tagline: 'Full power, month by month',
     pricing: { inr: 99, usd: 1.19, interval: 'month' },
-    color: '#8b5cf6',
-    gradient: 'from-violet-600 to-purple-700',
+    color: '#1265d8',
+    gradient: 'from-zen-600 to-zen-800',
     features: [
       'Unlimited habits',
       'Full unlimited history',
@@ -50,7 +50,7 @@ export const PLANS: Record<SubscriptionPlan, PlanDefinition> = {
       monthlyEquivalentInr: 91.6,
       savingLabel: 'Save ₹88 vs monthly',
     },
-    color: '#f59e0b',
+    color: '#8b5cf6',
     gradient: 'from-amber-500 to-orange-600',
     features: [
       'Everything in Monthly',
@@ -70,7 +70,7 @@ export const PLANS: Record<SubscriptionPlan, PlanDefinition> = {
       interval: 'once',
       savingLabel: 'Best Value',
     },
-    color: '#10b981',
+    color: '#11bfa9',
     gradient: 'from-emerald-500 to-teal-600',
     features: [
       'Everything in Premium',

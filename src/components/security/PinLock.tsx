@@ -4,6 +4,9 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { Shield, Delete, ArrowRight } from 'lucide-react';
 import type { UnlockResult } from '@/hooks/usePinLock';
 import { getPinThrottle } from '@/hooks/usePinLock';
+import { usePrivacy } from '@/context/PrivacyContext';
+import { BrandMark } from '@/components/ui/BrandMark';
+import { useT } from '@/i18n/I18nProvider';
 
 interface PinLockProps {
   onUnlock: (pin: string, opts?: { silent?: boolean }) => UnlockResult;
@@ -24,6 +27,9 @@ function formatWait(ms: number): string {
 }
 
 export function PinLock({ onUnlock, pinLength, appName, onReset }: PinLockProps) {
+  // In Hidden Mode the lock screen shows a plain shield, never the ZenFuel mark.
+  const { hiddenMode } = usePrivacy();
+  const t = useT();
   const [pin, setPin] = useState('');
   const [error, setError] = useState('');
   const [shake, setShake] = useState(false);
@@ -40,11 +46,11 @@ export function PinLock({ onUnlock, pinLength, appName, onReset }: PinLockProps)
 
   useEffect(() => {
     if (!retryAt) return;
-    const t = setInterval(() => {
+    const timer = setInterval(() => {
       setNow(Date.now());
       if (Date.now() >= retryAt) { setRetryAt(null); setError(''); }
     }, 500);
-    return () => clearInterval(t);
+    return () => clearInterval(timer);
   }, [retryAt]);
 
   const fail = useCallback((result: Exclude<UnlockResult, { ok: true }>) => {
@@ -54,11 +60,11 @@ export function PinLock({ onUnlock, pinLength, appName, onReset }: PinLockProps)
     if (result.reason === 'throttled' || result.retryAt) {
       setRetryAt(result.retryAt);
       setNow(Date.now());
-      setError('Too many incorrect attempts.');
+      setError(t('pin.tooMany'));
     } else {
       setError(result.attemptsBeforeDelay <= 2
-        ? `Incorrect PIN. ${result.attemptsBeforeDelay} attempt${result.attemptsBeforeDelay === 1 ? '' : 's'} left before a short wait.`
-        : 'Incorrect PIN.');
+        ? t('pin.incorrectLeft', { count: result.attemptsBeforeDelay })
+        : t('pin.incorrect'));
     }
   }, []);
 
@@ -101,25 +107,20 @@ export function PinLock({ onUnlock, pinLength, appName, onReset }: PinLockProps)
 
   if (forgot) {
     return (
-      <div className="surface-dark fixed inset-0 z-[200] bg-slate-950 overflow-y-auto">
+      <div className="surface-dark fixed inset-0 z-[200] bg-gradient-to-b from-charcoal-900 via-charcoal-950 to-charcoal-950 overflow-y-auto pt-[var(--sat)] pb-[var(--sab)]">
         <div role="dialog" aria-modal="true" aria-labelledby="forgot-title" className="min-h-full flex items-center justify-center p-6">
           <div className="w-full max-w-sm space-y-4 text-slate-300">
-            <h1 id="forgot-title" className="text-white text-xl font-bold">Forgot your PIN?</h1>
-            <p className="text-sm leading-relaxed">
-              The PIN cannot be recovered or reset, because there is no account or server. The only way back in is to
-              erase all {appName} data stored in this browser: entries, notes, habits, goals, challenges and settings.
-            </p>
-            <p className="text-sm leading-relaxed">
-              If you have a backup file, you can restore it afterwards from Settings. A backup restores its PIN too.
-            </p>
+            <h1 id="forgot-title" className="text-white text-xl font-bold">{t('pin.forgotTitle')}</h1>
+            <p className="text-sm leading-relaxed">{t('pin.forgotBody', { app: appName })}</p>
+            <p className="text-sm leading-relaxed">{t('pin.forgotBackup')}</p>
             <label className="block text-sm">
-              <span className="block mb-1.5">Type <strong className="text-white">ERASE</strong> to confirm</span>
+              <span className="block mb-1.5">{t('pin.typeErase', { word: 'ERASE' })}</span>
               <input
                 value={eraseText}
                 onChange={e => setEraseText(e.target.value)}
                 autoComplete="off"
                 autoCapitalize="characters"
-                className="w-full px-3 py-2.5 rounded-lg bg-slate-800 border border-slate-700 text-white focus:outline-none focus:ring-2 focus:ring-red-500"
+                className="w-full px-3 py-2.5 rounded-xl bg-white/[0.07] border border-white/15 text-white focus:outline-none focus:ring-2 focus:ring-red-500"
               />
             </label>
             <div className="flex flex-col gap-2 pt-2">
@@ -128,13 +129,13 @@ export function PinLock({ onUnlock, pinLength, appName, onReset }: PinLockProps)
                 disabled={eraseText.trim().toUpperCase() !== 'ERASE'}
                 className="w-full py-3 rounded-xl bg-red-600 text-white font-semibold disabled:opacity-40 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-red-300"
               >
-                Erase all data in this browser
+                {t('pin.eraseAll')}
               </button>
               <button
                 onClick={() => { setForgot(false); setEraseText(''); }}
-                className="w-full py-3 rounded-xl bg-slate-800 text-white font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400"
+                className="w-full py-3 rounded-xl bg-white/10 ring-1 ring-white/15 text-white font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-zen-400"
               >
-                Back to PIN entry
+                {t('pin.backToEntry')}
               </button>
             </div>
           </div>
@@ -144,15 +145,20 @@ export function PinLock({ onUnlock, pinLength, appName, onReset }: PinLockProps)
   }
 
   return (
-    <div className="surface-dark fixed inset-0 z-[200] bg-slate-950 overflow-y-auto">
-      <div role="dialog" aria-modal="true" aria-labelledby="lock-title" className="min-h-full flex flex-col items-center justify-center gap-7 px-6 py-10">
+    <div className="surface-dark fixed inset-0 z-[200] bg-gradient-to-b from-charcoal-900 via-charcoal-950 to-charcoal-950 overflow-y-auto pt-[var(--sat)] pb-[var(--sab)]">
+      <span className="pointer-events-none fixed -top-32 left-1/2 -translate-x-1/2 w-[40rem] h-[40rem] rounded-full glow-blue" aria-hidden="true" />
+      <div role="dialog" aria-modal="true" aria-labelledby="lock-title" className="relative min-h-full flex flex-col items-center justify-center gap-7 px-6 py-10">
         <div className="flex flex-col items-center gap-3 text-center">
-          <div className="w-16 h-16 rounded-2xl bg-violet-600/20 flex items-center justify-center">
-            <Shield size={32} className="text-violet-400" aria-hidden="true" />
-          </div>
-          <h1 id="lock-title" className="text-white text-2xl font-bold">Locked</h1>
-          <p className="text-slate-400 text-sm">
-            {pinLength ? `Enter your ${pinLength}-digit PIN` : 'Enter your PIN, then press Unlock'}
+          {hiddenMode ? (
+            <div className="w-16 h-16 rounded-2xl bg-brand-gradient shadow-glow ring-1 ring-white/20 flex items-center justify-center">
+              <Shield size={30} className="text-white" aria-hidden="true" />
+            </div>
+          ) : (
+            <BrandMark size={64} tone="onDark" />
+          )}
+          <h1 id="lock-title" className="text-white text-2xl font-bold">{t('pin.locked')}</h1>
+          <p className="text-white/70 text-sm">
+            {pinLength ? t('pin.enterN', { count: pinLength }) : t('pin.enter')}
           </p>
         </div>
 
@@ -160,16 +166,16 @@ export function PinLock({ onUnlock, pinLength, appName, onReset }: PinLockProps)
           {Array.from({ length: dotCount }, (_, i) => (
             <div key={i} className={`w-4 h-4 rounded-full border-2 transition-colors ${
               i < pin.length
-                ? error ? 'bg-red-500 border-red-500' : 'bg-violet-400 border-violet-400'
-                : 'border-slate-500'
+                ? error ? 'bg-red-500 border-red-500' : 'bg-zen-300 border-zen-300'
+                : 'border-white/35'
             }`} />
           ))}
         </div>
-        <p className="sr-only" aria-live="polite">{pin.length} of {pinLength ?? 'up to 6'} digits entered</p>
+        <p className="sr-only" aria-live="polite">{t('pin.digits', { count: pin.length, total: pinLength ?? t('pin.upTo6') })}</p>
 
         <div className="min-h-[2.5rem] -mt-3 text-center" aria-live="assertive">
           {throttled ? (
-            <p className="text-amber-300 text-sm">Too many incorrect attempts. Try again in {formatWait((retryAt ?? now) - now)}.</p>
+            <p className="text-amber-300 text-sm">{t('pin.tryAgainIn', { time: formatWait((retryAt ?? now) - now) })}</p>
           ) : error ? (
             <p className="text-red-400 text-sm">{error}</p>
           ) : null}
@@ -181,8 +187,8 @@ export function PinLock({ onUnlock, pinLength, appName, onReset }: PinLockProps)
               <button
                 key={i}
                 onClick={removeDigit}
-                aria-label="Delete last digit"
-                className="h-16 rounded-2xl bg-slate-800 hover:bg-slate-700 text-white flex items-center justify-center transition-colors active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400"
+                aria-label={t('pin.deleteDigit')}
+                className="h-16 rounded-2xl bg-white/[0.07] ring-1 ring-white/10 hover:bg-white/[0.12] text-white flex items-center justify-center transition-colors active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-zen-400"
               >
                 <Delete size={20} aria-hidden="true" />
               </button>
@@ -192,8 +198,8 @@ export function PinLock({ onUnlock, pinLength, appName, onReset }: PinLockProps)
                   key={i}
                   onClick={() => submit(pin)}
                   disabled={pin.length < MIN || throttled}
-                  aria-label="Unlock"
-                  className="h-16 rounded-2xl bg-violet-600 hover:bg-violet-500 text-white flex items-center justify-center transition-colors active:scale-95 disabled:opacity-30 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-300"
+                  aria-label={t('pin.unlock')}
+                  className="h-16 rounded-2xl bg-brand-gradient shadow-glow text-on-brand flex items-center justify-center transition-colors active:scale-95 disabled:opacity-30 focus:outline-none focus-visible:ring-2 focus-visible:ring-zen-300"
                 >
                   <ArrowRight size={22} aria-hidden="true" />
                 </button>
@@ -203,7 +209,7 @@ export function PinLock({ onUnlock, pinLength, appName, onReset }: PinLockProps)
                 key={i}
                 onClick={() => addDigit(d)}
                 disabled={throttled}
-                className="h-16 rounded-2xl bg-slate-800 hover:bg-slate-700 active:bg-violet-700 text-white text-2xl font-light transition-all active:scale-95 disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400"
+                className="h-16 rounded-2xl bg-white/[0.07] ring-1 ring-white/10 hover:bg-white/[0.12] active:bg-zen-600 text-white text-2xl font-light transition-[transform,box-shadow,background-color,border-color,color,opacity] active:scale-95 disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-zen-400"
               >
                 {d}
               </button>
@@ -211,11 +217,11 @@ export function PinLock({ onUnlock, pinLength, appName, onReset }: PinLockProps)
           ))}
         </div>
 
-        <button onClick={() => setForgot(true)} className="text-sm text-slate-400 hover:text-white underline-offset-4 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 rounded px-2 py-1">
-          Forgot PIN?
+        <button onClick={() => setForgot(true)} className="text-sm text-slate-400 hover:text-white underline-offset-4 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-zen-400 rounded px-2 py-1">
+          {t('pin.forgot')}
         </button>
         <p className="text-[11px] text-slate-500 text-center max-w-xs">
-          The PIN lock hides the app on this device. It does not encrypt your data.
+          {t('pin.note')}
         </p>
       </div>
     </div>

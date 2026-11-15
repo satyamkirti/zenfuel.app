@@ -21,13 +21,13 @@ export function Switch({ checked, onChange, label, disabled }: SwitchProps) {
       disabled={disabled}
       onClick={() => onChange(!checked)}
       className={clsx(
-        'relative inline-flex w-11 h-6 shrink-0 items-center rounded-full transition-colors',
-        'focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2 focus-visible:ring-offset-surface',
+        'group relative inline-flex w-12 h-7 shrink-0 items-center rounded-full transition-colors duration-300',
+        'focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-surface',
         'disabled:opacity-50 disabled:cursor-not-allowed',
-        checked ? 'bg-violet-600' : 'bg-line-strong'
+        checked ? 'bg-brand-gradient shadow-glow' : 'bg-line-strong dark:bg-surface-3'
       )}
     >
-      <span className={clsx('block w-4 h-4 rounded-full bg-white shadow transition-transform', checked ? 'translate-x-6' : 'translate-x-1')} />
+      <span className={clsx('block h-5 rounded-full bg-white shadow-md transition-[transform,width] duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] w-5 group-active:w-6', checked ? 'translate-x-6 group-active:translate-x-5' : 'translate-x-1')} />
     </button>
   );
 }

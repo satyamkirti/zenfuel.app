@@ -5,6 +5,11 @@ import { LogEntry, Habit, Challenge, Goal } from '@/types';
 import { storage } from '@/utils/storage';
 import { formatDate } from '@/utils/dateUtils';
 import { parseBackupText, applyBackup } from '@/utils/backup';
+import { getUsageRepository } from '@/lib/usage/repository';
+import { orderHabits } from '@/lib/habits/order';
+
+// Habits in display order: the person's saved order, or public first and private last.
+const loadHabits = () => orderHabits(storage.getHabits(), storage.getHabitOrder());
 
 export function useStorage() {
   const [entries, setEntries] = useState<LogEntry[]>([]);
@@ -15,7 +20,7 @@ export function useStorage() {
 
   useEffect(() => {
     setEntries(storage.getEntries());
-    setHabits(storage.getHabits());
+    setHabits(loadHabits());
     setChallenges(storage.getChallenges());
     setGoals(storage.getGoals());
     setIsLoaded(true);
@@ -42,22 +47,51 @@ export function useStorage() {
     return ok;
   }, []);
 
+  /** Several habits in one save, sharing one moment and note; null if nothing could be saved. */
+  const logEntries = useCallback(
+    (habitIds: string[], notes: string | undefined, moment: { date: string; time: string; timestamp: number }) => {
+      const batch = storage.addEntries(habitIds, moment, notes);
+      if (batch) setEntries(storage.getEntries());
+      return batch;
+    }, []
+  );
+
+  const deleteEntries = useCallback((ids: string[]) => {
+    const removed = storage.deleteEntries(ids);
+    if (removed > 0) setEntries(storage.getEntries());
+    return removed;
+  }, []);
+
   // ── Habits ─────────────────────────────────────────────────────────────────
   const addHabit = useCallback((data: Omit<Habit, 'id' | 'isDefault' | 'createdAt'>) => {
     const habit = storage.addHabit(data);
-    setHabits(storage.getHabits());
+    setHabits(loadHabits());
     return habit;
+  }, []);
+
+  /** Several habits in one save (Good Habit Templates), placed by the usual ordering rules. */
+  const addHabits = useCallback((items: Omit<Habit, 'id' | 'isDefault' | 'createdAt'>[]) => {
+    const added = storage.addHabits(items);
+    setHabits(loadHabits());
+    return added;
   }, []);
 
   const updateHabit = useCallback((id: string, updates: Partial<Habit>) => {
     const updated = storage.updateHabit(id, updates);
-    setHabits(storage.getHabits());
+    setHabits(loadHabits());
     return updated;
   }, []);
 
   const deleteHabit = useCallback((id: string) => {
     const ok = storage.deleteHabit(id);
-    if (ok) setHabits(storage.getHabits());
+    if (ok) setHabits(loadHabits());
+    return ok;
+  }, []);
+
+  /** Saves the person's own habit order (all habit ids, top to bottom). */
+  const reorderHabits = useCallback((ids: string[]) => {
+    const ok = storage.saveHabitOrder(ids);
+    setHabits(loadHabits());
     return ok;
   }, []);
 
@@ -114,7 +148,7 @@ export function useStorage() {
     const result = applyBackup(parsed.backup, 'replace');
     if (!result.ok) return { success: false, count: 0 };
     setEntries(storage.getEntries());
-    setHabits(storage.getHabits());
+    setHabits(loadHabits());
     setChallenges(storage.getChallenges());
     setGoals(storage.getGoals());
     return { success: true, count: result.entryCount };
@@ -122,16 +156,19 @@ export function useStorage() {
 
   const clearAll = useCallback(() => {
     storage.clearAll();
+    // Android app: also delete measured app usage held by the native layer. The call reaches
+    // native code immediately, so it completes even if the page reloads straight after.
+    void getUsageRepository().clearUsageData().catch(() => {});
     setEntries([]);
-    setHabits(storage.getHabits());
+    setHabits(loadHabits());
     setChallenges(storage.getChallenges());
     setGoals([]);
   }, []);
 
   return {
     entries, habits, challenges, goals, isLoaded,
-    logEntry, updateEntry, deleteEntry,
-    addHabit, updateHabit, deleteHabit,
+    logEntry, updateEntry, deleteEntry, logEntries, deleteEntries,
+    addHabit, addHabits, updateHabit, deleteHabit, reorderHabits,
     startChallenge, stopChallenge, completeChallenge, addChallenge,
     addGoal, updateGoal, deleteGoal,
     importBackup, clearAll,

@@ -5,6 +5,7 @@ import { clsx } from 'clsx';
 import { useApp } from '@/context/AppContext';
 import { usePrivacy } from '@/context/PrivacyContext';
 import { Card, CardHeader } from '@/components/ui/Card';
+import { t } from '@/i18n/translate';
 
 // A coloured dot carries the tone; the text stays in normal ink for readability.
 const typeDot = {
@@ -19,17 +20,17 @@ export function InsightsPanel() {
   const { maskText } = usePrivacy();
   return (
     <Card padding="none">
-      <CardHeader icon={<Lightbulb size={16} />} title="Insights" subtitle="Rule-based observations from your own logs" />
-      <ul className="px-5 pb-5 space-y-2.5">
+      <CardHeader icon={<Lightbulb size={17} />} tone="amber" title={t('insightsPanel.title')} subtitle={t('insightsPanel.sub')} />
+      <ul className="px-5 pb-5 space-y-2">
         {insights.map(insight => (
-          <li key={insight.id} className="flex items-start gap-3 text-sm">
-            <span className="text-base leading-5 shrink-0" aria-hidden="true">{maskText(insight.icon)}</span>
-            <p className="flex-1 leading-5 text-ink-2">{maskText(insight.message)}</p>
-            <span className={clsx('mt-1.5 w-1.5 h-1.5 rounded-full shrink-0', typeDot[insight.type])} aria-hidden="true" />
+          <li key={insight.id} className="relative flex items-start gap-3 text-sm rounded-xl bg-surface-2/60 pl-4 pr-3 py-2.5 overflow-hidden">
+            <span className={clsx('absolute left-0 inset-y-0 w-1', typeDot[insight.type])} aria-hidden="true" />
+            <span className="w-7 h-7 rounded-lg bg-surface flex items-center justify-center text-base leading-none shrink-0 shadow-sm" aria-hidden="true">{maskText(insight.icon)}</span>
+            <p className="flex-1 self-center leading-5 text-ink-2">{maskText(insight.message)}</p>
           </li>
         ))}
         {insights.length === 0 && (
-          <li className="text-sm text-muted py-2">Log a few events to see observations here.</li>
+          <li className="rounded-xl border border-dashed border-line-strong px-4 py-5 text-center text-sm text-muted">{t('insightsPanel.empty')}</li>
         )}
       </ul>
     </Card>

@@ -1,13 +1,17 @@
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
-import { Edit3, Trash2, Search, ChevronLeft, ChevronRight, StickyNote } from 'lucide-react';
+import { Edit3, Trash2, Search, ChevronLeft, ChevronRight, StickyNote, CircleDot } from 'lucide-react';
+import { clsx } from 'clsx';
 import { LogEntry, Habit } from '@/types';
 import { Button } from '@/components/ui/Button';
 import { EntryModal } from './EntryModal';
 import { formatRelativeDate } from '@/utils/dateUtils';
 import { usePrivacy } from '@/context/PrivacyContext';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { HabitGlyph } from '@/components/dashboard/HabitGlyph';
+import { brandColor, tint } from '@/utils/palette';
+import { useT } from '@/i18n/I18nProvider';
 
 interface EntryListProps {
   entries: LogEntry[];
@@ -19,7 +23,8 @@ interface EntryListProps {
 const PAGE_SIZE = 20;
 
 export function EntryList({ entries, habits, onUpdate, onDelete }: EntryListProps) {
-  const { habitName, habitIcon, note, masked } = usePrivacy();
+  const { habitName, note, masked } = usePrivacy();
+  const t = useT();
   const [search, setSearch] = useState('');
   const [filterHabitId, setFilterHabitId] = useState('all');
   const [page, setPage] = useState(0);
@@ -49,8 +54,8 @@ export function EntryList({ entries, habits, onUpdate, onDelete }: EntryListProp
       if (e.date.includes(q) || e.time.includes(q)) return true;
       // While masked, search only matches what is on screen, so results cannot reveal hidden text.
       if (masked) return habitName(habit, e.habitId).toLowerCase().includes(q);
-      return (e.notes ?? '').toLowerCase().includes(q) || (habit?.name ?? '').toLowerCase().includes(q);
-    });
+      return (e.notes ?? '').toLowerCase().includes(q) || (habit?.name ?? '').toLowerCase().includes(q) || habitName(habit, e.habitId).toLowerCase().includes(q);
+    }).sort((a, b) => b.timestamp - a.timestamp);
   }, [entries, search, filterHabitId, habitMap, masked, habitName]);
 
   const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
@@ -76,43 +81,48 @@ export function EntryList({ entries, habits, onUpdate, onDelete }: EntryListProp
 
   return (
     <div>
-      <div className="flex gap-2 mb-4 flex-wrap">
-        <div className="relative flex-1 min-w-40">
-          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" aria-hidden="true" />
-          <input type="search" value={search} onChange={e => handleSearch(e.target.value)} placeholder={masked ? 'Search by date or time…' : 'Search entries...'} aria-label="Search entries" className="input pl-9" />
-        </div>
-        <select value={filterHabitId} onChange={e => handleFilter(e.target.value)} aria-label="Filter by habit" className="input w-auto text-sm">
-          <option value="all">All Habits</option>
-          {usedHabits.map(h => <option key={h.id} value={h.id}>{habitIcon(h)} {habitName(h)}</option>)}
-        </select>
+      <div className="relative mb-3">
+        <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted" aria-hidden="true" />
+        <input type="search" value={search} onChange={e => handleSearch(e.target.value)} placeholder={masked ? t('history.searchMasked') : t('history.search')} aria-label={t('history.searchLabel')} className="input pl-10 min-h-[48px] rounded-2xl" />
+      </div>
+      {/* Filter chips: one tap per habit. */}
+      <div role="group" aria-label={t('history.filterByHabit')} className="-mx-4 px-4 sm:mx-0 sm:px-0 mb-5 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <button type="button" onClick={() => handleFilter('all')} aria-pressed={filterHabitId === 'all'} className={clsx('shrink-0 min-h-[38px]', filterHabitId === 'all' ? 'chip-on' : 'chip-off')}>{t('history.allHabits')}</button>
+        {usedHabits.map((h, i) => (
+          <button key={h.id} type="button" onClick={() => handleFilter(h.id)} aria-pressed={filterHabitId === h.id} className={clsx('shrink-0 min-h-[38px]', filterHabitId === h.id ? 'chip-on' : 'chip-off')}>
+            {!masked && <span className="w-2 h-2 rounded-full" style={{ background: brandColor(h.color, i) }} aria-hidden="true" />}
+            {habitName(h)}
+          </button>
+        ))}
       </div>
 
       {filtered.length === 0 ? (
         <EmptyState
-          icon={<Search size={22} />}
-          title={search || filterHabitId !== 'all' ? 'No matching entries' : 'No sessions logged yet'}
-          description={search || filterHabitId !== 'all' ? 'Try a different search or habit filter.' : 'Use Quick log on the dashboard or the + button to record your first event.'}
+          tone="pink"
+          icon={<Search size={24} />}
+          title={search || filterHabitId !== 'all' ? t('history.noMatch') : t('history.empty')}
+          description={search || filterHabitId !== 'all' ? t('history.noMatchBody') : t('history.emptyBody')}
         />
       ) : (
         <>
-          <div className="space-y-4">
+          <div className="space-y-5">
             {grouped.map(([date, dayEntries]) => (
-              <div key={date}>
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="text-xs font-semibold text-ink-2">{formatRelativeDate(date)}</span>
-                  <span className="h-px flex-1 bg-line" />
-                  <span className="text-xs text-muted">{dayEntries.length} event{dayEntries.length !== 1 ? 's' : ''}</span>
+              <section key={date} aria-label={formatRelativeDate(date)}>
+                <div className="flex items-center justify-between gap-2 mb-2 px-1">
+                  <h3 className="font-display text-sm font-semibold text-ink">{formatRelativeDate(date)}</h3>
+                  <span className="pill-neutral">{t('quicklog.activities', { count: dayEntries.length })}</span>
                 </div>
-                <div className="space-y-0.5">
+                <div className="card relative py-1.5">
+                  <span className="absolute left-[33px] sm:left-[37px] top-5 bottom-5 w-px bg-line" aria-hidden="true" />
                   {dayEntries.map(entry => {
                     const habit = habitMap.get(entry.habitId);
                     return (
-                      <div key={entry.id} className="flex items-center gap-3 px-2 sm:px-3 py-2 rounded-xl hover:bg-surface-2 focus-within:bg-surface-2 transition-colors group">
-                        <span className="w-9 h-9 rounded-lg bg-surface-2 group-hover:bg-surface flex items-center justify-center text-base shrink-0 transition-colors" aria-hidden="true">{habitIcon(habit)}</span>
+                      <div key={entry.id} className="relative flex items-center gap-3 px-3 sm:px-4 py-2 hover:bg-surface-2/60 focus-within:bg-surface-2/60 transition-colors group">
+                        <span className={clsx('relative w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ring-4 ring-surface', !masked && 'tint')} style={masked ? undefined : tint(brandColor(habit?.color))} aria-hidden="true">{habit ? <HabitGlyph habit={habit} size={17} /> : <CircleDot size={17} />}</span>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-x-2 gap-y-0.5 flex-wrap">
-                            <span className="text-sm font-medium text-ink truncate">{habitName(habit, entry.habitId)}</span>
-                            <span className="text-xs text-muted">{entry.time}</span>
+                            <span className="text-[15px] font-medium text-ink truncate">{habitName(habit, entry.habitId)}</span>
+                            <span className="text-xs font-medium tabular-nums text-muted">{entry.time}</span>
                             {entry.notes && (
                               <span className="flex items-center gap-1 text-xs text-muted min-w-0 max-w-full">
                                 <StickyNote size={10} className="shrink-0" aria-hidden="true" />
@@ -122,27 +132,27 @@ export function EntryList({ entries, habits, onUpdate, onDelete }: EntryListProp
                           </div>
                         </div>
                         <div className={`flex items-center gap-1 shrink-0 transition-opacity ${confirmDeleteId === entry.id ? 'opacity-100' : 'opacity-100 sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100'}`}>
-                          <button onClick={() => setEditing(entry)} aria-label="Edit entry" className="p-2 rounded-lg btn-ghost text-muted"><Edit3 size={15} aria-hidden="true" /></button>
+                          <button onClick={() => setEditing(entry)} aria-label={t('history.editEntry')} className="p-2 rounded-lg btn-ghost text-muted"><Edit3 size={15} aria-hidden="true" /></button>
                           {confirmDeleteId === entry.id ? (
-                            <button onClick={() => handleDeleteClick(entry.id)} aria-label="Confirm delete entry" className="flex items-center gap-1 px-2.5 py-2 rounded-lg bg-red-100 dark:bg-red-500/20 text-red-600 dark:text-red-400 text-xs font-semibold">
-                              <Trash2 size={13} aria-hidden="true" /> Delete?
+                            <button onClick={() => handleDeleteClick(entry.id)} aria-label={t('history.confirmDelete')} className="flex items-center gap-1 px-2.5 py-2 rounded-lg bg-bad-soft text-bad text-xs font-semibold">
+                              <Trash2 size={13} aria-hidden="true" /> {t('history.deleteQ')}
                             </button>
                           ) : (
-                            <button onClick={() => handleDeleteClick(entry.id)} aria-label="Delete entry" className="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 text-muted hover:text-red-500 transition-colors"><Trash2 size={15} aria-hidden="true" /></button>
+                            <button onClick={() => handleDeleteClick(entry.id)} aria-label={t('history.deleteEntry')} className="p-2 rounded-lg hover:bg-bad-soft text-muted hover:text-bad transition-colors"><Trash2 size={15} aria-hidden="true" /></button>
                           )}
                         </div>
                       </div>
                     );
                   })}
                 </div>
-              </div>
+              </section>
             ))}
           </div>
           {totalPages > 1 && (
             <div className="flex items-center justify-center gap-2 mt-6">
-              <Button variant="outline" size="sm" onClick={() => setPage(p => p - 1)} disabled={page === 0} icon={<ChevronLeft size={14} />} aria-label="Previous page" />
-              <span className="text-sm text-muted">Page {page + 1} of {totalPages} · {filtered.length} entries</span>
-              <Button variant="outline" size="sm" onClick={() => setPage(p => p + 1)} disabled={page >= totalPages - 1} icon={<ChevronRight size={14} />} aria-label="Next page" />
+              <Button variant="outline" size="sm" onClick={() => setPage(p => p - 1)} disabled={page === 0} icon={<ChevronLeft size={14} />} aria-label={t('history.prev')} />
+              <span className="text-sm text-muted">{t('history.page', { page: page + 1, pages: totalPages, count: filtered.length })}</span>
+              <Button variant="outline" size="sm" onClick={() => setPage(p => p + 1)} disabled={page >= totalPages - 1} icon={<ChevronRight size={14} />} aria-label={t('history.next')} />
             </div>
           )}
         </>

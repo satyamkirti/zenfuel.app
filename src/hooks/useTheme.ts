@@ -5,7 +5,7 @@ import { Theme } from '@/types';
 import { storage } from '@/utils/storage';
 
 export function useTheme() {
-  const [theme, setThemeState] = useState<Theme>('dark');
+  const [theme, setThemeState] = useState<Theme>('light');
 
   useEffect(() => {
     const t = storage.getSettings().theme;

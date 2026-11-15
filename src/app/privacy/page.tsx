@@ -11,13 +11,14 @@ const strong = 'text-ink';
 
 export default function PrivacyPage() {
   return (
-    <LegalLayout title="Privacy Policy" lastUpdated="October 17, 2026">
+    <LegalLayout titleKey="legal.privacy" lastUpdated="October 25, 2026" englishText>
 
       <H2>1. Summary</H2>
       <UL>
         <li>ZenFuel has <strong className={strong}>no user accounts</strong> and <strong className={strong}>no ZenFuel database or backend server</strong>.</li>
         <li>Your tracker records (habit logs, notes, goals, challenges and settings) are <strong className={strong}>stored locally in your browser</strong> on your device. They are not sent to a ZenFuel server.</li>
         <li>The website currently uses <strong className={strong}>Google Analytics 4</strong>, which may collect information about how you use the website (see section 4).</li>
+        <li>In the ZenFuel Android app (in development), optional automatic screen time stays on your phone and is never uploaded (see section 3).</li>
         <li>ZenFuel is free during its beta and does not collect any payments.</li>
       </UL>
 
@@ -40,6 +41,16 @@ export default function PrivacyPage() {
       <H3>Reminders</H3>
       <P>If you enable notifications, reminders are shown by your browser while ZenFuel is open. On some devices this uses a small service worker installed from this website, which only displays the reminder; it does not store or send your data. Your notification preferences are stored locally; no push-notification server is used.</P>
 
+      <H3>Android app: automatic screen time</H3>
+      <P>ZenFuel is developing an Android app. If you use it and choose to turn on automatic screen time, you grant Android&apos;s Usage Access permission yourself in Android Settings. For the apps you select, and only those, ZenFuel then reads when each app was opened and closed on screen, and saves daily totals (minutes per app per day and an approximate number of visits) in the app&apos;s own storage on your phone. This can include up to about a week of usage from before you turned the feature on, which Android already keeps. Your selected apps, daily limits and alert settings are saved as well.</P>
+      <UL>
+        <li>ZenFuel does not read what you do inside other apps: no content you view, messages, browsing history, keystrokes or screen contents. It does not use Android Accessibility services.</li>
+        <li>Usage figures are not sent to a ZenFuel server or to analytics, are not included in backup files, and are excluded from Android cloud backup and device-to-device transfer.</li>
+        <li>The Android app does not include Google Analytics.</li>
+        <li>Optional limit alerts are local notifications created on your phone. By default they do not name the app.</li>
+        <li>You can turn tracking off, delete measured usage, or remove Usage Access at any time. Uninstalling the app deletes its data.</li>
+      </UL>
+
       <H3>Hidden Mode and PIN lock</H3>
       <P>Hidden Mode changes only what ZenFuel shows on screen (a neutral title and placeholders for habit names and notes). The PIN lock hides the app on your device. Neither encrypts your data, and neither changes what is stored or exported.</P>
 
@@ -51,8 +62,8 @@ export default function PrivacyPage() {
         <li>Approximate location derived from your IP address</li>
         <li>Referring website and date and time of your visit</li>
       </UL>
-      <P>Google Analytics uses cookies or similar technologies to recognise returning visitors. ZenFuel does not deliberately send the contents of your habit logs, notes, goals or challenges to Google Analytics. Information collected by Google Analytics is processed by Google under its own privacy terms; see <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer" className="text-violet-600 dark:text-violet-400 hover:underline">Google&apos;s Privacy Policy</a>.</P>
-      <P>You can limit Google Analytics by blocking cookies in your browser settings, using a content blocker, or installing the <a href="https://tools.google.com/dlpage/gaoptout" target="_blank" rel="noopener noreferrer" className="text-violet-600 dark:text-violet-400 hover:underline">Google Analytics opt-out browser add-on</a> where it is available for your browser. ZenFuel&apos;s tracker features continue to work if you do this.</P>
+      <P>Google Analytics uses cookies or similar technologies to recognise returning visitors. ZenFuel does not deliberately send the contents of your habit logs, notes, goals or challenges to Google Analytics. Information collected by Google Analytics is processed by Google under its own privacy terms; see <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer" className="text-brand-text hover:underline">Google&apos;s Privacy Policy</a>.</P>
+      <P>You can limit Google Analytics by blocking cookies in your browser settings, using a content blocker, or installing the <a href="https://tools.google.com/dlpage/gaoptout" target="_blank" rel="noopener noreferrer" className="text-brand-text hover:underline">Google Analytics opt-out browser add-on</a> where it is available for your browser. ZenFuel&apos;s tracker features continue to work if you do this.</P>
 
       <H2>5. Hosting</H2>
       <P>The website is hosted on Vercel. As with any website, the hosting provider receives standard technical information needed to deliver pages to your browser, such as your IP address and browser type.</P>
@@ -81,7 +92,7 @@ export default function PrivacyPage() {
       <InfoBox>
         <p className="font-semibold text-ink-2">For privacy questions or requests:</p>
         <p>Email: <MailLink /></p>
-        <p>See also our <Link href="/terms" className="text-violet-600 dark:text-violet-400 hover:underline">Terms of Service</Link>.</p>
+        <p>See also our <Link href="/terms" className="text-brand-text hover:underline">Terms of Service</Link>.</p>
       </InfoBox>
 
     </LegalLayout>

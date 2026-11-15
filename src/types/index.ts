@@ -1,4 +1,7 @@
-export type HabitCategory = 'digital' | 'adult' | 'food' | 'substance' | 'other';
+import type { HabitGoal } from '@/lib/habits/templates';
+
+/** `wellness`: good habits being built (Good Habit Templates and similar custom habits). */
+export type HabitCategory = 'digital' | 'adult' | 'food' | 'substance' | 'wellness' | 'other';
 
 export interface Habit {
   id: string;
@@ -9,6 +12,12 @@ export interface Habit {
   isDefault: boolean;
   createdAt: number;
   isHidden?: boolean;
+  /** `build`: a good habit to do more of. Absent (older records) or `reduce`: one to cut down. */
+  kind?: 'reduce' | 'build';
+  /** The Good Habit Template it was created from, if any. */
+  templateId?: string;
+  /** Optional personal goal (good habits). */
+  goal?: HabitGoal;
 }
 
 export interface LogEntry {

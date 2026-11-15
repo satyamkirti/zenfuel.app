@@ -4,7 +4,7 @@ import { computeStreaks } from './streaks';
 
 export function computeDetoxScore(entries: LogEntry[]): DetoxScore {
   if (entries.length === 0) {
-    return { score: 0, label: 'Not enough data yet', color: '#94a3b8', trend: 'stable' };
+    return { score: 0, label: 'Not enough data yet', color: '#7b8ba3', trend: 'stable' };
   }
 
   const now = new Date();
@@ -49,10 +49,10 @@ export function computeDetoxScore(entries: LogEntry[]): DetoxScore {
 
   let label: DetoxScore['label'];
   let color: string;
-  if (score >= 80) { label = 'Excellent'; color = '#10b981'; }
-  else if (score >= 60) { label = 'Good'; color = '#3b82f6'; }
-  else if (score >= 40) { label = 'Moderate'; color = '#f59e0b'; }
-  else { label = 'Needs Improvement'; color = '#ef4444'; }
+  if (score >= 80) { label = 'Excellent'; color = '#22c77a'; }
+  else if (score >= 60) { label = 'Good'; color = '#1877f2'; }
+  else if (score >= 40) { label = 'Moderate'; color = '#ffc83d'; }
+  else { label = 'Needs Improvement'; color = '#ef5350'; }
 
   return { score, label, color, trend };
 }

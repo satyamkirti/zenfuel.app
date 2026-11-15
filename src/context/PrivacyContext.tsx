@@ -12,10 +12,13 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, ReactNode } from 'react';
 import { Habit, Goal, Challenge } from '@/types';
 import { storage } from '@/utils/storage';
+import { useI18n } from '@/i18n/I18nProvider';
+import { localizedHabitName, habitNameKey } from '@/i18n/habitNames';
+import { builtInChallengeText } from '@/i18n/challengeNames';
 
+/** The stored default neutral title (shown translated while it is unchanged). */
 export const DEFAULT_HIDDEN_TITLE = 'Personal Space';
 export const MASK_ICON = '🔒';
-export const HIDDEN_NOTE = 'Note hidden';
 // A temporary reveal ends by itself so private details are not left on screen.
 const REVEAL_MS = 2 * 60_000;
 // Neutral tab icon used while Hidden Mode is on (grey rounded square).
@@ -23,7 +26,8 @@ const NEUTRAL_ICON =
   "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2364748b'/%3E%3C/svg%3E";
 const DEFAULT_TITLE = 'ZenFuel — Brain Reset';
 
-type HabitRef = Pick<Habit, 'id' | 'name' | 'icon'> | undefined | null;
+type HabitRef = (Pick<Habit, 'id' | 'name' | 'icon'> & Partial<Pick<Habit, 'templateId'>>) | undefined | null;
+type ChallengeRef = Pick<Challenge, 'name'> & Partial<Pick<Challenge, 'id' | 'isBuiltIn' | 'description'>>;
 
 interface PrivacyValue {
   /** The saved Hidden Mode preference. Controls discreet identity. */
@@ -48,8 +52,8 @@ interface PrivacyValue {
   habitIcon: (habit: HabitRef) => string;
   note: (text: string | undefined) => string | undefined;
   goalName: (goal: Pick<Goal, 'name'>) => string;
-  challengeName: (challenge: Pick<Challenge, 'name'>) => string;
-  challengeDescription: (challenge: Pick<Challenge, 'description'>) => string;
+  challengeName: (challenge: ChallengeRef) => string;
+  challengeDescription: (challenge: Pick<Challenge, 'description'> & Partial<Pick<Challenge, 'id' | 'isBuiltIn' | 'name'>>) => string;
   /** Masks habit names/icons (and the brand in Hidden Mode) inside generated text. */
   maskText: (text: string) => string;
 }
@@ -59,6 +63,7 @@ const PrivacyContext = createContext<PrivacyValue | null>(null);
 const escapeRegExp = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 export function PrivacyProvider({ habits, children }: { habits: Habit[]; children: ReactNode }) {
+  const { t, locale } = useI18n();
   // Read after mount so the server render and the first client render match.
   const [hiddenMode, setHiddenModeState] = useState(false);
   const [storedHiddenTitle, setStoredHiddenTitle] = useState('');
@@ -79,7 +84,9 @@ export function PrivacyProvider({ habits, children }: { habits: Habit[]; childre
     return () => window.removeEventListener('storage', onStorage);
   }, []);
 
-  const hiddenTitle = storedHiddenTitle.trim() || DEFAULT_HIDDEN_TITLE;
+  // The default neutral title is shown in the interface language; a typed title is kept as typed.
+  const typedTitle = storedHiddenTitle.trim();
+  const hiddenTitle = typedTitle && typedTitle !== DEFAULT_HIDDEN_TITLE ? typedTitle : t('privacy.defaultTitle');
 
   const conceal = useCallback(() => {
     if (revealTimer.current) clearTimeout(revealTimer.current);
@@ -125,7 +132,7 @@ export function PrivacyProvider({ habits, children }: { habits: Habit[]; childre
       icons().forEach(link => {
         if (link.dataset.originalHref) { link.href = link.dataset.originalHref; delete link.dataset.originalHref; }
       });
-      if (document.title === hiddenTitle || document.title === DEFAULT_HIDDEN_TITLE) {
+      if (document.title === hiddenTitle || document.title === DEFAULT_HIDDEN_TITLE || document.title === t('privacy.defaultTitle')) {
         document.title = routeTitle.current ?? DEFAULT_TITLE;
       }
       // Remember the title Next.js sets on navigation so it can be restored later.
@@ -151,7 +158,7 @@ export function PrivacyProvider({ habits, children }: { habits: Habit[]; childre
     const observer = new MutationObserver(apply);
     observer.observe(document.head, { subtree: true, childList: true, characterData: true, attributes: true, attributeFilter: ['href'] });
     return () => observer.disconnect();
-  }, [hiddenMode, hiddenTitle]);
+  }, [hiddenMode, hiddenTitle, t]);
 
   const masked = hiddenMode && !revealed;
 
@@ -161,29 +168,37 @@ export function PrivacyProvider({ habits, children }: { habits: Habit[]; childre
     const id = habit?.id ?? fallbackId;
     if (masked) {
       const n = id ? habitIndex.get(id) : undefined;
-      return n ? `Private habit ${n}` : 'Private habit';
+      return n ? t('privacy.privateHabitN', { n: String(n) }) : t('privacy.privateHabit');
     }
-    return habit?.name ?? fallbackId ?? 'Unknown habit';
-  }, [masked, habitIndex]);
+    if (habit) return localizedHabitName(habit, locale);
+    return fallbackId ?? t('privacy.unknownHabit');
+  }, [masked, habitIndex, t, locale]);
 
   const habitIcon = useCallback((habit: HabitRef) => (masked ? MASK_ICON : habit?.icon ?? '•'), [masked]);
 
-  const note = useCallback((text: string | undefined) => (masked && text ? HIDDEN_NOTE : text), [masked]);
-  const goalName = useCallback((goal: Pick<Goal, 'name'>) => (masked ? 'Personal goal' : goal.name), [masked]);
-  const challengeName = useCallback((c: Pick<Challenge, 'name'>) => (masked ? 'Personal challenge' : c.name), [masked]);
-  const challengeDescription = useCallback((c: Pick<Challenge, 'description'>) => (masked ? 'Details hidden' : c.description), [masked]);
+  const note = useCallback((text: string | undefined) => (masked && text ? t('privacy.noteHidden') : text), [masked, t]);
+  const goalName = useCallback((goal: Pick<Goal, 'name'>) => (masked ? t('privacy.personalGoal') : goal.name), [masked, t]);
+  const challengeName = useCallback((c: ChallengeRef) => (masked ? t('privacy.personalChallenge') : builtInChallengeText(c, 'name', locale) ?? c.name), [masked, t, locale]);
+  const challengeDescription = useCallback((c: Pick<Challenge, 'description'> & Partial<Pick<Challenge, 'id' | 'isBuiltIn' | 'name'>>) => (
+    masked ? t('privacy.detailsHidden') : builtInChallengeText(c, 'description', locale) ?? c.description
+  ), [masked, t, locale]);
 
   const habitPatterns = useMemo(() => {
-    // Longest names first so "Short Videos" is replaced before "Videos".
-    return [...habits]
-      .filter(h => h.name.trim())
+    // Every name a habit can appear under: its stored name and its name in the interface language.
+    // Longest names first so "Short Videos" is replaced before "Videos". Letters include combining
+    // marks (\p{M}) so Devanagari words are matched whole.
+    const names = habits.flatMap(h => {
+      const shown = habitNameKey(h) ? localizedHabitName(h, locale) : h.name;
+      return [...new Set([h.name.trim(), shown.trim()])].filter(Boolean).map(name => ({ h, name }));
+    });
+    return names
       .sort((a, b) => b.name.length - a.name.length)
-      .map(h => ({
-        re: new RegExp(`(^|[^\\p{L}\\p{N}])(${escapeRegExp(h.name.trim())})(?=[^\\p{L}\\p{N}]|$)`, 'giu'),
-        label: `Private habit ${habitIndex.get(h.id)}`,
+      .map(({ h, name }) => ({
+        re: new RegExp(`(^|[^\\p{L}\\p{M}\\p{N}])(${escapeRegExp(name)})(?=[^\\p{L}\\p{M}\\p{N}]|$)`, 'giu'),
+        label: t('privacy.privateHabitN', { n: String(habitIndex.get(h.id)) }),
         icon: h.icon,
       }));
-  }, [habits, habitIndex]);
+  }, [habits, habitIndex, locale, t]);
 
   const maskText = useCallback((text: string) => {
     let out = text;
@@ -193,9 +208,9 @@ export function PrivacyProvider({ habits, children }: { habits: Habit[]; childre
         if (p.icon && !/^[\w\s]*$/.test(p.icon)) out = out.split(p.icon).join(MASK_ICON);
       }
     }
-    if (hiddenMode) out = out.replace(/ZenFuel/g, 'this app');
+    if (hiddenMode) out = out.replace(/ZenFuel/g, t('privacy.thisApp'));
     return out;
-  }, [masked, hiddenMode, habitPatterns]);
+  }, [masked, hiddenMode, habitPatterns, t]);
 
   const discreet = useCallback((normal: string, neutral: string) => (hiddenMode ? neutral : normal), [hiddenMode]);
 

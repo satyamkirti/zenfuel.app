@@ -1,8 +1,9 @@
 import { LogEntry, AppAnalytics, DailyCount, WeeklyCount, MonthlyCount, YearlyCount, WeekdayStats, HourlyStats } from '@/types';
 import {
   formatDate, getStartOfDay, getStartOfWeek, getStartOfMonth, getStartOfYear,
-  getWeekKey, getMonthKey, getDaysBetween, WEEKDAYS, SHORT_WEEKDAYS, SHORT_MONTHS, formatHour
+  getWeekKey, getMonthKey, getDaysBetween, formatHour
 } from './dateUtils';
+import { weekdayName, formatDateStyle } from '@/i18n/format';
 
 function emptyAnalytics(): AppAnalytics {
   return {
@@ -10,7 +11,7 @@ function emptyAnalytics(): AppAnalytics {
     averagePerDay: 0, averagePerWeek: 0, averagePerMonth: 0, averagePerYear: 0,
     highestActivityDay: null, highestActivityWeek: null, highestActivityMonth: null,
     lowestActivityWeek: null, lowestActivityMonth: null,
-    weekdayStats: WEEKDAYS.map((day, i) => ({ day, shortDay: SHORT_WEEKDAYS[i], dayIndex: i, count: 0, average: 0 })),
+    weekdayStats: Array.from({ length: 7 }, (_, i) => ({ day: weekdayName(i), shortDay: weekdayName(i, 'short'), dayIndex: i, count: 0, average: 0 })),
     mostActiveWeekday: null, leastActiveWeekday: null,
     hourlyStats: Array.from({ length: 24 }, (_, h) => ({ hour: h, count: 0, label: formatHour(h) })),
     peakHours: [],
@@ -66,14 +67,14 @@ export function computeAnalytics(allEntries: LogEntry[]): AppAnalytics {
   const weeklyCounts: WeeklyCount[] = Array.from(weeklyMap.entries())
     .map(([week, count]) => {
       const d = new Date(week + 'T00:00:00');
-      return { week, count, label: `${SHORT_MONTHS[d.getMonth()]} ${d.getDate()}` };
+      return { week, count, label: formatDateStyle(d, 'dayMonth') };
     })
     .sort((a, b) => a.week.localeCompare(b.week));
 
   const monthlyCounts: MonthlyCount[] = Array.from(monthlyMap.entries())
     .map(([month, count]) => {
       const [y, m] = month.split('-');
-      return { month, count, label: `${SHORT_MONTHS[parseInt(m) - 1]} ${y}` };
+      return { month, count, label: formatDateStyle(new Date(Number(y), parseInt(m) - 1, 1), 'monthYear') };
     })
     .sort((a, b) => a.month.localeCompare(b.month));
 
@@ -92,8 +93,8 @@ export function computeAnalytics(allEntries: LogEntry[]): AppAnalytics {
   const sortedMonthly = [...monthlyCounts].sort((a, b) => b.count - a.count);
 
   const weekdayStats: WeekdayStats[] = Array.from(weekdayMap.entries()).map(([dayIndex, count]) => ({
-    day: WEEKDAYS[dayIndex],
-    shortDay: SHORT_WEEKDAYS[dayIndex],
+    day: weekdayName(dayIndex),
+    shortDay: weekdayName(dayIndex, 'short'),
     dayIndex,
     count,
     average: count / Math.max(1, Math.floor(daysSince / 7)),

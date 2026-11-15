@@ -9,6 +9,8 @@ import { LockOverlay } from './LockOverlay';
 import { computeFocusScore, computeDisciplineScore, computeProductivityScore, computeRelapseRisk } from '@/utils/premiumScores';
 import { computeDetoxScore } from '@/utils/detoxScore';
 import { Brain, Target, Zap, AlertTriangle } from 'lucide-react';
+import { useT } from '@/i18n/I18nProvider';
+import { tDynamic } from '@/i18n/translate';
 
 interface ScoreRingProps {
   score: number;
@@ -46,11 +48,15 @@ export function PremiumScoreCards({ entries, challenges, goals, isPremium }: Pre
   const detoxScore = useMemo(() => computeDetoxScore(entries), [entries]);
   const productivityScore = useMemo(() => computeProductivityScore(focusScore.score, disciplineScore.score, detoxScore.score), [focusScore, disciplineScore, detoxScore]);
   const relapseRisk = useMemo(() => computeRelapseRisk(entries), [entries]);
+  const t = useT();
+  const relapseText = relapseRisk.factors[0] === 'Not enough data yet'
+    ? t('relapse.recNoData')
+    : t(relapseRisk.level === 'high' ? 'relapse.recHigh' : relapseRisk.level === 'medium' ? 'relapse.recMedium' : 'relapse.recLow');
 
   const scores = [
-    { label: 'Focus', icon: <Brain size={14} />, data: focusScore, desc: 'Resistance to work-hour & trigger-time sessions' },
-    { label: 'Discipline', icon: <Target size={14} />, data: disciplineScore, desc: 'Streaks, completed challenges & goals' },
-    { label: 'Productivity', icon: <Zap size={14} />, data: productivityScore, desc: 'Composite of all three scores' },
+    { label: t('scores.focus'), icon: <Brain size={14} />, data: focusScore, desc: t('scores.focusDesc') },
+    { label: t('scores.discipline'), icon: <Target size={14} />, data: disciplineScore, desc: t('scores.disciplineDesc') },
+    { label: t('scores.productivity'), icon: <Zap size={14} />, data: productivityScore, desc: t('scores.productivityDesc') },
   ];
 
   const content = (
@@ -58,7 +64,7 @@ export function PremiumScoreCards({ entries, challenges, goals, isPremium }: Pre
       <div className="grid grid-cols-3 gap-2">
         {scores.map(s => (
           <div key={s.label} className="flex flex-col items-center gap-1.5 py-3 px-1 bg-surface-2 rounded-xl" title={s.desc}>
-            <div className="relative" role="img" aria-label={`${s.label} ${s.data.score} out of 100, ${s.data.label}`}>
+            <div className="relative" role="img" aria-label={t('scores.aria', { name: s.label, score: s.data.score, label: tDynamic(`pscore.${s.data.label}`) })}>
               <ScoreRing score={s.data.score} color={s.data.color} size={60} />
               <div className="absolute inset-0 flex items-center justify-center">
                 <span className="text-base font-semibold tabular-nums text-ink">{s.data.score}</span>
@@ -66,7 +72,7 @@ export function PremiumScoreCards({ entries, challenges, goals, isPremium }: Pre
             </div>
             <div className="text-center">
               <p className="text-xs font-semibold text-ink">{s.label}</p>
-              <p className="text-[11px] text-muted">{s.data.label}</p>
+              <p className="text-[11px] text-muted">{tDynamic(`pscore.${s.data.label}`)}</p>
             </div>
           </div>
         ))}
@@ -78,13 +84,13 @@ export function PremiumScoreCards({ entries, challenges, goals, isPremium }: Pre
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between mb-1.5">
-            <p className="text-sm font-semibold text-ink">Relapse risk</p>
-            <span className="text-xs font-semibold capitalize text-ink-2">{relapseRisk.level}</span>
+            <p className="text-sm font-semibold text-ink">{t('scores.relapse')}</p>
+            <span className="text-xs font-semibold text-ink-2">{tDynamic(`relapse.${relapseRisk.level}`)}</span>
           </div>
           <div className="track h-1.5 mb-2">
             <div className="h-full rounded-full" style={{ width: `${relapseRisk.score}%`, backgroundColor: relapseRisk.color, transition: 'width 0.8s ease' }} />
           </div>
-          <p className="text-xs text-muted leading-relaxed">{relapseRisk.recommendation}</p>
+          <p className="text-xs text-muted leading-relaxed">{relapseText}</p>
         </div>
       </div>
     </div>
@@ -94,13 +100,13 @@ export function PremiumScoreCards({ entries, challenges, goals, isPremium }: Pre
     <Card padding="none">
       <CardHeader
         icon={<Zap size={16} />}
-        title="Progress scores"
-        subtitle="Calculated from your logs, challenges and goals"
-        action={!isPremium ? <Link href="/upgrade" className="text-xs font-semibold text-amber-700 dark:text-amber-400 hover:underline">Unlock →</Link> : undefined}
+        title={t('scores.title')}
+        subtitle={t('scores.sub')}
+        action={!isPremium ? <Link href="/upgrade" className="text-xs font-semibold text-amber-700 dark:text-amber-400 hover:underline">{t('scores.unlock')}</Link> : undefined}
       />
       <div className="px-5 pb-5">
         {isPremium ? content : (
-          <LockOverlay feature="Focus · Discipline · Productivity Scores" description="Get scores that show exactly where you stand and what to improve.">
+          <LockOverlay feature={t('lock.scores')} description={t('lock.scoresDesc')}>
             {content}
           </LockOverlay>
         )}

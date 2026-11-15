@@ -8,6 +8,8 @@ import { Subscription, SubscriptionPlan, SubscriptionStatus, PaymentProvider } f
 import { NotificationPrefs, PREFS_KEY } from '@/lib/notifications';
 import { SUB_KEY } from './subscription';
 import { KEYS, storage } from './storage';
+import { t } from '@/i18n/translate';
+import { sanitizeGoal, HabitGoal } from '@/lib/habits/templates';
 
 export const BACKUP_FORMAT = 'zenfuel-backup';
 export const BACKUP_VERSION = 3;
@@ -85,7 +87,7 @@ const isBool = (v: unknown): v is boolean => typeof v === 'boolean';
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 const TIME_RE = /^\d{2}:\d{2}$/;
 
-const HABIT_CATEGORIES: HabitCategory[] = ['digital', 'adult', 'food', 'substance', 'other'];
+const HABIT_CATEGORIES: HabitCategory[] = ['digital', 'adult', 'food', 'substance', 'wellness', 'other'];
 const GOAL_TYPES: GoalType[] = ['reduce_by_percent', 'max_per_week', 'streak_days', 'free_for_days'];
 const PLANS: SubscriptionPlan[] = ['free', 'monthly', 'yearly', 'lifetime'];
 const STATUSES: SubscriptionStatus[] = ['active', 'trial', 'expired', 'cancelled'];
@@ -137,6 +139,10 @@ function validateHabit(v: unknown, where: string): Habit {
     isDefault: req(v, 'isDefault', isBool, where),
     createdAt: req(v, 'createdAt', isNum, where),
     ...(v.isHidden !== undefined ? { isHidden: v.isHidden as boolean } : {}),
+    // Good habits: what kind of habit it is, its template and its optional goal.
+    ...(v.kind === 'build' || v.kind === 'reduce' ? { kind: v.kind } : {}),
+    ...(isStr(v.templateId) ? { templateId: v.templateId } : {}),
+    ...(isObj(v.goal) ? { goal: sanitizeGoal(v.goal as Partial<HabitGoal>) } : {}),
   };
 }
 
@@ -292,23 +298,23 @@ function parseData(d: Obj): { [K in keyof BackupData]?: BackupData[K] } {
 
 export function parseBackupText(text: string): ParseResult {
   let json: unknown;
-  try { json = JSON.parse(text); } catch { return { ok: false, error: 'This file is not valid JSON.' }; }
+  try { json = JSON.parse(text); } catch { return { ok: false, error: t('backup.notJson') }; }
 
   try {
     if (Array.isArray(json)) {
       const entries = validateList(json, 'entries', validateEntry);
       return { ok: true, backup: { kind: 'legacy-entries', exportedAt: null, entries, summary: summarize({ entries }) } };
     }
-    if (!isObj(json)) return { ok: false, error: 'This file is not a ZenFuel backup.' };
+    if (!isObj(json)) return { ok: false, error: t('backup.notBackup') };
 
     if (json.format === REPORT_EXPORT_FORMAT) {
-      return { ok: false, error: 'This is a report export, which holds only one period of entries — not a backup. Use "Export backup" in Settings to create a file you can restore.' };
+      return { ok: false, error: t('backup.reportExport') };
     }
 
     if (json.format === BACKUP_FORMAT) {
-      if (!isNum(json.version)) return { ok: false, error: 'This backup has no version number.' };
-      if (json.version > BACKUP_VERSION) return { ok: false, error: 'This backup was made by a newer version of ZenFuel. Update the app and try again.' };
-      if (!isObj(json.data)) return { ok: false, error: 'This backup has no data section.' };
+      if (!isNum(json.version)) return { ok: false, error: t('backup.noVersion') };
+      if (json.version > BACKUP_VERSION) return { ok: false, error: t('backup.newer') };
+      if (!isObj(json.data)) return { ok: false, error: t('backup.noData') };
       const data = parseData(json.data);
       // A current-format backup must describe every field, so a restore fully replaces the data.
       for (const key of Object.keys(FIELD_KEYS) as (keyof BackupData)[]) {
@@ -325,10 +331,11 @@ export function parseBackupText(text: string): ParseResult {
       return { ok: true, backup: { kind: 'full', exportedAt, data, summary: summarize(data) } };
     }
 
-    return { ok: false, error: 'This file is not a ZenFuel backup.' };
+    return { ok: false, error: t('backup.notBackup') };
   } catch (err) {
-    if (err instanceof InvalidBackup) return { ok: false, error: `This backup could not be read: ${err.message}` };
-    return { ok: false, error: 'This backup could not be read.' };
+    // The detail names the field that failed (technical, kept as written).
+    if (err instanceof InvalidBackup) return { ok: false, error: t('backup.unreadableDetail', { detail: err.message }) };
+    return { ok: false, error: t('backup.unreadable') };
   }
 }
 
@@ -372,7 +379,7 @@ export function applyBackup(backup: ParsedBackup, mode: RestoreMode = 'replace')
     for (const [key, value] of previous) {
       try { if (value === null) localStorage.removeItem(key); else localStorage.setItem(key, value); } catch {}
     }
-    return { ok: false, error: 'Restore failed — there is not enough browser storage. Your existing data was left unchanged.' };
+    return { ok: false, error: t('backup.noSpace') };
   }
   const count = backup.kind === 'legacy-entries' ? backup.entries.length : (backup.data.entries ?? []).length;
   return { ok: true, entryCount: count };

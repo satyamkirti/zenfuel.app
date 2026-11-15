@@ -2,7 +2,10 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { DailyCount } from '@/types';
-import { SHORT_MONTHS, formatDisplayDate } from '@/utils/dateUtils';
+import { formatDisplayDate } from '@/utils/dateUtils';
+import { monthName, weekdayName } from '@/i18n/format';
+import { t } from '@/i18n/translate';
+import { activities } from './chartTheme';
 
 interface HeatmapCalendarProps {
   dailyCounts: DailyCount[];
@@ -18,13 +21,13 @@ function getLevel(count: number, max: number): number {
   return 4;
 }
 
-// Sequential single-hue ramp: empty days in the neutral tile colour, then light → dark violet.
+// Sequential ramp: empty days in the neutral tile colour, then light teal → deep teal.
 const LEVEL_CLASSES = [
   'bg-surface-2 ring-1 ring-inset ring-line/60',
-  'bg-violet-200 dark:bg-violet-900',
-  'bg-violet-400 dark:bg-violet-700',
-  'bg-violet-600 dark:bg-violet-500',
-  'bg-violet-800 dark:bg-violet-300',
+  'bg-zen-100 dark:bg-zen-900',
+  'bg-zen-300 dark:bg-zen-700',
+  'bg-zen-500 dark:bg-zen-500',
+  'bg-zen-800 dark:bg-zen-300',
 ];
 
 export function HeatmapCalendar({ dailyCounts, year }: HeatmapCalendarProps) {
@@ -69,7 +72,7 @@ export function HeatmapCalendar({ dailyCounts, year }: HeatmapCalendarProps) {
       const count = countMap.get(dateStr) ?? 0;
 
       if (inYear && cur.getMonth() !== lastMonth && row === 0) {
-        monthPos.push({ month: SHORT_MONTHS[cur.getMonth()], col });
+        monthPos.push({ month: monthName(cur.getMonth(), 'short'), col });
         lastMonth = cur.getMonth();
       }
 
@@ -83,7 +86,7 @@ export function HeatmapCalendar({ dailyCounts, year }: HeatmapCalendarProps) {
   const totalCols = cells.length > 0 ? Math.max(...cells.map(c => c.col)) + 1 : 53;
 
   return (
-    <div ref={scroller} className="relative overflow-x-auto select-none pb-1" role="img" aria-label={`${displayYear} activity heatmap: ${dailyCounts.filter(d => d.date.startsWith(String(displayYear))).reduce((s, d) => s + d.count, 0)} events on ${dailyCounts.filter(d => d.date.startsWith(String(displayYear)) && d.count > 0).length} days`}>
+    <div ref={scroller} className="relative overflow-x-auto select-none pb-1" role="img" aria-label={t('charts.heatmapAria', { year: String(displayYear), total: activities(dailyCounts.filter(d => d.date.startsWith(String(displayYear))).reduce((s, d) => s + d.count, 0)), days: dailyCounts.filter(d => d.date.startsWith(String(displayYear)) && d.count > 0).length })}>
       <div className="min-w-max">
         <div className="flex mb-1 text-xs text-muted" style={{ paddingLeft: 28 }}>
           {Array.from({ length: totalCols }, (_, i) => {
@@ -98,9 +101,9 @@ export function HeatmapCalendar({ dailyCounts, year }: HeatmapCalendarProps) {
 
         <div className="flex gap-0.5">
           <div className="flex flex-col gap-0.5 mr-1 text-[10px] text-muted">
-            {['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map((d, i) => (
-              <div key={d} style={{ height: 14, lineHeight: '14px' }}>
-                {i % 2 === 1 ? d : ''}
+            {[0, 1, 2, 3, 4, 5, 6].map(i => (
+              <div key={i} style={{ height: 14, lineHeight: '14px' }}>
+                {i % 2 === 1 ? weekdayName(i, 'short') : ''}
               </div>
             ))}
           </div>
@@ -116,12 +119,12 @@ export function HeatmapCalendar({ dailyCounts, year }: HeatmapCalendarProps) {
                 return (
                   <div
                     key={row}
-                    className={`rounded-[3px] transition-opacity hover:opacity-80 ${LEVEL_CLASSES[level]}`}
+                    className={`rounded-[4px] transition-opacity hover:opacity-80 ${LEVEL_CLASSES[level]}`}
                     style={{ width: 14, height: 14 }}
                     onMouseEnter={e => {
                       const r = e.currentTarget.getBoundingClientRect();
                       setTooltip({
-                        text: `${formatDisplayDate(cell.date)}: ${cell.count} event${cell.count !== 1 ? "s" : ""}`,
+                        text: `${formatDisplayDate(cell.date)}: ${activities(cell.count)}`,
                         // The tooltip is position: fixed, so viewport coordinates (no scroll offset).
                         x: r.left + r.width / 2,
                         y: r.top,
@@ -136,11 +139,11 @@ export function HeatmapCalendar({ dailyCounts, year }: HeatmapCalendarProps) {
         </div>
 
         <div className="flex items-center gap-1.5 mt-3 text-[10px] text-muted">
-          <span>Less</span>
+          <span>{t('charts.less')}</span>
           {LEVEL_CLASSES.map((cls, i) => (
-            <div key={i} className={`rounded-[3px] ${cls}`} style={{ width: 12, height: 12 }} />
+            <div key={i} className={`rounded-[4px] ${cls}`} style={{ width: 12, height: 12 }} />
           ))}
-          <span>More</span>
+          <span>{t('charts.more')}</span>
         </div>
       </div>
 

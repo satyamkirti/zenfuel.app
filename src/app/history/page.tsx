@@ -5,12 +5,13 @@ import { History } from 'lucide-react';
 import { useApp } from '@/context/AppContext';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { EntryList } from '@/components/history/EntryList';
-import { Card } from '@/components/ui/Card';
 import { UpgradeBanner } from '@/components/subscription/UpgradeBanner';
 import { PageHeader } from '@/components/ui/PageHeader';
+import { useT } from '@/i18n/I18nProvider';
 
 export default function HistoryPage() {
   const { entries, habits, updateEntry, deleteEntry, isPremium, historyCutoff } = useApp();
+  const t = useT();
 
   const visibleEntries = useMemo(() => {
     if (!historyCutoff) return entries;
@@ -20,17 +21,19 @@ export default function HistoryPage() {
   const hiddenCount = entries.length - visibleEntries.length;
 
   return (
-    <AppLayout title="History">
+    <AppLayout title={t('history.title')}>
       <div className="space-y-4">
         <PageHeader
-          title="Event History"
-          description={isPremium ? `${entries.length} total events · search, filter, edit or delete` : `Showing last 30 days (${visibleEntries.length} events)`}
+          icon={<History size={21} />}
+          tone="pink"
+          title={t('history.title')}
+          description={isPremium ? t('history.desc', { count: entries.length }) : t('history.descFree', { count: visibleEntries.length })}
         />
 
         {!isPremium && hiddenCount > 0 && (
           <UpgradeBanner
-            message={`${hiddenCount} older event${hiddenCount !== 1 ? 's' : ''} hidden. Upgrade to access your full history.`}
-            cta="Unlock full history"
+            message={t('history.olderHidden', { count: hiddenCount })}
+            cta={t('history.unlock')}
             variant="prominent"
             dismissKey="history-limit"
           />
@@ -38,14 +41,12 @@ export default function HistoryPage() {
 
         {!isPremium && hiddenCount === 0 && entries.length > 0 && (
           <UpgradeBanner
-            message="You're viewing the last 30 days. Upgrade to see your complete history."
+            message={t('history.last30')}
             dismissKey="history-30d"
           />
         )}
 
-        <Card>
-          <EntryList entries={visibleEntries} habits={habits} onUpdate={updateEntry} onDelete={deleteEntry} />
-        </Card>
+        <EntryList entries={visibleEntries} habits={habits} onUpdate={updateEntry} onDelete={deleteEntry} />
       </div>
     </AppLayout>
   );

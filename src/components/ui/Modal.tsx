@@ -3,6 +3,7 @@
 import { ReactNode, useEffect, useId, useRef } from 'react';
 import { clsx } from 'clsx';
 import { X } from 'lucide-react';
+import { useT } from '@/i18n/I18nProvider';
 
 interface ModalProps {
   open: boolean;
@@ -17,6 +18,7 @@ const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]), selec
 export function Modal({ open, onClose, title, children, size = 'md' }: ModalProps) {
   const titleId = useId();
   const panelRef = useRef<HTMLDivElement>(null);
+  const t = useT();
   const onCloseRef = useRef(onClose);
   onCloseRef.current = onClose;
 
@@ -51,8 +53,8 @@ export function Modal({ open, onClose, title, children, size = 'md' }: ModalProp
   const widths = { sm: 'max-w-sm', md: 'max-w-lg', lg: 'max-w-2xl' };
 
   return (
-    <div className="fixed inset-0 z-[70] flex items-end sm:items-center justify-center p-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} aria-hidden="true" />
+    <div className="fixed inset-0 z-[70] flex items-end sm:items-center justify-center p-4 pb-[calc(1rem+var(--sab))]">
+      <div className="absolute inset-0 bg-charcoal-950/70 fade-in" onClick={onClose} aria-hidden="true" />
       <div
         ref={panelRef}
         role="dialog"
@@ -60,15 +62,15 @@ export function Modal({ open, onClose, title, children, size = 'md' }: ModalProp
         aria-labelledby={title ? titleId : undefined}
         tabIndex={-1}
         className={clsx(
-          'relative w-full max-h-[calc(100dvh-2rem)] overflow-y-auto bg-surface rounded-2xl shadow-2xl border border-line animate-slide-up outline-none',
+          'relative w-full max-h-[calc(100dvh-2rem)] overflow-y-auto bg-surface rounded-[28px] shadow-pop border border-line sheet-in outline-none',
           widths[size]
         )}
       >
         {title && (
-          <div className="sticky top-0 z-10 flex items-center justify-between px-6 py-4 border-b border-line bg-surface rounded-t-2xl">
-            <h3 id={titleId} className="font-semibold text-ink">{title}</h3>
-            <button onClick={onClose} aria-label="Close" className="btn-ghost p-2 rounded-lg -mr-2">
-              <X size={16} aria-hidden="true" />
+          <div className="sticky top-0 z-10 flex items-center justify-between px-6 py-3 border-b border-line bg-surface rounded-t-[28px]">
+            <h3 id={titleId} className="font-display text-[17px] font-semibold tracking-tight text-ink">{title}</h3>
+            <button onClick={onClose} aria-label={t('common.close')} className="btn-ghost w-10 h-10 flex items-center justify-center rounded-xl -mr-2 text-muted hover:text-ink">
+              <X size={18} aria-hidden="true" />
             </button>
           </div>
         )}

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1260" height="330" viewBox="0 0 1260 330" role="img" aria-labelledby="title desc">
+<title id="title">ZenFuel — Screen Time &amp; Habit Tracker</title><desc id="desc">Blue and teal clock-and-leaf icon next to the ZenFuel wordmark and product descriptor.</desc>
+<defs>
+<linearGradient id="tile" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1769F5"/><stop offset=".55" stop-color="#087FF5"/><stop offset="1" stop-color="#04C7C6"/></linearGradient>
+<linearGradient id="ringAccent" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#76F0D3"/><stop offset="1" stop-color="#09D0C1"/></linearGradient>
+<linearGradient id="zenColor" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2187F4"/><stop offset="1" stop-color="#1452D9"/></linearGradient>
+<linearGradient id="fuelColor" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#00CBB9"/><stop offset="1" stop-color="#079EA8"/></linearGradient>
+</defs>
+<rect width="1260" height="330" fill="#FFFFFF"/>
+<g transform="translate(20 20)"><rect width="290" height="290" rx="66" fill="url(#tile)"/><path d="M179 49 A105 105 0 1 0 216 243" fill="none" stroke="#FFFFFF" stroke-width="18" stroke-linecap="round"/><path d="M202 48 A105 105 0 0 1 259 132" fill="none" stroke="url(#ringAccent)" stroke-width="18" stroke-linecap="round"/><path d="M146 101 L146 157 L184 181" fill="none" stroke="#FFFFFF" stroke-width="17" stroke-linecap="round" stroke-linejoin="round"/><path d="M188 258 C189 218 211 179 260 168 C255 213 233 249 188 258 Z" fill="#FFFFFF"/><path d="M190 255 C207 225 226 204 249 184" fill="none" stroke="#14BFC0" stroke-width="6" stroke-linecap="round"/></g>
+<text x="355" y="169" font-family="Inter, Manrope, Arial, sans-serif" font-size="126" font-weight="780" letter-spacing="-5"><tspan fill="url(#zenColor)">Zen</tspan><tspan fill="url(#fuelColor)">Fuel</tspan></text>
+<text x="363" y="229" font-family="Inter, Manrope, Arial, sans-serif" font-size="27" font-weight="650" letter-spacing="5.4" fill="#55768F">SCREEN TIME &amp; HABIT TRACKER</text>
+</svg>
